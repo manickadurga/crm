@@ -1,0 +1,13 @@
+.datatable th,
+.datatable td{
+    white-space: nowrap;
+    min-width: 200px;
+}
+
+.ant-form-item-explain-error {
+    font-size: 11px;
+}
+.ant-steps.ant-steps-small .ant-steps-item-title::after {
+    top: 10px;
+    height: 2px;
+}
