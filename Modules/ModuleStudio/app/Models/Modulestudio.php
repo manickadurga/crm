@@ -21,7 +21,7 @@ class Modulestudio extends Model
         'version',
         'singular_translation',
         'plural_translation',
-        'fields'
+        'menu'
     ];
 
     protected $casts = [

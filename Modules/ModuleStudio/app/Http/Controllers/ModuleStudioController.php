@@ -6,8 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Modules\ModuleStudio\Models\Modulestudio;
+use Modules\ModuleStudio\Models\Tab;
+use Modules\ModuleStudio\Models\Block;
+use Modules\ModuleStudio\Models\Field;
+use Modules\ModuleStudio\Models\RelatedList;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\File;
@@ -69,7 +74,7 @@ class ModuleStudioController extends Controller
         //     '--create' => $moduleName,
         // ]);
         $output = Artisan::output();
-        dd($output);
+        
        
     }
 
@@ -112,12 +117,14 @@ class ModuleStudioController extends Controller
 
     public function step1Post(Request $request)
     {
+
         // dd($request);
         $request->validate([
             'module_name' => 'required|string',
             'version' => 'nullable|string',
             'singular_translation' => 'nullable|string',
             'plural_translation' => 'nullable|string',
+            'menu' => 'nullable|string'
         ]);
 
         // Store the first step data in the session
@@ -133,82 +140,219 @@ class ModuleStudioController extends Controller
 
     public function step2Post(Request $request)
     {
-        // dd($request);
-        // Retrieve the first step data from the session
-        $step1 = $request->session()->get('step1');
-        $moduleName = $step1['module_name'];
-        $fields = $request->input('fields');
-        $parsedFields = [];
-        foreach ($fields as $field) {
-            $parsedFields[] = json_decode($field, true);
-        }
-        // dd($parsedFields);
+  
+    $step1 = $request->session()->get('step1');
+    $moduleName = $step1['module_name'];
+    $tableName = strtolower($moduleName) . "s";
+    $migrationName = 'create_' . str_replace(' ', '_', $tableName) . '_table';
 
-        // Validate the fields array
-        $request->validate([
-            'fields' => 'required|array',
-        ]);
+    Artisan::call('make:migration', ['name' => $migrationName]);
+
+    // Get the timestamp of the last created migration
+    $latestMigration = DB::table('migrations')->latest('batch')->first();
+    $migrationTimestamp = now()->format('Y_m_d_His');
+
+    // Get the path of the created migration file
+    $migrationPath = database_path('migrations') . '/' . $migrationTimestamp . "_${migrationName}.php";
+
+    sleep(1);
+
+    // Modify the migration file
+    $migrationContent = File::get($migrationPath);
+
+    $fields = json_decode($request->input('dragDropModalData'), true);
+
+    $fieldsSchema = '';
+    // Iterate through each item in dragDropModalData array
+    foreach ($fields as $item) {
+        $columnName = $item['columnName'];
+        $columnType = $item['columnType'];
+        $mandatory = $item['mandatory'];
+        if ($mandatory)
+            $fieldsSchema .= "\$table->$columnType('$columnName');\n";
+        else
+            $fieldsSchema .= "\$table->$columnType('$columnName')->nullable();\n";
+    }
+    $moduleid = strtolower($moduleName) . 'id';
+
+    $migrationContent = str_replace(
+        '$table->id();',
+        "\$table->increments('{$moduleid}');\n$fieldsSchema",
+        $migrationContent
+    );
+
+    File::put($migrationPath, $migrationContent);
+
+    // Run the specific migration
+    Artisan::call('migrate', [
+        '--path' => 'database/migrations/' . $migrationTimestamp . "_${migrationName}.php"
+    ]);
+
+        $request->session()->put('step2', $request->all());
+
+        return redirect()->route('form.step3');
         
-        // Create a new FormField entry
+    }
+
+    Public function step3(){
+        $tabs = Tab::all();
+        $tabName = $tabs->pluck('name')->toArray();
+        return view('modulestudio::step3',['modules' => $tabName]);
+    }
+    
+    Public function step3Post(Request $request)
+    {
+        $request->session()->put('step3', $request->all());            
+        return redirect()->route('form.step4');
+    }
+    
+    public function step4(Request $request){
+
+       
+    $step1=$request->session()->get('step1');
+    // Retrieve the stored data from the session
+    $step2 = $request->session()->get('step2');
+    $step3 = $request->session()->get('step3');
+
+    if (isset($step2['dragDropModalData'])) {
+        $fields = json_decode($step2['dragDropModalData'], true);
+    } else {
+        $fields = [];
+    }
+     
+    foreach ($fields as $item) {
+        $columnName[] = $item['columnName'];
+     }
+     if(isset($columnName)){
+       return view('modulestudio::step4',['modules' => $columnName]);
+     }
+     else
+      return view('modulestudio::step4');
+    }
+    
+    public function step4Post(Request $request){
+        $step1 = $request->session()->get('step1');
+        $step2 = $request->session()->get('step2');
+        $step3 = $request->session()->get('step3');
+        $blockModalData = json_decode($step2['blockModalData'], true);
+        $fields = json_decode($step2['dragDropModalData'], true);
+
+        $tab = Tab::where('name', $step3['label'])->first();
+        $tabId = $tab->tabid;
+       
         $formField = new Modulestudio();
         $formField->module_name = $step1['module_name'];
         $formField->version = $step1['version'];
         $formField->singular_translation = $step1['singular_translation'];
         $formField->plural_translation = $step1['plural_translation'];
-        $formField->fields = json_encode($request->fields); // Store fields as JSON
+        $formField->menu = $step1['menu'];
+
         $formField->save();
-    
-        
-        $tableName = strtolower($moduleName);
-        $migrationName = 'create_' . str_replace(' ', '_', strtolower($moduleName)) . '_table';
+       
+        $tab = new Tab();
+        $tab->name = $step1['module_name'];
+        $tab->presence = 0; 
+        $tab->tablabel = $step1['module_name'];
+        $tab->modifiedby = null; 
+        $tab->modifiedtime = now();
+        $tab->customized = 0;
+        $tab->ownedby = 0; 
+        $tab->isentitytype = 1; 
+        $tab->trial = 0; 
+        $tab->version = $step1['version'] ?? null;
+        $tab->parent = $step1['menu'] ?? null;
+        $tab->save();
 
-        // $migrationName = 'create_' . $tableName . '_table';
-        Artisan::call('make:migration', ['name' => $migrationName]);
-    
-        // Get the path of the created migration file
-        $migrationPath = database_path('migrations') . '/' . now()->format('Y_m_d_His') . "_${migrationName}.php";
-        
-        // Modify the migration file
-        $migrationContent = File::get($migrationPath);
-    
-        $fieldsSchema = '';
-        foreach ($parsedFields as $field) {
-            $columnName = $field['columnName'];
-            $columnType = $field['columnType'];
-            $mandatory = $field['mandatory'];
-            if($mandatory)
-            $fieldsSchema .= "\$table->$columnType('$columnName');\n";
-            else
-            $fieldsSchema .= "\$table->$columnType('$columnName')->nullable;\n";
+        $lastTab = Tab::latest('tabid')->first();
+        $lastTabId = $lastTab ? $lastTab->tabid : 0;
 
-
+        foreach ($blockModalData as $data) {
+            $blockData = new Block();
+            $blockData->tabid = $lastTabId;
+            $blockData->blocklabel = $data['editedLabel'];
+            $blockData->sequence = 1;
+            $blockData->show_title =$data['showTitle'] ? 1 : 0;
+            $blockData->visible = $data['visible'] ? 1 : 0;
+            $blockData->create_view =  $data['createView'] ? 1 : 0;
+            $blockData->edit_view = $data['editView'] ? 1 : 0;
+            $blockData->detail_view = $data['detailView'] ? 1 : 0;
+            $blockData->display_status = $data['displayStatus'] ? 1 : 0;
+            $blockData->iscustom = $data['isCustom'] ? 1 : 0;
+            $blockData->save();
         }
-    
-        $migrationContent = str_replace(
-            '$table->id();',
-            "\$table->id();\n$fieldsSchema",
-            $migrationContent
-        );
-    
-        File::put($migrationPath, $migrationContent);
-    
-        // Run the migration
-        Artisan::call('migrate');
-        // Artisan::call('make:model', ['name' => $moduleName]);
+       
+        $lastBlock = Tab::latest('tabid')->first();
+        $lastBlockId = $lastBlock ? $lastBlock->blockid : 0;
+
+
+        foreach ($fields as $data) {
+            $fieldData = new Field();
+            $fieldData->tabid = $lastTabId;
+            $fieldData->columnname = $data['columnName'] ?? '';
+            $fieldData->tablename = $data['tableNameModal'] ?? null; 
+            $fieldData->generatedtype = $data['generatedType'] ?? 0; 
+            $fieldData->uitype = $data['uiType'] ?? ''; 
+            $fieldData->fieldname = $data['fieldName'] ?? ''; 
+            $fieldData->fieldlabel = $data['labelName'] ?? ''; 
+            $fieldData->readonly = $data['readonly'] ?? 0; 
+            $fieldData->presence = $data['presence'] ?? 1; 
+            $fieldData->defaultvalue = $data['defaultValue'] ?? null; 
+            $fieldData->maximumlength = $data['maximumLength'] ?? null; 
+            $fieldData->sequence = $data['sequence'] ?? null;
+            $fieldData->block = $lastBlockId ; 
+            $fieldData->displaytype = $data['displayType'] ?? null; 
+            $fieldData->typeofdata = $data['typeOfData'] ?? null; 
+            $fieldData->quickcreate = $data['quickCreate'] ?? 1; 
+            $fieldData->quickcreatesequence = $data['quickCreateSequence'] ?? null; 
+            $fieldData->info_type = $data['infoType'] ?? null; 
+            $fieldData->masseditable = $data['massEditable'] ?? 1; 
+            $fieldData->helpinfo = $data['helpInfo'] ?? null; 
+            $fieldData->summaryfield = $data['summaryField'] ?? 0; 
+            $fieldData->headerfield = $data['headerField'] ?? 0; 
+            $fieldData->save();
+        }
+        
+        $relatedData = new RelatedList();
+        $relatedData->tabid = $lastTabId;
+        $relatedData->related_tabid = $tabId;
+        $relatedData->name = $step3['method'];
+        $relatedData->sequence = 1;
+        $relatedData->label = $step3['label'];
+        $relatedData->presence = 0; // default to 0 if not provided
+        $relatedData->actions = 'ADD';
+        $relatedData->relationfieldid = 0;
+        $relatedData->source = $step3['source'] ?? null;
+        $relatedData->relationtype = $step3['relation_type'] ?? null;
+
+        // Save the instance to the database
+        $relatedData->save();
+        $moduleName = $step1['module_name'];
+        $tableName = strtolower($moduleName)."s";
+        
+        Artisan::call('make:model', ['name' => $moduleName]);
+
         $this->generateModel($moduleName, $tableName);
-    // Generate the controller
         $controllerName = $moduleName . 'Controller';
         Artisan::call('make:controller', ['name' => $controllerName]);
         $this->generateRoutes($moduleName);
-        $this->generateCrud($controllerName, $moduleName, $parsedFields);
-        // Clear the session data
+        $this->generateCrud($controllerName, $moduleName, $fields);
+        //     // Clear the session data
         $request->session()->forget('step1');
-
+        $request->session()->forget('step2');
+        $request->session()->forget('step3');
+        
         return redirect()->route('form.success');
-    }
+
+ }
+    
+    
+        public function success()
+        {
+            return view('modulestudio::success');
+        }
+
     private function generateModel($moduleName, $tableName)
 {
-    // dd($tableName);
     // Generate the model
     Artisan::call('make:model', ['name' => $moduleName]);
 
@@ -347,8 +491,4 @@ protected function generateCrud($controllerName, $moduleName, $parsedFields)
 }
 
 
-    public function success()
-    {
-        return view('modulestudio::success');
-    }
 }
