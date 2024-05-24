@@ -326,6 +326,19 @@ class ModuleStudioController extends Controller
 
         // Save the instance to the database
         $relatedData->save();
+
+        $parentTab = ParentTab::where('parenttab_label', $step1['menu'])->first();
+        $parentTabId = $parentTab->parenttabid;
+        
+        
+
+        $parentTabRelData = new ParentTabRel();
+        $parentTabRelData->parenttabid = $parentTabId;
+        $parentTabRelData->tabid = $lastTabId;
+        $parentTabRelData->sequence = '';
+        $parentTabRelData->save();
+
+        
         $moduleName = $step1['module_name'];
         $tableName = strtolower($moduleName)."s";
         
