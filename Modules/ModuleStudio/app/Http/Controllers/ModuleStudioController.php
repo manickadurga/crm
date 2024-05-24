@@ -13,6 +13,8 @@ use Modules\ModuleStudio\Models\Tab;
 use Modules\ModuleStudio\Models\Block;
 use Modules\ModuleStudio\Models\Field;
 use Modules\ModuleStudio\Models\RelatedList;
+use Modules\ModuleStudio\Models\ParentTab;
+use Modules\ModuleStudio\Models\ParentTabRel;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\File;
@@ -326,6 +328,16 @@ class ModuleStudioController extends Controller
 
         // Save the instance to the database
         $relatedData->save();
+
+        $parentTab = ParentTab::where('parenttab_label', $step1['menu'])->first();
+        $parentTabId = $parentTab->parenttabid;
+        
+        $parentTabRelData = new ParentTabRel();
+        $parentTabRelData->parenttabid = $parentTabId;
+        $parentTabRelData->tabid = $lastTabId;
+        $parentTabRelData->sequence = '';
+        $parentTabRelData->save();
+
         $moduleName = $step1['module_name'];
         $tableName = strtolower($moduleName)."s";
         
