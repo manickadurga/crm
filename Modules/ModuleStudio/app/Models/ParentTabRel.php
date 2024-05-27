@@ -9,11 +9,7 @@ use Modules\ModuleStudio\Database\Factories\ParentTabRelFactory;
 class ParentTabRel extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $table = "parenttabrel";
+   protected $table = "parenttabrel";
    protected $fillable = [
         'parenttabid', 
         'tabid', 

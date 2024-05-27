@@ -283,7 +283,7 @@ class ModuleStudioController extends Controller
             $blockData->save();
         }
        
-        $lastBlock = Tab::latest('tabid')->first();
+        $lastBlock = Block::latest('blockid')->first();
         $lastBlockId = $lastBlock ? $lastBlock->blockid : 0;
 
 
@@ -329,13 +329,14 @@ class ModuleStudioController extends Controller
         // Save the instance to the database
         $relatedData->save();
 
+        if(isset($step1['menu'])){
         $parentTab = ParentTab::where('parenttab_label', $step1['menu'])->first();
         $parentTabId = $parentTab->parenttabid;
         
         $parentTabRelData = new ParentTabRel();
         $parentTabRelData->parenttabid = $parentTabId;
         $parentTabRelData->tabid = $lastTabId;
-        $parentTabRelData->sequence = '';
+        $parentTabRelData->sequence = 2;
         $parentTabRelData->save();
 
         $moduleName = $step1['module_name'];
@@ -349,13 +350,32 @@ class ModuleStudioController extends Controller
         $this->generateRoutes($moduleName);
         $this->generateCrud($controllerName, $moduleName, $fields);
         //     // Clear the session data
-        $request->session()->forget('step1');
-        $request->session()->forget('step2');
-        $request->session()->forget('step3');
+        // $request->session()->forget('step1');
+        // $request->session()->forget('step2');
+        // $request->session()->forget('step3');
+       
+        if(isset($step1['menu'])){
+            
+            $jsondata = [
+            "title" => $step1['menu'],
+            "name" => strtolower($step1['menu']),
+            "options" => [
+                [
+                    "name" => $moduleName,
+                    "unixname" => strtolower($moduleName),
+                ],
+                
+            ]
+        ];
+    }else{
+        $jsondata=null;
+    }
+        $jsondata = json_encode($jsondata);
+        return response()->json($jsondata);
         
-        return redirect()->route('form.success');
+        
 
- }
+    }
     
     
         public function success()
