@@ -376,7 +376,7 @@ class ModuleStudioController extends Controller
         
 
     }
-    
+}
     
         public function success()
         {
