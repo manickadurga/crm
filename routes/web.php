@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ModuleStudioController;
+use App\Http\Controllers\UserController;
 
 
 Route::view('/', 'app')
@@ -40,6 +41,8 @@ Route::get('/ajax', function () {
 Route::post('/ajax-request', [ModuleStudioController::class, 'step4Post'])->name('ajax.request');
 
 Route::get('/form/success', [ModuleStudioController::class, 'success'])->name('form.success');
+
+Route::resource('users', UserController::class);
 
 
 Route::resource('purchase', 'PurchaseController');

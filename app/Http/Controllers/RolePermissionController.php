@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Role;
+use App\Models\Permission;
 
 class RolePermissionController extends Controller
 {
@@ -10,27 +12,40 @@ class RolePermissionController extends Controller
     {
         $roles = Role::with('permissions')->get();
         $permissions = Permission::all();
-        return view('roles_permissions.index', compact('roles', 'permissions'));
+        return response()->json([
+            'roles' => $roles,
+            'permissions' => $permissions
+        ]);
     }
 
     public function storeRole(Request $request)
     {
-        $request->validate(['name' => 'required|unique:roles,name']);
-        Role::create(['name' => $request->name]);
-        return redirect()->back()->with('success', 'Role created successfully.');
+        $request->validate(['name' => 'required|unique:jo_roles,name']);
+        $role = Role::create(['name' => $request->name]);
+        return response()->json([
+            'message' => 'Role created successfully.',
+            'role' => $role
+        ], 201);
     }
 
-    public function storePermission(Request $request)
+    public function deleteRole($roleId)
     {
-        $request->validate(['name' => 'required|unique:permissions,name']);
-        Permission::create(['name' => $request->name]);
-        return redirect()->back()->with('success', 'Permission created successfully.');
+        $role = Role::findOrFail($roleId);
+        $role->delete();
+        return response()->json([
+            'message' => 'Role deleted successfully.'
+        ]);
     }
 
     public function assignPermissions(Request $request, $roleId)
     {
+        $request->validate(['permissions' => 'required|array']);
         $role = Role::findOrFail($roleId);
         $role->permissions()->sync($request->permissions);
-        return redirect()->back()->with('success', 'Permissions assigned successfully.');
+        return response()->json([
+            'message' => 'Permissions assigned successfully.',
+            'role' => $role->load('permissions')
+        ]);
     }
+
 }

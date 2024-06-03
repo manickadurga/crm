@@ -40,7 +40,6 @@ public function postLogin(Request $request): RedirectResponse
         return redirect()->intended('/')
             ->withSuccess('You have successfully logged in');
     }
-
     return redirect("login")->withErrors('Oops! You have entered invalid credentials');
 }
 
@@ -54,9 +53,7 @@ public function postRegistration(Request $request): RedirectResponse
 
     $data = $request->all();
     $user = $this->create($data);
-
     Auth::login($user);
-
     return redirect("dashboard")->withSuccess('Great! You have successfully registered and logged in');
 }
 
@@ -65,7 +62,6 @@ public function dashboard(): View
     if (Auth::check()) {
         return view('dashboard');
     }
-
     return redirect("login")->withErrors('Oops! You do not have access');
 }
 
@@ -82,7 +78,6 @@ public function logout(): RedirectResponse
 {
     Session::flush();
     Auth::logout();
-
     return redirect('login')->withSuccess('You have successfully logged out');
 }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Role;
+
 use Illuminate\Support\Facades\Hash;
 
 
@@ -15,13 +17,17 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
+        $roles = Role::all();
+        $roles = $roles->pluck('name')->toArray();
+        // $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
         return view('users.index', compact('users', 'roles'));
     }
 
     public function create()
     {
-        $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
+        $roles = Role::all();
+        $roles = $roles->pluck('name')->toArray();
+        // $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
         return view('users.create', compact('roles'));
     }
 
@@ -35,7 +41,7 @@ class UserController extends Controller
         ]);
 
         $user = new User;
-        $user->name = $request->name;
+        $user->username = $request->username;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->role = $request->role;
@@ -56,7 +62,9 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
+        $roles = Role::all();
+        $roles = $roles->pluck('name')->toArray();
+        // $roles = ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'EMPLOYEE', 'CANDIDATE', 'MANAGER', 'VIEWER', 'INTERVIEWER'];
         return view('users.edit', compact('user', 'roles'));
     }
 
@@ -68,7 +76,7 @@ class UserController extends Controller
             'role' => 'required'
         ]);
 
-        $user->name = $request->name;
+        $user->username = $request->username;
         $user->email = $request->email;
         if ($request->password) {
             $user->password = Hash::make($request->password);

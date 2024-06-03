@@ -80,6 +80,7 @@ class ModuleStudioController extends Controller
             $fields = json_decode($request->input('dragDropModalData'), true);
             $fieldsSchema = '';
             foreach ($fields as $item) {
+               
                 $columnName = $item['columnName'];
                 $columnType = $item['columnType'];
                 $mandatory = $item['mandatory'];
