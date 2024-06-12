@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Space, Typography, Table, Avatar, Input, Button, Checkbox, Modal } from "antd";
-import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Space, Typography, Table, Avatar, Input, Button, Checkbox, Modal, Tooltip } from "antd";
+import { SearchOutlined, EyeOutlined, DeleteOutlined, ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { getCustomers } from "../../API";
 import { Link } from "react-router-dom";
 import Highlighter from "react-highlight-words";
@@ -43,7 +43,7 @@ function Customers() {
         fixed: 'right',
         render: (text, record) => (
           <Space size="middle">
-            <Link type="primary" onClick={() => handleView(record)}><EyeOutlined /></Link>
+            <Link type="primary" to="/customers/view" onClick={() => handleView(record)}><EyeOutlined /></Link>
             <Link type="danger" onClick={() => showDeleteModal(record)}><DeleteOutlined /></Link>
           </Space>
         ),
@@ -87,19 +87,30 @@ function Customers() {
 
   return (
     <Space size={20} direction="vertical" style={{width: '-webkit-fill-available'}}>
-      <div style={{position:'sticky', display:'flex',justifyContent:'right',gap:'1rem'}}>
-      <Input
-        placeholder="Search all columns"
-        prefix={<SearchOutlined />}
-        value={searchText}
-        onChange={(e) => handleSearch(e.target.value)}
-        style={{ width: 300 }}
-      />
-      <Link to="/customers/createform">
-        <Button type="primary" htmlType="button">
-          {" "}Add{" "}
-        </Button>
-      </Link>
+      <div style={{position:'sticky', display:'flex',justifyContent:'space-between',gap:'1rem'}}>
+        <div style={{display:'flex', alignItems:'center'}}>
+          <Link to="/">
+            <Button shape="circle" htmlType="button" size="small">
+              <ArrowLeftOutlined />
+            </Button>
+          </Link>
+          <b style={{fontSize:'18px', marginLeft:'18px'}}>Customers</b>
+        </div>
+        <div>
+          <Input
+            placeholder="Search all columns"
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ width: 300 }}
+          />
+          &nbsp;
+          <Link to="/customers/createform">
+            <Button type="primary" htmlType="button" icon={<PlusOutlined />}>
+              Add
+            </Button>
+          </Link>
+        </div>
       </div>
       <div style={{overflowX:'scroll'}}>
       <Table
