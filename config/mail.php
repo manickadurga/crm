@@ -38,15 +38,17 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
+            'host' => env('MAIL_HOST', 'smtp.gmail.com'), // Use Outlook SMTP server
+            'port' => env('MAIL_PORT', 587), // Outlook SMTP port
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'), // Use TLS encryption
+            'username' => env('MAIL_USERNAME', 'sukasini2001@gmail.com'), // Your Outlook email address
+            'password' => env('MAIL_PASSWORD', 'yydltuacnazwlzyz'), // Your Outlook email password
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
+
+
+    
 
         'ses' => [
             'transport' => 'ses',
@@ -104,8 +106,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'sukasini2001@gmail.com'), // Your Outlook email address
+        'name' => env('MAIL_FROM_NAME', 'SUKASINI'), // Your Name or Your App Name
     ],
-
 ];

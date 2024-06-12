@@ -27,6 +27,12 @@ const items = [
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
+  { icon: <AppstoreOutlined />, label: 'Invoices',
+    children: [
+      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
+      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
+    ]
+  }
 ];
 // const items = [
 //   { key: '1', path: '/', icon: <AppstoreOutlined />, label: 'Dashboard' },
