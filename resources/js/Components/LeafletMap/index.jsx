@@ -16,176 +16,16 @@ const markerIcon = new L.Icon({
 
 
 
-// const LeafletMap = ({ onLocationChange, defaultValues }) => {
-//   const [markerPosition, setMarkerPosition] = useState({
-//     lat: parseFloat(defaultValues.lat) || -3.745,
-//     lng: parseFloat(defaultValues.lng) || -38.523,
-//   });
-
-//   const [address, setAddress] = useState({
-//     country: defaultValues.country || '',
-//     city: defaultValues.city || '',
-//     postcode: defaultValues.postcode || '',
-//     address: defaultValues.address || '',
-//     lat: defaultValues.lat || -3.745,
-//     lng: defaultValues.lng || -38.523,
-//   });
-
-//   const handleAddressChange = (e) => {
-//     const { name, value } = e.target;
-//     setAddress((prevState) => ({ ...prevState, [name]: value }));
-//   };
-
-//   const handleCountryChange = (value) => {
-//     setAddress((prevState) => ({ ...prevState, country: value }));
-//     axios.get(`https://nominatim.openstreetmap.org/search?country=${value}&format=json`)
-//       .then(response => {
-//         if (response.data && response.data.length > 0) {
-//           const location = response.data[0];
-//           setMarkerPosition({ lat: parseFloat(location.lat), lng: parseFloat(location.lon) });
-//           setAddress((prevState) => ({
-//             ...prevState,
-//             lat: parseFloat(location.lat),
-//             lng: parseFloat(location.lon),
-//           }));
-//           onLocationChange({
-//             country: value,
-//             city: address.city,
-//             postcode: address.postcode,
-//             address: address.address,
-//             lat: parseFloat(location.lat),
-//             lng: parseFloat(location.lon),
-//           });
-//         }
-//       });
-//   };
-
-//   const handleLatLngChange = (e) => {
-//     const { name, value } = e.target;
-//     const floatVal = parseFloat(value);
-//     if (!isNaN(floatVal)) {
-//       setAddress((prevState) => ({ ...prevState, [name]: floatVal }));
-//       setMarkerPosition((prevState) => ({
-//         ...prevState,
-//         [name === 'lat' ? 'lat' : 'lng']: floatVal,
-//       }));
-//       onLocationChange({
-//         ...address,
-//         [name]: floatVal,
-//       });
-//     }
-//   };
-
-//   const handleGeocode = (lat, lng) => {
-//     axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-//       .then(response => {
-//         console.log(response);
-//         if (response.data) {
-//           const location = response.data.address;
-          
-//           const updatedAddress = {
-//             country: location.country || '',
-//             city: location.city || location.town || location.village || '',
-//             postcode: location.postcode || '',
-//             address: response.data.display_name,
-//             lat,
-//             lng,
-//           };
-//           setAddress(updatedAddress);
-//           onLocationChange(updatedAddress);
-//         }
-//       });
-//   };
-
-
-//   useEffect(() => {
-//     if (address.lat && address.lng) {
-//       handleGeocode(address.lat, address.lng);
-//     }
-//   }, [address.lat, address.lng]);
-
-//   const LocationMarker = () => {
-//     const map = useMapEvents({
-//       click(e) {
-//         setMarkerPosition(e.latlng);
-//         setAddress((prevState) => ({
-//           ...prevState,
-//           lat: e.latlng.lat,
-//           lng: e.latlng.lng,
-//         }));
-//         handleGeocode(e.latlng.lat, e.latlng.lng);
-//         map.setView(e.latlng, map.getZoom());
-//       },
-//     });
-//     console.log('markerPosition',markerPosition);
-      
-//     return markerPosition === null ? null : (
-//         // <Marker position={markerPosition} icon={markerIcon}></Marker>
-//         <Marker position={markerPosition} icon={markerIcon}>
-//             <Popover>{`Lat: ${markerPosition.lat}, Lng: ${markerPosition.lng}`}</Popover>
-//         </Marker>
-//     );
-//   };
-
-//   return (
-//     <>
-//         <div>
-//         <Select
-//             showSearch
-//             value={address.country || 'None'}
-//             placeholder="Select a country"
-//             onChange={handleCountryChange}
-//             filterOption={(input, option) =>
-//               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-//             }
-//           >
-//             {getNames().map((country) => (
-//               <Option key={country} value={country}>
-//                 {country}
-//               </Option>
-//             ))}
-//           </Select>
-//           <Input name="city" value={address.city || address.state_district} onChange={handleAddressChange} />
-//           <Input name="postcode" value={address.postcode} onChange={handleAddressChange} />
-//           <Input name="address" value={address.address} onChange={handleAddressChange} />
-//           <Input name="lat" value={address.lat} onChange={handleLatLngChange} 
-//             onKeyPress={(event) => {
-//                 if (!/^[0-9.\-]*$/.test(event.key)) {
-//                   event.preventDefault();
-//                 }
-//             }}/>
-//           <Input name="lng" value={address.lng} onChange={handleLatLngChange} 
-//             onKeyPress={(event) => {
-//                 if (!/^[0-9.\-]*$/.test(event.key)) {
-//                   event.preventDefault();
-//                 }
-//               }}/>
-//           </div>
-//           <div style={{ height: '400px', width: '100%' }}>
-//             <MapContainer
-//               center={[markerPosition.lat, markerPosition.lng]}
-//               zoom={10}
-//               style={{ height: '100%', width: '100%' }}
-//             >
-//               <TileLayer
-//                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//               />
-//               <LocationMarker />
-//             </MapContainer>
-//           </div>
-//     </>
-//   );
-// };
-
-// export default LeafletMap;
-
-
-
 const LeafletMap = ({ onLocationChange, defaultValues }) => {
-    const [markerPosition, setMarkerPosition] = useState({
-      lat: parseFloat(defaultValues.lat) || '',
-      lng: parseFloat(defaultValues.lng) || '',
-    });
+  const [markerPosition, setMarkerPosition] = useState({
+    lat: parseFloat(defaultValues?.lat) || 24.186847428521244,
+    lng: parseFloat(defaultValues?.lng) || 76.68896423093015,
+  });
+// const LeafletMap = ({ onLocationChange, defaultValues }) => {
+//     const [markerPosition, setMarkerPosition] = useState({
+//       lat: parseFloat(defaultValues.lat) || '',
+//       lng: parseFloat(defaultValues.lng) || '',
+//     });
   
     const [address, setAddress] = useState({
       country: defaultValues.country || '',
@@ -201,29 +41,67 @@ const LeafletMap = ({ onLocationChange, defaultValues }) => {
       setAddress((prevState) => ({ ...prevState, [name]: value }));
     };
   
+    // const handleCountryChange = (value) => {
+    //   setAddress((prevState) => ({ ...prevState, country: value }));
+    //   axios.get(`https://nominatim.openstreetmap.org/search?country=${value}&format=json`)
+    //     .then(response => {
+    //       if (response.data && response.data.length > 0) {
+    //         const location = response.data[0];
+    //         setMarkerPosition({ lat: parseFloat(location.lat), lng: parseFloat(location.lon) });
+    //         setAddress((prevState) => ({
+    //           ...prevState,
+    //           lat: parseFloat(location.lat),
+    //           lng: parseFloat(location.lon),
+    //         }));
+    //         onLocationChange({
+    //           country: value,
+    //           city: address.city,
+    //           postcode: address.postcode,
+    //           address: address.address,
+    //           lat: parseFloat(location.lat),
+    //           lng: parseFloat(location.lon),
+    //         });
+    //       }
+    //     });
+    // };
+
     const handleCountryChange = (value) => {
       setAddress((prevState) => ({ ...prevState, country: value }));
+    
+      // Assuming `onLocationChange` is a prop passed down correctly
       axios.get(`https://nominatim.openstreetmap.org/search?country=${value}&format=json`)
         .then(response => {
           if (response.data && response.data.length > 0) {
             const location = response.data[0];
+            
+            // Update state with latitude and longitude
             setMarkerPosition({ lat: parseFloat(location.lat), lng: parseFloat(location.lon) });
+            
+            // Update address state with latitude and longitude
             setAddress((prevState) => ({
               ...prevState,
               lat: parseFloat(location.lat),
               lng: parseFloat(location.lon),
             }));
-            onLocationChange({
-              country: value,
-              city: address.city,
-              postcode: address.postcode,
-              address: address.address,
-              lat: parseFloat(location.lat),
-              lng: parseFloat(location.lon),
-            });
+    
+            // Call `onLocationChange` prop with updated location data
+            if (typeof onLocationChange === 'function') {
+              onLocationChange({
+                country: value,
+                city: address.city,
+                postcode: address.postcode,
+                address: address.address,
+                lat: parseFloat(location.lat),
+                lng: parseFloat(location.lon),
+              });
+            }
           }
+        })
+        .catch(error => {
+          console.error('Error fetching location data:', error);
         });
     };
+    
   
     const handleLatLngChange = (e) => {
       const { name, value } = e.target;
@@ -284,8 +162,8 @@ const LeafletMap = ({ onLocationChange, defaultValues }) => {
     };
   
     return (
-      <div style={{display:'flex', minWidth:'150%', gap:'10%'}}>
-        <div style={{display:'flex', flexDirection:'column', gap:'8px', width:'50%', marginRight:'8px'}}>
+      <div style={{display:'flex', minWidth:'100%', gap:'10%'}}>
+        <div style={{display:'flex', flexDirection:'column', gap:'8px', width:'50%', marginRight:'1px'}}>
           <Select
             showSearch
             value={address.country || undefined}
@@ -344,4 +222,3 @@ const LeafletMap = ({ onLocationChange, defaultValues }) => {
   };
   
   export default LeafletMap;
-  
