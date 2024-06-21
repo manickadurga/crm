@@ -25,16 +25,8 @@ return new class extends Migration
                 $table->json('options')->nullable();
                 $table->json('tags')->nullable();
                 $table->json('add_variants')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
 
-                // Indexes for product_type and product_category to improve search and join performance
-                $table->index('product_type');
-                $table->index('product_category');
-
-                // Foreign key constraints
-                $table->foreign('product_type')->references('name')->on('jo_product_types')->onDelete('set null');
-                $table->foreign('product_category')->references('name')->on('jo_product_categories')->onDelete('set null');
             });
         } catch (\Exception $e) {
             Log::error('Failed to create jo_inventories table: ' . $e->getMessage());

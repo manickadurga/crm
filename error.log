@@ -1,0 +1,1300 @@
+Array
+(
+    [0] => 1
+)
+Array
+(
+    [0] => 2
+)
+Array
+(
+    [0] => 4
+)
+Array
+(
+    [0] => 4
+)
+Array
+(
+    [step4] => Illuminate\Database\UniqueConstraintViolationException Object
+        (
+            [message:protected] => SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "jo_tabs_pkey"
+DETAIL:  Key (tabid)=(3) already exists. (Connection: pgsql, SQL: insert into "jo_tabs" ("name", "presence", "tablabel", "tabsequence", "modifiedby", "modifiedtime", "customized", "ownedby", "isentitytype", "trial", "version", "parent", "updated_at", "created_at") values (Reach, 0, Reach, -1, ?, 2024-06-01 01:18:33, 0, 0, 1, 0, 2, Tasks, 2024-06-01 01:18:33, 2024-06-01 01:18:33) returning "tabid")
+            [string:Exception:private] => 
+            [code:protected] => 23505
+            [file:protected] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+            [line:protected] => 808
+            [trace:Exception:private] => Array
+                (
+                    [0] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                            [line] => 767
+                            [function] => runQueryCallback
+                            [class] => Illuminate\Database\Connection
+                            [type] => ->
+                        )
+
+                    [1] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                            [line] => 398
+                            [function] => run
+                            [class] => Illuminate\Database\Connection
+                            [type] => ->
+                        )
+
+                    [2] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                            [line] => 385
+                            [function] => select
+                            [class] => Illuminate\Database\Connection
+                            [type] => ->
+                        )
+
+                    [3] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php
+                            [line] => 24
+                            [function] => selectFromWriteConnection
+                            [class] => Illuminate\Database\Connection
+                            [type] => ->
+                        )
+
+                    [4] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
+                            [line] => 3659
+                            [function] => processInsertGetId
+                            [class] => Illuminate\Database\Query\Processors\PostgresProcessor
+                            [type] => ->
+                        )
+
+                    [5] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php
+                            [line] => 2026
+                            [function] => insertGetId
+                            [class] => Illuminate\Database\Query\Builder
+                            [type] => ->
+                        )
+
+                    [6] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                            [line] => 1338
+                            [function] => __call
+                            [class] => Illuminate\Database\Eloquent\Builder
+                            [type] => ->
+                        )
+
+                    [7] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                            [line] => 1303
+                            [function] => insertAndSetId
+                            [class] => Illuminate\Database\Eloquent\Model
+                            [type] => ->
+                        )
+
+                    [8] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                            [line] => 1142
+                            [function] => performInsert
+                            [class] => Illuminate\Database\Eloquent\Model
+                            [type] => ->
+                        )
+
+                    [9] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/app/Http/Controllers/ModuleStudioController.php
+                            [line] => 204
+                            [function] => save
+                            [class] => Illuminate\Database\Eloquent\Model
+                            [type] => ->
+                        )
+
+                    [10] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php
+                            [line] => 46
+                            [function] => step4Post
+                            [class] => App\Http\Controllers\ModuleStudioController
+                            [type] => ->
+                        )
+
+                    [11] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Route.php
+                            [line] => 260
+                            [function] => dispatch
+                            [class] => Illuminate\Routing\ControllerDispatcher
+                            [type] => ->
+                        )
+
+                    [12] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Route.php
+                            [line] => 206
+                            [function] => runController
+                            [class] => Illuminate\Routing\Route
+                            [type] => ->
+                        )
+
+                    [13] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                            [line] => 806
+                            [function] => run
+                            [class] => Illuminate\Routing\Route
+                            [type] => ->
+                        )
+
+                    [14] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 144
+                            [function] => Illuminate\Routing\{closure}
+                            [class] => Illuminate\Routing\Router
+                            [type] => ->
+                        )
+
+                    [15] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php
+                            [line] => 50
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [16] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Routing\Middleware\SubstituteBindings
+                            [type] => ->
+                        )
+
+                    [17] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php
+                            [line] => 88
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [18] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\VerifyCsrfToken
+                            [type] => ->
+                        )
+
+                    [19] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php
+                            [line] => 49
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [20] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\View\Middleware\ShareErrorsFromSession
+                            [type] => ->
+                        )
+
+                    [21] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php
+                            [line] => 121
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [22] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php
+                            [line] => 64
+                            [function] => handleStatefulRequest
+                            [class] => Illuminate\Session\Middleware\StartSession
+                            [type] => ->
+                        )
+
+                    [23] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Session\Middleware\StartSession
+                            [type] => ->
+                        )
+
+                    [24] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php
+                            [line] => 37
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [25] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse
+                            [type] => ->
+                        )
+
+                    [26] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php
+                            [line] => 75
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [27] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Cookie\Middleware\EncryptCookies
+                            [type] => ->
+                        )
+
+                    [28] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 119
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [29] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                            [line] => 805
+                            [function] => then
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [30] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                            [line] => 784
+                            [function] => runRouteWithinStack
+                            [class] => Illuminate\Routing\Router
+                            [type] => ->
+                        )
+
+                    [31] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                            [line] => 748
+                            [function] => runRoute
+                            [class] => Illuminate\Routing\Router
+                            [type] => ->
+                        )
+
+                    [32] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                            [line] => 737
+                            [function] => dispatchToRoute
+                            [class] => Illuminate\Routing\Router
+                            [type] => ->
+                        )
+
+                    [33] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                            [line] => 200
+                            [function] => dispatch
+                            [class] => Illuminate\Routing\Router
+                            [type] => ->
+                        )
+
+                    [34] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 144
+                            [function] => Illuminate\Foundation\Http\{closure}
+                            [class] => Illuminate\Foundation\Http\Kernel
+                            [type] => ->
+                        )
+
+                    [35] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php
+                            [line] => 21
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [36] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php
+                            [line] => 31
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\TransformsRequest
+                            [type] => ->
+                        )
+
+                    [37] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                            [type] => ->
+                        )
+
+                    [38] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php
+                            [line] => 21
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [39] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php
+                            [line] => 51
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\TransformsRequest
+                            [type] => ->
+                        )
+
+                    [40] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\TrimStrings
+                            [type] => ->
+                        )
+
+                    [41] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php
+                            [line] => 27
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [42] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Http\Middleware\ValidatePostSize
+                            [type] => ->
+                        )
+
+                    [43] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php
+                            [line] => 110
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [44] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                            [type] => ->
+                        )
+
+                    [45] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php
+                            [line] => 49
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [46] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Http\Middleware\HandleCors
+                            [type] => ->
+                        )
+
+                    [47] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php
+                            [line] => 57
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [48] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 183
+                            [function] => handle
+                            [class] => Illuminate\Http\Middleware\TrustProxies
+                            [type] => ->
+                        )
+
+                    [49] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                            [line] => 119
+                            [function] => Illuminate\Pipeline\{closure}
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [50] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                            [line] => 175
+                            [function] => then
+                            [class] => Illuminate\Pipeline\Pipeline
+                            [type] => ->
+                        )
+
+                    [51] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                            [line] => 144
+                            [function] => sendRequestThroughRouter
+                            [class] => Illuminate\Foundation\Http\Kernel
+                            [type] => ->
+                        )
+
+                    [52] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Application.php
+                            [line] => 1172
+                            [function] => handle
+                            [class] => Illuminate\Foundation\Http\Kernel
+                            [type] => ->
+                        )
+
+                    [53] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/public/index.php
+                            [line] => 17
+                            [function] => handleRequest
+                            [class] => Illuminate\Foundation\Application
+                            [type] => ->
+                        )
+
+                    [54] => Array
+                        (
+                            [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
+                            [line] => 16
+                            [args] => Array
+                                (
+                                    [0] => /var/www/html/git_commit/joforce_ai_erp/public/index.php
+                                )
+
+                            [function] => require_once
+                        )
+
+                )
+
+            [previous:Exception:private] => PDOException Object
+                (
+                    [message:protected] => SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "jo_tabs_pkey"
+DETAIL:  Key (tabid)=(3) already exists.
+                    [string:Exception:private] => 
+                    [code:protected] => 23505
+                    [file:protected] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                    [line:protected] => 412
+                    [trace:Exception:private] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                                    [line] => 412
+                                    [function] => execute
+                                    [class] => PDOStatement
+                                    [type] => ->
+                                )
+
+                            [1] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                                    [line] => 800
+                                    [function] => Illuminate\Database\{closure}
+                                    [class] => Illuminate\Database\Connection
+                                    [type] => ->
+                                )
+
+                            [2] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                                    [line] => 767
+                                    [function] => runQueryCallback
+                                    [class] => Illuminate\Database\Connection
+                                    [type] => ->
+                                )
+
+                            [3] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                                    [line] => 398
+                                    [function] => run
+                                    [class] => Illuminate\Database\Connection
+                                    [type] => ->
+                                )
+
+                            [4] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Connection.php
+                                    [line] => 385
+                                    [function] => select
+                                    [class] => Illuminate\Database\Connection
+                                    [type] => ->
+                                )
+
+                            [5] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php
+                                    [line] => 24
+                                    [function] => selectFromWriteConnection
+                                    [class] => Illuminate\Database\Connection
+                                    [type] => ->
+                                )
+
+                            [6] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
+                                    [line] => 3659
+                                    [function] => processInsertGetId
+                                    [class] => Illuminate\Database\Query\Processors\PostgresProcessor
+                                    [type] => ->
+                                )
+
+                            [7] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php
+                                    [line] => 2026
+                                    [function] => insertGetId
+                                    [class] => Illuminate\Database\Query\Builder
+                                    [type] => ->
+                                )
+
+                            [8] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                                    [line] => 1338
+                                    [function] => __call
+                                    [class] => Illuminate\Database\Eloquent\Builder
+                                    [type] => ->
+                                )
+
+                            [9] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                                    [line] => 1303
+                                    [function] => insertAndSetId
+                                    [class] => Illuminate\Database\Eloquent\Model
+                                    [type] => ->
+                                )
+
+                            [10] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php
+                                    [line] => 1142
+                                    [function] => performInsert
+                                    [class] => Illuminate\Database\Eloquent\Model
+                                    [type] => ->
+                                )
+
+                            [11] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/app/Http/Controllers/ModuleStudioController.php
+                                    [line] => 204
+                                    [function] => save
+                                    [class] => Illuminate\Database\Eloquent\Model
+                                    [type] => ->
+                                )
+
+                            [12] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php
+                                    [line] => 46
+                                    [function] => step4Post
+                                    [class] => App\Http\Controllers\ModuleStudioController
+                                    [type] => ->
+                                )
+
+                            [13] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Route.php
+                                    [line] => 260
+                                    [function] => dispatch
+                                    [class] => Illuminate\Routing\ControllerDispatcher
+                                    [type] => ->
+                                )
+
+                            [14] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Route.php
+                                    [line] => 206
+                                    [function] => runController
+                                    [class] => Illuminate\Routing\Route
+                                    [type] => ->
+                                )
+
+                            [15] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                                    [line] => 806
+                                    [function] => run
+                                    [class] => Illuminate\Routing\Route
+                                    [type] => ->
+                                )
+
+                            [16] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 144
+                                    [function] => Illuminate\Routing\{closure}
+                                    [class] => Illuminate\Routing\Router
+                                    [type] => ->
+                                )
+
+                            [17] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php
+                                    [line] => 50
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [18] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Routing\Middleware\SubstituteBindings
+                                    [type] => ->
+                                )
+
+                            [19] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php
+                                    [line] => 88
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [20] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\VerifyCsrfToken
+                                    [type] => ->
+                                )
+
+                            [21] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php
+                                    [line] => 49
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [22] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\View\Middleware\ShareErrorsFromSession
+                                    [type] => ->
+                                )
+
+                            [23] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php
+                                    [line] => 121
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [24] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php
+                                    [line] => 64
+                                    [function] => handleStatefulRequest
+                                    [class] => Illuminate\Session\Middleware\StartSession
+                                    [type] => ->
+                                )
+
+                            [25] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Session\Middleware\StartSession
+                                    [type] => ->
+                                )
+
+                            [26] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php
+                                    [line] => 37
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [27] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse
+                                    [type] => ->
+                                )
+
+                            [28] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php
+                                    [line] => 75
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [29] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Cookie\Middleware\EncryptCookies
+                                    [type] => ->
+                                )
+
+                            [30] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 119
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [31] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                                    [line] => 805
+                                    [function] => then
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [32] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                                    [line] => 784
+                                    [function] => runRouteWithinStack
+                                    [class] => Illuminate\Routing\Router
+                                    [type] => ->
+                                )
+
+                            [33] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                                    [line] => 748
+                                    [function] => runRoute
+                                    [class] => Illuminate\Routing\Router
+                                    [type] => ->
+                                )
+
+                            [34] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Routing/Router.php
+                                    [line] => 737
+                                    [function] => dispatchToRoute
+                                    [class] => Illuminate\Routing\Router
+                                    [type] => ->
+                                )
+
+                            [35] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                                    [line] => 200
+                                    [function] => dispatch
+                                    [class] => Illuminate\Routing\Router
+                                    [type] => ->
+                                )
+
+                            [36] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 144
+                                    [function] => Illuminate\Foundation\Http\{closure}
+                                    [class] => Illuminate\Foundation\Http\Kernel
+                                    [type] => ->
+                                )
+
+                            [37] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php
+                                    [line] => 21
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [38] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php
+                                    [line] => 31
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\TransformsRequest
+                                    [type] => ->
+                                )
+
+                            [39] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                                    [type] => ->
+                                )
+
+                            [40] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php
+                                    [line] => 21
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [41] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php
+                                    [line] => 51
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\TransformsRequest
+                                    [type] => ->
+                                )
+
+                            [42] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\TrimStrings
+                                    [type] => ->
+                                )
+
+                            [43] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php
+                                    [line] => 27
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [44] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Http\Middleware\ValidatePostSize
+                                    [type] => ->
+                                )
+
+                            [45] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php
+                                    [line] => 110
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [46] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                                    [type] => ->
+                                )
+
+                            [47] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php
+                                    [line] => 49
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [48] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Http\Middleware\HandleCors
+                                    [type] => ->
+                                )
+
+                            [49] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php
+                                    [line] => 57
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [50] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 183
+                                    [function] => handle
+                                    [class] => Illuminate\Http\Middleware\TrustProxies
+                                    [type] => ->
+                                )
+
+                            [51] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php
+                                    [line] => 119
+                                    [function] => Illuminate\Pipeline\{closure}
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [52] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                                    [line] => 175
+                                    [function] => then
+                                    [class] => Illuminate\Pipeline\Pipeline
+                                    [type] => ->
+                                )
+
+                            [53] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php
+                                    [line] => 144
+                                    [function] => sendRequestThroughRouter
+                                    [class] => Illuminate\Foundation\Http\Kernel
+                                    [type] => ->
+                                )
+
+                            [54] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/Application.php
+                                    [line] => 1172
+                                    [function] => handle
+                                    [class] => Illuminate\Foundation\Http\Kernel
+                                    [type] => ->
+                                )
+
+                            [55] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/public/index.php
+                                    [line] => 17
+                                    [function] => handleRequest
+                                    [class] => Illuminate\Foundation\Application
+                                    [type] => ->
+                                )
+
+                            [56] => Array
+                                (
+                                    [file] => /var/www/html/git_commit/joforce_ai_erp/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
+                                    [line] => 16
+                                    [args] => Array
+                                        (
+                                            [0] => /var/www/html/git_commit/joforce_ai_erp/public/index.php
+                                        )
+
+                                    [function] => require_once
+                                )
+
+                        )
+
+                    [previous:Exception:private] => 
+                    [errorInfo] => Array
+                        (
+                            [0] => 23505
+                            [1] => 7
+                            [2] => ERROR:  duplicate key value violates unique constraint "jo_tabs_pkey"
+DETAIL:  Key (tabid)=(3) already exists.
+                        )
+
+                )
+
+            [errorInfo] => Array
+                (
+                    [0] => 23505
+                    [1] => 7
+                    [2] => ERROR:  duplicate key value violates unique constraint "jo_tabs_pkey"
+DETAIL:  Key (tabid)=(3) already exists.
+                )
+
+            [connectionName] => pgsql
+            [sql:protected] => insert into "jo_tabs" ("name", "presence", "tablabel", "tabsequence", "modifiedby", "modifiedtime", "customized", "ownedby", "isentitytype", "trial", "version", "parent", "updated_at", "created_at") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning "tabid"
+            [bindings:protected] => Array
+                (
+                    [0] => Reach
+                    [1] => 0
+                    [2] => Reach
+                    [3] => -1
+                    [4] => 
+                    [5] => 2024-06-01 01:18:33
+                    [6] => 0
+                    [7] => 0
+                    [8] => 1
+                    [9] => 0
+                    [10] => 2
+                    [11] => Tasks
+                    [12] => 2024-06-01 01:18:33
+                    [13] => 2024-06-01 01:18:33
+                )
+
+        )
+
+)
+Array
+(
+    [0] => 1
+)
+Array
+(
+    [0] => 4
+)
+Array
+(
+    [tabtable] => App\Models\Tab Object
+        (
+            [connection:protected] => pgsql
+            [table:protected] => jo_tabs
+            [primaryKey:protected] => tabid
+            [keyType:protected] => int
+            [incrementing] => 1
+            [with:protected] => Array
+                (
+                )
+
+            [withCount:protected] => Array
+                (
+                )
+
+            [preventsLazyLoading] => 
+            [perPage:protected] => 15
+            [exists] => 1
+            [wasRecentlyCreated] => 1
+            [escapeWhenCastingToString:protected] => 
+            [attributes:protected] => Array
+                (
+                    [tabid] => 4
+                    [name] => Reach
+                    [presence] => 0
+                    [tablabel] => Reach
+                    [tabsequence] => -1
+                    [modifiedby] => 
+                    [modifiedtime] => Illuminate\Support\Carbon Object
+                        (
+                            [endOfTime:protected] => 
+                            [startOfTime:protected] => 
+                            [constructedObjectId:protected] => 000000000000057f0000000000000000
+                            [clock:Carbon\Carbon:private] => 
+                            [localMonthsOverflow:protected] => 
+                            [localYearsOverflow:protected] => 
+                            [localStrictModeEnabled:protected] => 
+                            [localHumanDiffOptions:protected] => 
+                            [localToStringFormat:protected] => 
+                            [localSerializer:protected] => 
+                            [localMacros:protected] => 
+                            [localGenericMacros:protected] => 
+                            [localFormatFunction:protected] => 
+                            [localTranslator:protected] => 
+                            [dumpProperties:protected] => Array
+                                (
+                                    [0] => date
+                                    [1] => timezone_type
+                                    [2] => timezone
+                                )
+
+                            [dumpLocale:protected] => 
+                            [dumpDateProperties:protected] => 
+                            [date] => 2024-06-01 04:07:46.702964
+                            [timezone_type] => 3
+                            [timezone] => UTC
+                        )
+
+                    [customized] => 0
+                    [ownedby] => 0
+                    [isentitytype] => 1
+                    [trial] => 0
+                    [version] => 2
+                    [parent] => Tasks
+                    [updated_at] => 2024-06-01 04:07:46
+                    [created_at] => 2024-06-01 04:07:46
+                )
+
+            [original:protected] => Array
+                (
+                    [tabid] => 4
+                    [name] => Reach
+                    [presence] => 0
+                    [tablabel] => Reach
+                    [tabsequence] => -1
+                    [modifiedby] => 
+                    [modifiedtime] => Illuminate\Support\Carbon Object
+                        (
+                            [endOfTime:protected] => 
+                            [startOfTime:protected] => 
+                            [constructedObjectId:protected] => 000000000000057f0000000000000000
+                            [clock:Carbon\Carbon:private] => 
+                            [localMonthsOverflow:protected] => 
+                            [localYearsOverflow:protected] => 
+                            [localStrictModeEnabled:protected] => 
+                            [localHumanDiffOptions:protected] => 
+                            [localToStringFormat:protected] => 
+                            [localSerializer:protected] => 
+                            [localMacros:protected] => 
+                            [localGenericMacros:protected] => 
+                            [localFormatFunction:protected] => 
+                            [localTranslator:protected] => 
+                            [dumpProperties:protected] => Array
+                                (
+                                    [0] => date
+                                    [1] => timezone_type
+                                    [2] => timezone
+                                )
+
+                            [dumpLocale:protected] => 
+                            [dumpDateProperties:protected] => 
+                            [date] => 2024-06-01 04:07:46.702964
+                            [timezone_type] => 3
+                            [timezone] => UTC
+                        )
+
+                    [customized] => 0
+                    [ownedby] => 0
+                    [isentitytype] => 1
+                    [trial] => 0
+                    [version] => 2
+                    [parent] => Tasks
+                    [updated_at] => 2024-06-01 04:07:46
+                    [created_at] => 2024-06-01 04:07:46
+                )
+
+            [changes:protected] => Array
+                (
+                )
+
+            [casts:protected] => Array
+                (
+                )
+
+            [classCastCache:protected] => Array
+                (
+                )
+
+            [attributeCastCache:protected] => Array
+                (
+                )
+
+            [dateFormat:protected] => 
+            [appends:protected] => Array
+                (
+                )
+
+            [dispatchesEvents:protected] => Array
+                (
+                )
+
+            [observables:protected] => Array
+                (
+                )
+
+            [relations:protected] => Array
+                (
+                )
+
+            [touches:protected] => Array
+                (
+                )
+
+            [timestamps] => 1
+            [usesUniqueIds] => 
+            [hidden:protected] => Array
+                (
+                )
+
+            [visible:protected] => Array
+                (
+                )
+
+            [fillable:protected] => Array
+                (
+                )
+
+            [guarded:protected] => Array
+                (
+                )
+
+        )
+
+)
+SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "jo_blocks_pkey"
+DETAIL:  Key (blockid)=(1) already exists. (Connection: pgsql, SQL: insert into "jo_blocks" ("tabid", "blocklabel", "sequence", "show_title", "visible", "create_view", "edit_view", "detail_view", "display_status", "iscustom", "updated_at", "created_at") values (3, WorkOrder Signature, 1, 1, 1, 0, 0, 0, 1, 0, 2024-06-01 04:07:46, 2024-06-01 04:07:46) returning "blockid")Array
+(
+    [0] => 1
+)
+Array
+(
+    [0] => 4
+)
+SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value violates unique constraint "jo_fields_pkey"
+DETAIL:  Key (fieldid)=(1) already exists. (Connection: pgsql, SQL: insert into "jo_fields" ("fieldid", "tabid", "columnname", "tablename", "generatedtype", "uitype", "fieldname", "fieldlabel", "readonly", "presence", "defaultvalue", "maximumlength", "sequence", "block", "displaytype", "typeofdata", "quickcreate", "quickcreatesequence", "info_type", "masseditable", "helpinfo", "summaryfield", "headerfield", "updated_at", "created_at") values (1, 5, first_name, jo_reports, 0, , first_name, First Name, 0, 1, ?, ?, ?, 6, ?, ?, 1, ?, ?, 1, ?, 0, 0, 2024-06-01 04:18:24, 2024-06-01 04:18:24) returning "fieldid")Array
+(
+    [0] => 1
+)
+Array
+(
+    [0] => 4
+)

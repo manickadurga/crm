@@ -17,5 +17,9 @@ class Product extends Model
         'tags' => 'array',
         'add_variants' => 'array'
     ];
+    public function scopeByProductType($query, $productTypeName)
+    {
+        return $query->where('product_type', $productTypeName);
+    }
 
 }

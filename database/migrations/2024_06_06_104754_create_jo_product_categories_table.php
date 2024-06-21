@@ -17,9 +17,8 @@ return new class extends Migration
                 $table->id();
                 $table->string('image')->nullable();
                 $table->string('language')->nullable()->default('english');
-                $table->string('name')->nullable(false)->unique();
+                $table->string('name')->nullable(false);
                 $table->string('description')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

@@ -49,7 +49,6 @@ class EquipmentsSharingPolicyController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'orgid'=>'nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -87,7 +86,6 @@ class EquipmentsSharingPolicyController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'orgid'=>'nullable|numeric'
         ]);
 
         if ($validator->fails()) {

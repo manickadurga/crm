@@ -47,6 +47,8 @@ class EmployeesController extends Controller
                 'offer_date' => 'nullable|date',
                 'accept_date' => 'nullable|date',
                 'tags' => 'nullable|array',
+                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
                 'orgid' => 'nullable|integer',
                 // Add more validation rules as needed
             ]);
@@ -107,6 +109,7 @@ class EmployeesController extends Controller
                 'orgid' => 'nullable|integer',
                 // Add more validation rules as needed
             ]);
+            
 
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);

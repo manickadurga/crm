@@ -26,10 +26,10 @@ return new class extends Migration
                 $table->string('contact_type')->nullable();
                 $table->json('tags')->nullable();
                 $table->json('location')->nullable();
-                $table->string('type')->nullable();
-                $table->enum('type_suffix', ['cost', 'hours'])->nullable()->default('cost');
-                $table->integer('orgid')->nullable();
+                $table->integer('type')->nullable();
+                $table->enum('type_suffix', ['cost', 'hours'])->nullable();
                 $table->timestamps();
+
             });
         } catch (Exception $e) {
             Log::error('Failed to create customers table: ' . $e->getMessage());

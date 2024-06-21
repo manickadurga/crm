@@ -14,7 +14,6 @@ return new class extends Migration
                 $table->id();
                 $table->string('expense_name')->nullable(false);
                 $table->json('tags')->nullable();
-                $table->integer('orgid');
                 $table->timestamps();
             });
         } catch (\Exception $e) {

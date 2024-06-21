@@ -49,7 +49,6 @@ class ProductCategoriesController extends Controller
             'language' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'orgid' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -91,7 +90,6 @@ class ProductCategoriesController extends Controller
             'language' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'orgid' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {

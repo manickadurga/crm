@@ -50,7 +50,6 @@ class PipelinesController extends Controller
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'stages' => 'nullable|array|max:5000',
-            'orgid' => 'nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -89,7 +88,6 @@ class PipelinesController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'is_active' => 'boolean',
-            'orgid' => 'numeric|nullable'
         ]);
 
         if ($validator->fails()) {

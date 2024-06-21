@@ -15,7 +15,7 @@ return new class extends Migration
         try {
             Schema::create('jo_vendors', function (Blueprint $table) {
                 $table->id();
-                $table->string('name')->nullable(false);
+                $table->string('vendor_name')->nullable(false)->unique();
                 $table->integer('phone')->nullable();
                 $table->string('email')->nullable(false);
                 $table->string('website')->nullable();

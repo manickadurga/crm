@@ -16,14 +16,13 @@ return new class extends Migration
             Schema::create('jo_warehouses', function (Blueprint $table) {
                 $table->id();
                 $table->string('image')->nullable();
-                $table->string('name')->nullable(false)->unique();
+                $table->string('name')->nullable(false);
                 $table->json('tags')->nullable();
                 $table->string('code')->nullable(false);
                 $table->string('email')->nullable();
                 $table->boolean('active')->nullable();
                 $table->text('description')->nullable();
                 $table->json('location')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

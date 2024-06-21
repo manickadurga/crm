@@ -18,7 +18,6 @@ return new class extends Migration
                 $table->string('contact_name')->nullable(false);
                 $table->string('primary_phone')->nullable(false);
                 $table->string('email')->nullable(false);
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

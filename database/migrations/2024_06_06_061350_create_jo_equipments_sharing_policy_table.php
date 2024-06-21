@@ -18,7 +18,6 @@ return new class extends Migration
                 $table->id();
                 $table->string('name');
                 $table->string('description')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (Exception $e) {

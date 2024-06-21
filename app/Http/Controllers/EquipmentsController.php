@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Equipments;
 use Exception;
 use Illuminate\Validation\ValidationException;
+use App\Models\Tags;
 
 class EquipmentsController extends Controller
 {
@@ -50,9 +51,9 @@ class EquipmentsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        try {
-            $validatedData = $request->validate([
+{
+    try {
+        $validatedData = $request->validate([
                 'name' => 'required|string',
                 'type' => 'nullable|string',
                 'manufactured_year' => 'nullable|integer',
@@ -61,19 +62,36 @@ class EquipmentsController extends Controller
                 'initial_cost' => 'nullable|integer',
                 'currency' => 'nullable|string',
                 'tags' => 'nullable|array',
-                'auto_approve'=>'boolean|nullable',
-                'orgid' => 'nullable|integer',
-            ]);
+                'tags.*' => 'exists:jo_tags,id',
+                'auto_approve' => 'boolean|nullable',
+        ]);
+            // Validate each tag
+            if (isset($validatedData['tags'])) {
+                $tags = [];
+                foreach ($validatedData['tags'] as $id) {
+                    $tag = Tags::find($id);
+                    if ($tag) {
+                        $tags[] = [
+                            'tags_name' => $tag->tags_name,
+                            'tag_color' => $tag->tag_color,
+                        ];
+                    } else {
+                        throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
+                    }
+                }
+                $validatedData['tags'] = json_encode($tags);
+            }
+    
 
-            $equipment = Equipments::create($validatedData);
-            return response()->json($equipment, 201);
-        } catch (ValidationException $e) {
-            return response()->json(['error' => 'Failed to create equipment: ' . $e->getMessage()], 422);
-        } catch (\Exception $e) {
-            Log::error('Failed to create equipment: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to create equipment'], 500);
-        }
+        $equipment = Equipments::create($validatedData);
+        return response()->json($equipment, 201);
+    } catch (ValidationException $e) {
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (Exception $e) {
+        Log::error('Failed to create equipment: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to create equipment'], 500);
     }
+}
 
     /**
      * Display the specified resource.
@@ -111,21 +129,40 @@ class EquipmentsController extends Controller
                 'initial_cost' => 'nullable|integer',
                 'currency' => 'nullable|string',
                 'tags' => 'nullable|array',
-                'auto_approve'=>'boolean|nullable',
-                'orgid' => 'nullable|integer',
+                'tags.*' => 'exists:jo_tags,id',
+                'auto_approve' => 'boolean|nullable',
+                
             ]);
-
+             // Validate each tag
+             if (isset($validatedData['tags'])) {
+                $tags = [];
+                foreach ($validatedData['tags'] as $id) {
+                    $tag = Tags::find($id);
+                    if ($tag) {
+                        $tags[] = [
+                            'tags_name' => $tag->tags_name,
+                            'tag_color' => $tag->tag_color,
+                        ];
+                    } else {
+                        throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
+                    }
+                }
+                $validatedData['tags'] = json_encode($tags);
+            }
+    
+          
+    
             $equipment = Equipments::findOrFail($id);
             $equipment->update($validatedData);
             return response()->json($equipment);
         } catch (ValidationException $e) {
-            return response()->json(['error' => 'Failed to update equipment: ' . $e->getMessage()], 422);
+            return response()->json(['error' => $e->validator->errors()], 422);
         } catch (Exception $e) {
             Log::error('Failed to update equipment: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update equipment'], 500);
         }
     }
-
+    
     /**
      * Remove the specified resource from storage.
      *

@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\Profile2FieldController;
+use App\Http\Controllers\Profile2TabController;
+use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\RolesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\CustomersInviteController;
@@ -10,6 +14,7 @@ use App\Http\Controllers\EquipmentsSharingController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\PipelinesController;
 use App\Http\Controllers\EquipmentsSharingPolicyController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\ManageCategoriesController;
@@ -19,6 +24,18 @@ use App\Http\Controllers\ProductTypesController;
 use App\Http\Controllers\RecuringExpensesController;
 use App\Http\Controllers\WarehousesController;
 use App\Http\Controllers\VendorsController;
+use App\Http\Controllers\FormFieldController;
+use App\Http\Controllers\Group2RsController;
+use App\Http\Controllers\GroupRoleController;
+use App\Http\Controllers\GroupsController;
+use App\Http\Controllers\GrouptoGroupRelController;
+use App\Http\Controllers\OperationsController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\Profile2GlobalPermissionsController;
+use App\Http\Controllers\Profile2StandardPermissionsController;
+use App\Http\Controllers\ProfilesController;
+use App\Http\Controllers\TagsController;
+use App\Http\Controllers\TeamsController;
 
 /*
  *--------------------------------------------------------------------------
@@ -41,7 +58,7 @@ Route::post('/customers',[CustomersController::class,'store']);
 Route::get('/customers/{id}', [CustomersController::class, 'show']);
 Route::put('/customers/{id}', [CustomersController::class, 'update']);
 Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
-
+Route::post('customers/search', [CustomersController::class, 'search']);
 
 //Payments Routes
 Route::get('/payments',[PaymentsController::class,'index']);
@@ -93,6 +110,7 @@ Route::post('/product-types',[ProductTypesController::class,'store']);
 Route::get('/product-types/{id}',[ProductTypesController::class,'show']);
 Route::put('/product-types/{id}',[ProductTypesController::class,'update']);
 Route::delete('/product-types/{id}',[ProductTypesController::class,'destroy']);
+Route::get('product-types/{typeName}/products', [ProductTypesController::class, 'showProductsByType']);
 
 //Product Categories Routes
 Route::get('/product-categories',[ProductCategoriesController::class,'index']);
@@ -121,6 +139,15 @@ Route::post('/inventories',[InventoryController::class,'store']);
 Route::get('/inventories/{id}',[InventoryController::class,'show']);
 Route::put('/inventories/{id}',[InventoryController::class,'update']);
 Route::delete('/inventories/{id}',[InventoryController::class,'destroy']);
+
+//Products Routes
+Route::get('/products',[ProductsController::class,'index']);
+Route::post('/products',[ProductsController::class,'store']);
+Route::get('/products/{id}',[ProductsController::class,'show']);
+Route::put('/products/{id}',[ProductsController::class,'update']);
+Route::delete('/products/{id}',[ProductsController::class,'destroy']);
+Route::get('/products/{typeName}', [ProductsController::class, 'showByType']);
+
 
 //Recuring Expenses Routes
 Route::get('/recuring-expenses',[RecuringExpensesController::class,'index']);
@@ -164,8 +191,112 @@ Route::get('/leads/{id}',[LeadsController::class,'show']);
 Route::put('/leads/{id}',[LeadsController::class,'update']);
 Route::delete('/leads/{id}',[LeadsController::class,'destroy']);
 
-use App\Http\Controllers\FormFieldController;
-
+//FormField Routes
 Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 
+//Tags Routes
+Route::get('/tags',[TagsController::class,'index']);
+Route::post('/tags',[TagsController::class,'store']);
+Route::get('/tags/{id}',[TagsController::class,'show']);
+Route::put('/tags/{id}',[TagsController::class,'update']);
+Route::delete('/tags/{id}',[TagsController::class,'destroy']);
 
+//Teams Routes
+Route::get('/teams',[TeamsController::class,'index']);
+Route::post('/teams',[TeamsController::class,'store']);
+Route::get('/teams/{id}',[TeamsController::class,'show']);
+Route::put('/teams/{id}',[TeamsController::class,'update']);
+Route::delete('/teams/{id}',[TeamsController::class,'destroy']);
+
+//Projects Routes
+Route::get('/projects',[ProjectsController::class,'index']);
+Route::post('/projects',[ProjectsController::class,'store']);
+Route::get('/projects/{id}',[ProjectsController::class,'show']);
+Route::get('/projects/{id}',[ProjectsController::class,'update']);
+Route::get('/projects/{id}',[ProjectsController::class,'destroy']);
+
+//Expenses Routes
+Route::get('/expenses',[ExpensesController::class,'index']);
+Route::post('/expenses',[ExpensesController::class,'store']);
+Route::get('/expenses/{id}',[ExpensesController::class,'show']);
+Route::put('/expenses/{id}',[ExpensesController::class,'update']);
+Route::get('/expenses/{id}',[ExpensesController::class,'destroy']);
+
+//Groups Routes
+Route::get('/groups',[GroupsController::class,'index']);
+Route::post('/groups',[GroupsController::class,'store']);
+Route::get('/groups/{id}',[GroupsController::class,'show']);
+Route::put('/groups/{id}',[GroupsController::class,'update']);
+Route::get('/groups/{id}',[GroupsController::class,'destroy']);
+
+//Roles Routes
+Route::get('/roles', [RolesController::class, 'index']);
+Route::post('/roles', [RolesController::class, 'store']);
+Route::get('/roles/{id}', [RolesController::class, 'show']);
+Route::put('/roles/{id}', [RolesController::class, 'update']);
+Route::delete('/roles/{id}', [RolesController::class, 'destroy']);
+
+//GroupRole Routes
+Route::get('/group-role',[GroupRoleController::class,'index']);
+Route::post('/group-role',[GroupRoleController::class,'store']);
+Route::get('/group-role/{id}',[GroupRoleController::class,'show']);
+Route::put('/group-role/{id}',[GroupRoleController::class,'update']);
+Route::delete('/group-role/{id}',[GroupRoleController::class,'destroy']);
+
+//GrouptoGroupRel Routes
+Route::get('/group-to-group-rel',[GrouptoGroupRelController::class,'index']);
+Route::post('/group-to-group-rel',[GrouptoGroupRelController::class,'store']);
+Route::get('/group-to-group-rel/{id}',[GrouptoGroupRelController::class,'show']);
+Route::put('/group-to-group-rel/{id}',[GrouptoGroupRelController::class,'update']);
+Route::delete('/group-to-group-rel/{id}',[GrouptoGroupRelController::class,'destroy']);
+
+//Group2Rs Routes
+Route::get('/group2rs',[Group2RsController::class,'index']);
+Route::post('/group2rs',[Group2RsController::class,'store']);
+Route::get('/group2rs/{id}',[Group2RsController::class,'show']);
+Route::put('/group2rs/{id}',[Group2RsController::class,'update']);
+Route::delete('/group2rs/{id}',[Group2RsController::class,'destroy']);
+
+//Profile Routes
+Route::get('/profiles',[ProfilesController::class,'index']);
+Route::post('/profiles',[ProfilesController::class,'store']);
+Route::get('/profiles/{id}',[ProfilesController::class,'show']);
+Route::put('/profiles/{id}',[ProfilesController::class,'update']);
+Route::delete('/profiles/{id}',[ProfilesController::class,'destroy']);
+
+//Operations Routes
+Route::get('/operations',[OperationsController::class,'index']);
+Route::post('/operations',[OperationsController::class,'store']);
+Route::get('/operations/{id}',[OperationsController::class,'show']);
+Route::put('/operations/{id}',[OperationsController::class,'update']);
+Route::delete('operations/{id}',[OperationsController::class,'destroy']);
+
+//Profile2StandardPermissions Routes
+Route::get('/permissions', [Profile2StandardPermissionsController::class, 'index']);
+Route::post('/permissions', [Profile2StandardPermissionsController::class, 'store']);
+Route::get('/permissions/{id}', [Profile2StandardPermissionsController::class, 'show']);
+Route::put('/permissions/{id}', [Profile2StandardPermissionsController::class, 'update']);
+Route::delete('/permissions/{id}', [Profile2StandardPermissionsController::class, 'destroy']);
+Route::put('/profile2std/{id}/permissions', [Profile2StandardPermissionsController::class, 'updatePermissions']);
+
+//Profile2Fields Routes
+Route::get('/profile2field', [Profile2FieldController::class, 'index']);
+Route::post('/profile2field', [Profile2FieldController::class, 'store']);
+Route::get('/profile2field/{id}', [Profile2FieldController::class, 'show']);
+Route::put('/profile2field/{id}', [Profile2FieldController::class, 'update']);
+Route::delete('/profile2field/{id}', [Profile2FieldController::class, 'destroy']);
+
+//Profile2Tab Routes
+Route::get('/profile2tabs', [Profile2TabController::class, 'index']);
+Route::post('/profile2tabs', [Profile2TabController::class, 'store']);
+Route::get('/profile2tabs/{id}', [Profile2TabController::class, 'show']);
+Route::put('/profile2tabs/{id}', [Profile2TabController::class, 'update']);
+Route::delete('/profile2tabs/{id}', [Profile2TabController::class, 'destroy']);
+Route::put('/profile2tab/{id}/permissions', [Profile2TabController::class, 'updatePermissions']);
+
+//Profile2GlobalPermissions Routes
+Route::get('/profile2globalpermissions',[Profile2GlobalPermissionsController::class,'index']);
+Route::post('/profile2globalpermissions',[Profile2GlobalPermissionsController::class,'store']);
+Route::get('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'show']);
+Route::put('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'update']);
+Route::delete('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'destroy']);

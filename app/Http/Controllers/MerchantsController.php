@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use App\Models\Merchants;
+use App\Models\Tags;
 
 class MerchantsController extends Controller
 {
@@ -23,19 +26,17 @@ class MerchantsController extends Controller
                     'message' => 'No records found',
                 ], 404);
             }
-    
+
             return response()->json([
                 'status' => 200,
-                'customers' => $merchants,
+                'merchants' => $merchants,
             ], 200);
         } catch (Exception $e) {
-            
-            // Log the error
-            Log::error('Failed to retrieve customers: ' . $e->getMessage());
-    
+            Log::error('Failed to retrieve merchants: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 500,
-                'message' => 'Failed to retrieve customers',
+                'message' => 'Failed to retrieve merchants',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -48,8 +49,8 @@ class MerchantsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'image' => 'nullable|string',
-            'name' => 'required|string',
-            'code' => 'required|string',
+            'name' => 'nullable|string',
+            'code' => 'nullable|string',
             'email' => 'required|email',
             'phone' => 'nullable|string',
             'currency' => 'nullable|string',
@@ -58,19 +59,26 @@ class MerchantsController extends Controller
             'website' => 'nullable|string',
             'description' => 'nullable|string',
             'tags' => 'nullable|array',
+            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
             'is_active' => 'boolean',
             'location' => 'nullable|array',
-            'warehouses' => 'nullable|string',
-            'orgid' => 'nullable|integer',
+            'warehouses' => 'nullable|string|exists:jo_warehouses,name',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        $data = $validator->validated();
+
+        if (isset($data['tags'])) {
+            $data['tags'] = json_encode($data['tags']);
+        }
+
         try {
-            $merchant = Merchants::create($validator->validated());
-            return response()->json($merchant, 201);
+            $merchant = Merchants::create($data);
+            return response()->json(['message' => 'Merchant created successfully', 'merchant' => $merchant], 201);
         } catch (Exception $e) {
             Log::error('Failed to create merchant: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create merchant'], 500);
@@ -84,10 +92,12 @@ class MerchantsController extends Controller
     {
         try {
             $merchant = Merchants::findOrFail($id);
-            return response()->json($merchant, 200);
+            return response()->json(['merchant' => $merchant], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Merchant not found'], 404);
         } catch (Exception $e) {
             Log::error('Failed to fetch merchant: ' . $e->getMessage());
-            return response()->json(['error' => 'Merchant not found'], 404);
+            return response()->json(['error' => 'Failed to fetch merchant: ' . $e->getMessage()], 500);
         }
     }
 
@@ -97,31 +107,40 @@ class MerchantsController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'image' => 'string|nullable',
-            'name' => 'string|nullable',
-            'code' => 'string|nullable',
-            'email' => 'email|nullable',
-            'phone' => 'string|nullable',
-            'currency' => 'string|nullable',
-            'fax' => 'string|nullable',
-            'fiscal_information' => 'string|nullable',
-            'website' => 'string|nullable',
-            'description' => 'string|nullable',
-            'tags' => 'array|nullable',
-            'is_active' => 'boolean|nullable',
-            'location' => 'array|nullable',
-            'warehouses' => 'string|nullable',
-            'orgid' => 'integer|nullable',
+            'image' => 'nullable|string',
+            'name' => 'nullable|string',
+            'code' => 'nullable|string',
+            'email' => 'required|email',
+            'phone' => 'nullable|string',
+            'currency' => 'nullable|string',
+            'fax' => 'nullable|string',
+            'fiscal_information' => 'nullable|string',
+            'website' => 'nullable|string',
+            'description' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+            'is_active' => 'boolean',
+            'location' => 'nullable|array',
+            'warehouses' => 'nullable|string|exists:jo_warehouses,name',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        $data = $validator->validated();
+
+        if (isset($data['tags'])) {
+            $data['tags'] = json_encode($data['tags']);
+        }
+
         try {
             $merchant = Merchants::findOrFail($id);
-            $merchant->update($validator->validated());
-            return response()->json($merchant, 200);
+            $merchant->update($data);
+            return response()->json(['message' => 'Merchant updated successfully', 'merchant' => $merchant], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Merchant not found'], 404);
         } catch (Exception $e) {
             Log::error('Failed to update merchant: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update merchant'], 500);
@@ -137,6 +156,8 @@ class MerchantsController extends Controller
             $merchant = Merchants::findOrFail($id);
             $merchant->delete();
             return response()->json(['message' => 'Merchant deleted successfully'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Merchant not found'], 404);
         } catch (Exception $e) {
             Log::error('Failed to delete merchant: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to delete merchant'], 500);

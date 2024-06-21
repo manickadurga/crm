@@ -16,7 +16,7 @@ return new class extends Migration
             Schema::create('jo_clients', function (Blueprint $table) {
                 $table->id();
                 $table->string('image')->nullable();
-                $table->string('name')->nullable(false);
+                $table->string('clientsname')->nullable(false)->unique();
                 $table->string('primary_email')->nullable();
                 $table->string('primary_phone')->nullable();
                 $table->string('website')->nullable();
@@ -28,7 +28,6 @@ return new class extends Migration
                 $table->json('location')->nullable();
                 $table->string('type')->nullable();
                 $table->integer('type_suffix')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\Vendor;
+use App\Models\Tags;
 use App\Models\Vendors;
 use Exception;
 use Illuminate\Validation\ValidationException;
@@ -42,13 +42,25 @@ class VendorsController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'name' => 'required|string',
+                'vendor_name' => 'required|string',
                 'phone' => 'nullable|integer',
                 'email' => 'required|string|email',
                 'website' => 'nullable|string',
                 'tags' => 'nullable|array',
                 'orgid' => 'nullable|integer',
             ]);
+            if (isset($validatedData['tags'])) {
+                $tags = [];
+                foreach ($validatedData['tags'] as $tagName) {
+                    $tag = Tags::where('tags_name', $tagName)->first();
+                    if ($tag) {
+                        $tags[] = $tag->tags_name;
+                    } else {
+                        throw ValidationException::withMessages(['tags' => "Tag '$tagName' does not exist in the 'jo_tags' table"]);
+                    }
+                }
+                $validatedData['tags'] = json_encode($tags);
+            }
 
             $vendor = Vendors::create($validatedData);
             return response()->json($vendor, 201);
@@ -77,11 +89,13 @@ class VendorsController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'name' => 'required|string',
+                'vendor_name' => 'required|string',
                 'phone' => 'nullable|integer',
                 'email' => 'required|string|email',
                 'website' => 'nullable|string',
                 'tags' => 'nullable|array',
+                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
                 'orgid' => 'nullable|integer',
             ]);
 

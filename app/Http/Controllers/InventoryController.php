@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use App\Models\Tags;
 
 class InventoryController extends Controller
 {
@@ -44,34 +45,40 @@ class InventoryController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'image' => 'nullable|string',
-                'name' => 'required|string',
-                'code' => 'required|string',
-                'product_type' => 'required|string',
-                'product_category' => 'required|string',
-                'description' => 'nullable|string',
-                'enabled' => 'boolean',
-                'options' => 'nullable|array',
-                'tags' => 'nullable|array',
-                'add_variants' => 'nullable|array',
-                'orgid'=>'nullable|numeric'
-            ]);
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'image' => 'nullable|string',
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'product_type' => 'required|string|exists:jo_product_types,name',
+            'product_category' => 'required|string|exists:jo_product_categories,name',
+            'description' => 'nullable|string',
+            'enabled' => 'boolean',
+            'options' => 'nullable|array',
+            'tags' => 'nullable|array',
+            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+            'add_variants' => 'nullable|array',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 400);
-            }
-
-            $inventory = Inventory::create($request->all());
-
-            return response()->json(['message' => 'Inventory created successfully', 'inventory' => $inventory], 201);
-        } catch (Exception $e) {
-            Log::error('Failed to create inventory: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to create inventory: ' . $e->getMessage()], 500);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
         }
+
+        $data = $validator->validated();
+        $inventory = Inventory::create($data);
+
+        return response()->json(['message' => 'Inventory created successfully', 'inventory' => $inventory], 201);
+    } catch (ValidationException $e) {
+        // Return validation error response
+        return response()->json(['errors' => $e->validator->errors()], 422);
+    } catch (Exception $e) {
+        Log::error('Failed to create inventory: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to create inventory: ' . $e->getMessage()], 500);
     }
+}
+
 
     /**
      * Display the specified resource.
@@ -97,28 +104,52 @@ class InventoryController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'image' => 'nullable|string',
-                'name' => 'string|nullable',
-                'code' => 'string|nullable',
-                'product_type' => 'string|nullable',
-                'product_category' => 'string|nullable',
-                'description' => 'string|nullable',
-                'enabled' => 'boolean|nullable',
-                'options' => 'array|nullable',
-                'tags' => 'array|nullable',
-                'add_variants' => 'array|nullable',
-                'orgid'=>'nullable|numeric'
+                'name' => 'required|string',
+                'code' => 'required|string',
+                'product_type' => 'required|string|exists:jo_product_types,name',
+                'product_category' => 'required|string|exists:jo_product_categories,name',
+                'description' => 'nullable|string',
+                'enabled' => 'boolean',
+                'options' => 'nullable|array',
+                'tags' => 'nullable|array',
+                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+                'add_variants' => 'nullable|array',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-
+    
+            $data = $validator->validated();
+    
+            if (isset($data['tags'])) {
+                $tags = [];
+    
+                foreach ($data['tags'] as $tagName) {
+                    // Check if the tag exists in the Tags model
+                    $tag = Tags::where('tags_name', $tagName)->first();
+    
+                    if ($tag) {
+                        // If the tag exists, add it to the array of tags
+                        $tags[] = $tag->tags_name;
+                    } else {
+                        // If the tag doesn't exist, throw a validation exception
+                        throw ValidationException::withMessages(['tags' => "Tag '$tagName' does not exist in the 'jo_tags' table"]);
+                    }
+                }
+    
+                // Convert the tags array to JSON
+                $data['tags'] = json_encode($tags);
+            }
+    
             $inventory = Inventory::findOrFail($id);
-            $inventory->update($request->all());
-
+            $inventory->update($data);
+    
             return response()->json(['message' => 'Inventory updated successfully', 'inventory' => $inventory], 200);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()], 400);
+            // Return validation error response
+            return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Inventory not found'], 404);
         } catch (Exception $e) {
@@ -126,7 +157,7 @@ class InventoryController extends Controller
             return response()->json(['error' => 'Failed to update inventory: ' . $e->getMessage()], 500);
         }
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */

@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->boolean('split_expense')->default(false)->nullable();
                 $table->decimal('value')->nullable(false);
                 $table->string('currency')->default('BGN')->nullable();
-                $table->integer('orgid')->nullable();
+
                 $table->timestamps();
             });
         } catch (\Exception $e) {

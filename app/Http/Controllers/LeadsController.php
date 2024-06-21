@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Tags;
+use Illuminate\Validation\ValidationException;
 
 
 class LeadsController extends Controller
@@ -26,35 +28,67 @@ class LeadsController extends Controller
         try {
             // Validate request data
             $validator = Validator::make($request->all(), [
-                'image'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'name'=>'required|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'name' => 'required|string',
                 'primary_email' => 'nullable|string',
                 'primary_phone' => 'nullable|string',
-                'website'=>'nullable|string',
-                'fax'=>'nullable|string',
+                'website' => 'nullable|string',
+                'fax' => 'nullable|string',
                 'fiscal_information' => 'nullable|string',
-                'projects'=>'nullable|array',
-                'contact_type'=>'nullable|string',
-                'tags'=>'nullable|array',
-                'location'=>'nullable|array',
-                'type'=>'nullable|string',
-                'type_suffix'=>'nullable|numeric',
-                'org_id'=>'nullable|numeric'
+                'projects' => 'nullable|array',
+                'contact_type' => 'nullable|string',
+                'tags' => 'nullable|array',
+                'location' => 'nullable|array',
+                'type' => 'nullable|string',
+                'type_suffix' => 'nullable|numeric',
+                'org_id' => 'nullable|numeric'
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-
-            // Create estimate
-            Leads::create($request->all());
-
+    
+            $data = $validator->validated();
+    
+            if (isset($data['tags'])) {
+                $tags = [];
+    
+                foreach ($data['tags'] as $tagName) {
+                    // Check if the tag exists in the Tags model
+                    $tag = Tags::where('tags_name', $tagName)->first();
+    
+                    if ($tag) {
+                        // If the tag exists, add it to the array of tags
+                        $tags[] = $tag->tags_name;
+                    } else {
+                        // If the tag doesn't exist, throw a validation exception
+                        throw ValidationException::withMessages(['tags' => "Tag '$tagName' does not exist in the 'jo_tags' table"]);
+                    }
+                }
+    
+                // Convert the tags array to JSON
+                $data['tags'] = json_encode($tags);
+            }
+    
+            // Handle image upload if provided
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $path = $image->store('images', 'public'); // Store the image in the 'public/images' directory
+                $data['image_path'] = $path; // Assuming you have an 'image_path' column in your leads table
+            }
+    
+            Leads::create($data);
+    
             return response()->json(['message' => 'Leads created successfully'], 201);
+        } catch (ValidationException $e) {
+            // Return validation error response
+            return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            Log::error('Failed to create estimate: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to create Leads: ' . $e->getMessage()], 500);
+            Log::error('Failed to create lead: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create lead: ' . $e->getMessage()], 500);
         }
     }
+    
     public function update(Request $request, int $id)
 {
     try {
@@ -70,6 +104,8 @@ class LeadsController extends Controller
             'projects' => 'nullable|array',
             'contact_type' => 'nullable|string',
             'tags' => 'nullable|array',
+            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
             'location' => 'nullable|array',
             'type' => 'nullable|string',
             'type_suffix' => 'nullable|numeric',
@@ -77,17 +113,36 @@ class LeadsController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'errors' => $validator->messages()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $data = $validator->validated();
+
+        if (isset($data['tags'])) {
+            $tags = [];
+
+            foreach ($data['tags'] as $tagName) {
+                // Check if the tag exists in the Tags model
+                $tag = Tags::where('tags_name', $tagName)->first();
+
+                if ($tag) {
+                    // If the tag exists, add it to the array of tags
+                    $tags[] = $tag->tags_name;
+                } else {
+                    // If the tag doesn't exist, throw a validation exception
+                    throw ValidationException::withMessages(['tags' => "Tag '$tagName' does not exist in the 'jo_tags' table"]);
+                }
+            }
+
+            // Convert the tags array to JSON
+            $data['tags'] = json_encode($tags);
         }
 
         // Find the lead by ID, or throw a ModelNotFoundException if not found
         $lead = Leads::findOrFail($id);
 
         // Update the lead fields with the validated data
-        $lead->fill($request->all());
+        $lead->fill($data);
 
         // Handle the optional fields that are arrays
         if ($request->has('projects')) {
@@ -113,23 +168,20 @@ class LeadsController extends Controller
         // Return a JSON response indicating successful update
         return response()->json([
             'status' => 200,
-            'message' => 'Lead updated successfully'
+            'message' => 'Lead updated successfully',
+            'lead' => $lead
         ], 200);
-
-    } catch (ModelNotFoundException $ex) {
-        return response()->json([
-            'status' => 404,
-            'message' => 'Lead not found'
-        ], 404);
-
-    } catch (\Exception $ex) {
-        return response()->json([
-            'status' => 500,
-            'message' => 'An error occurred while updating the lead',
-            'error' => $ex->getMessage()
-        ], 500);
+    } catch (ValidationException $e) {
+        // Return validation error response
+        return response()->json(['errors' => $e->validator->errors()], 422);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Lead not found'], 404);
+    } catch (\Exception $e) {
+        Log::error('Failed to update lead: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to update lead: ' . $e->getMessage()], 500);
     }
 }
+
 
     public function show($id)
     {

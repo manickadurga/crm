@@ -19,7 +19,6 @@ return new class extends Migration
                 $table->text('description')->nullable();
                 $table->boolean('is_active')->default(false);
                 $table->json('stages')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

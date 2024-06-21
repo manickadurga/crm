@@ -25,7 +25,6 @@ return new class extends Migration
                 $table->string('currency')->nullable();
                 $table->json('tags')->nullable();
                 $table->boolean('auto_approve')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

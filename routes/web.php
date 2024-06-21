@@ -2,42 +2,53 @@
 use App\Mail\InviteMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CustomersController;
-use App\Http\Controllers\PipelinesController;
+use App\Http\Controllers\ModuleStudioController;
+use App\Http\Controllers\UserController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 
 Route::view('/', 'app')
 ->where('any', '.*');
-Route::group([], function () {
-    Route::resource('customers', CustomersController::class)->names('customers');
+
+Route::get('login', [AuthController::class, 'index'])->name('login');
+
+Route::post('post-login', [AuthController::class, 'postLogin'])->name('login.post'); 
+
+Route::get('registration', [AuthController::class, 'registration'])->name('register');
+
+Route::post('post-registration', [AuthController::class, 'postRegistration'])->name('register.post'); 
+
+Route::get('dashboard', [AuthController::class, 'dashboard']); 
+
+Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/form/step1', [ModuleStudioController::class, 'step1'])->name('form');
+Route::post('/form/step1', [ModuleStudioController::class, 'step1Post'])->name('form.step1.post');
+
+Route::post('/check-module-name', [ModuleStudioController::class, 'checkModuleName'])->name('form.checkModuleName');
+
+Route::get('/form/step2', [ModuleStudioController::class, 'step2'])->name('form.step2');
+Route::post('/form/step2', [ModuleStudioController::class, 'step2Post'])->name('form.step2.post');
+
+Route::get('/form/step3',[ModuleStudioController::class, 'step3'])->name('form.step3');
+Route::post('/form/step3',[ModuleStudioController::class, 'step3Post'])->name('form.step3.post');
+
+Route::get('/form/step4', [ModuleStudioController::class, 'step4'])->name('form.step4');
+Route::post('/form/step4',[ModuleStudioController::class, 'step4Post'])->name('form.step4.post');
+
+Route::get('/ajax', function () {
+    return view('modulestudio::ajax');
 });
+Route::post('/ajax-request', [ModuleStudioController::class, 'step4Post'])->name('ajax.request');
 
-Route::get('/csrf-token', function () {
-    return response()->json(['csrfToken' => csrf_token()]);
-});
+Route::get('/form/success', [ModuleStudioController::class, 'success'])->name('form.success');
 
-// Display a listing of the customers
-Route::get('/customers', [CustomersController::class, 'index']);
-
-// Store a newly created customer
-Route::post('/customers', [CustomersController::class, 'store']);
+Route::resource('users', UserController::class);
 
 
-// Remove the specified customer
-Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
+Route::resource('purchase', 'PurchaseController');
 
-// Display the specified customer
-Route::get('/customers/{id}', [CustomersController::class, 'show']);
-
-// Update the specified customer
-Route::put('/customers/{id}', [CustomersController::class, 'update']);
-
-// Show the form for editing the specified customer
-Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);
-
-Route::get('/pipelines',[PipelinesController::class,'index']);
-Route::post('/pipelines',[PipelinesController::class,'store']);
-
+Route::get('/customers',[CustomersController::class,'index']);
+Route::post('/customers',[CustomersController::class,'store']);
+Route::delete('/customers/{id}',[CustomersController::class,'destroy']);

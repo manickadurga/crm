@@ -16,7 +16,7 @@ return new class extends Migration
             Schema::create('jo_employees', function (Blueprint $table) {
                 $table->id();
                 $table->string('image')->nullable();
-                $table->string('first_name')->nullable();
+                $table->string('first_name')->nullable()->unique();
                 $table->string('last_name')->nullable();
                 $table->string('username')->nullable();
                 $table->string('email')->nullable(false);

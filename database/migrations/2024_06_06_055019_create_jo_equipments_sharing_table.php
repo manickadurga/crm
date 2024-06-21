@@ -24,7 +24,6 @@ return new class extends Migration
                 $table->date('select_request_date')->default(DB::raw('CURRENT_DATE'));
                 $table->date('select_start_date')->nullable(false);
                 $table->date('select_end_date')->nullable(false);
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (Exception $e) {

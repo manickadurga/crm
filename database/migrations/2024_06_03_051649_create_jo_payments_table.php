@@ -27,7 +27,6 @@ class CreateJoPaymentsTable extends Migration
                 $table->json('tags')->nullable();
                 $table->bigInteger('amount')->nullable(false);
                 $table->text('note')->nullable();
-                $table->integer('orgid')->nullable();
                 $table->timestamps();
             });
         } catch (\Exception $e) {

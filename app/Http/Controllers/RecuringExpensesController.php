@@ -47,11 +47,10 @@ class RecuringExpensesController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:255',
+            'category_name' => 'string|required|exits:jo_manage_categories,expense_name',
             'split_expense' => 'boolean',
             'value' => 'required|numeric',
-            'currency' => 'string|max:3',
-            'orgid' => 'integer|nullable',
+            'currency' => 'string|max:300',
         ]);
 
         if ($validator->fails()) {
@@ -87,11 +86,10 @@ class RecuringExpensesController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:255',
+            'category_name' => 'string|required|exits:jo_manage_categories,expense_name',
             'split_expense' => 'boolean',
             'value' => 'required|numeric',
-            'currency' => 'string|max:3',
-            'orgid' => 'integer|nullable',
+            'currency' => 'string|max:300',
         ]);
 
         if ($validator->fails()) {
