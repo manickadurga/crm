@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vendors extends Model
 {
     use HasFactory;
+<<<<<<< HEAD
     protected $table='jo_vendors';
     protected $guarded=[];
     protected $casts=[
@@ -15,3 +16,13 @@ class Vendors extends Model
         'tags'=>'array',
     ];
 }
+=======
+    protected $guarded = [];
+    protected $table="jo_vendors";
+    protected $casts=[
+             'tags'=>'array'
+         ];
+        
+}
+
+>>>>>>> 68e4740 (Issue -#35)

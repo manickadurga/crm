@@ -1,5 +1,15 @@
 {
     "Customers": true,
     "Products": true,
-    "ModuleStudio": true
+    "ModuleStudio": true,
+    "TeamTask": true,
+    "Controller": true,
+    "TeamTaskController": true,
+    "TeamtaskController": true,
+    "TeamtasksController": true,
+    "Teamtask": true,
+    "Migration": true,
+    "CreateTeamtaskTable": true,
+    "CreateTeamstaskTable": true,
+    "Migrate": true
 }

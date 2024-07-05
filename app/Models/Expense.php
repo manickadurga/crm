@@ -16,4 +16,8 @@ class Expense extends Model
       'contacts'=>'array',
       //'currency'=>'array'
     ];
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 68e4740 (Issue -#35)

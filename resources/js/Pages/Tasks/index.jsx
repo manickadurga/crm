@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { Space, Table, Button, Modal, Input, Select, Tag, DatePicker } from "antd";
+=======
+import { Space, Table, Button, Modal, Collapse, Input, Select, Tag, DatePicker, Tooltip, Typography } from "antd";
+>>>>>>> 68e4740 (Issue -#35)
 import { EyeOutlined, DeleteOutlined, ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { getTasks } from "../../API";
 import { Link } from "react-router-dom";
 import TasksForm from "./form";
 
+<<<<<<< HEAD
 const { Option } = Select;
+=======
+const { Panel } = Collapse;
+const { Option } = Select;
+const { RangePicker } = DatePicker;
+>>>>>>> 68e4740 (Issue -#35)
 
 const selectOptions = [
   {
@@ -38,6 +48,11 @@ function Tasks() {
 
   const [columns, setColumns] = useState([]);
 
+<<<<<<< HEAD
+=======
+  const [comments, setComments] = useState([]);
+
+>>>>>>> 68e4740 (Issue -#35)
   useEffect(() => {
     setLoading(true);
     getTasks().then((res) => {
@@ -47,6 +62,7 @@ function Tasks() {
       // Generate columns dynamically
       const firstRowKeys = Object.keys(res.tasks[0]);
       const generatedColumns = firstRowKeys.map((key, index) => ({
+<<<<<<< HEAD
         title: (
           <div>
             <div style={{borderBottom:'1px solid #eee',marginBottom:8,paddingBottom:4, textAlign:'center'}}>{key.charAt(0).toUpperCase() + key.slice(1)}</div>
@@ -84,6 +100,9 @@ function Tasks() {
             )}
           </div>
         ),
+=======
+        title: key.charAt(0).toUpperCase() + key.slice(1),
+>>>>>>> 68e4740 (Issue -#35)
         dataIndex: key,
         render: (text) => {
           if (key === 'tags') {
@@ -118,6 +137,45 @@ function Tasks() {
 
       setLoading(false);
     });
+<<<<<<< HEAD
+=======
+    const commentsData = [
+      {
+        id: 1,
+        avatar: 'https://example.com/avatar1.png',
+        name: 'John Doe',
+        dateTime: '2024-05-15 10:30 AM',
+        commentTitle: 'Great work!',
+        commentDescription: 'This is awesome!',
+      },
+      {
+        id: 2,
+        avatar: 'https://example.com/avatar2.png',
+        name: 'Jane Smith',
+        dateTime: '2024-05-14 02:45 PM',
+        commentTitle: 'Impressive',
+        commentDescription: 'Keep it up!',
+      },
+      {
+        id: 3,
+        avatar: 'https://example.com/avatar1.png',
+        name: 'Tommy',
+        dateTime: '2024-05-12 10:30 AM',
+        commentTitle: 'Great ba!',
+        commentDescription: 'This is awesome!',
+      },
+      {
+        id: 4,
+        avatar: 'https://example.com/avatar2.png',
+        name: 'marc',
+        dateTime: '2024-05-12 02:45 PM',
+        commentTitle: 'Impressive lyy',
+        commentDescription: 'Keep it up!',
+      },
+    ];
+
+    setComments(commentsData);
+>>>>>>> 68e4740 (Issue -#35)
   }, []);
 
   const handleDateSearch = (date, dateString, dataIndex) => {
@@ -139,7 +197,11 @@ function Tasks() {
     const value = record[searchColumn];
     if (!value) return false;
 
+<<<<<<< HEAD
     if (searchColumn === 'createdDate' || searchColumn === 'dueDate') {
+=======
+    if (searchColumn === 'invoiceDate' || searchColumn === 'dueDate') {
+>>>>>>> 68e4740 (Issue -#35)
       const dateValue = new Date(value).getTime();
       const searchTextValue = new Date(searchText).getTime();
       return dateValue === searchTextValue;
@@ -188,6 +250,39 @@ function Tasks() {
         </Link>
       </div>
 
+<<<<<<< HEAD
+=======
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', rowGap: '8px', justifyContent:'space-between' }}>
+        {columns.slice(0, -6).map((column, index) => (
+          <Input
+            key={index}
+            placeholder={`Search ${column.title}`}
+            onChange={e => handleColumnSearch(e.target.value, column.dataIndex)}
+            style={{ maxWidth: '240px' }}
+          />
+        ))}
+        <DatePicker
+          style={{ maxWidth: '240px' }}
+          onChange={(date, dateString) => handleDateSearch(date, dateString, 'createdDate')}
+        />
+        <DatePicker
+          style={{ maxWidth: '240px' }}
+          onChange={(date, dateString) => handleDateSearch(date, dateString, 'dueDate')}
+        />
+        {selectOptions.map((select, index) => (
+          <Select
+            key={index}
+            placeholder={`Filter by ${select.title}`}
+            style={{ maxWidth: '240px' }}
+            onChange={value => handleColumnSearch(value, select.dataIndex)}
+          >
+            {select.options.map((option, optionIndex) => (
+              <Option key={optionIndex} value={option}>{option}</Option>
+            ))}
+          </Select>
+        ))}
+      </div>
+>>>>>>> 68e4740 (Issue -#35)
       <div style={{ overflowX: 'scroll' }}>
         <Table
           className="datatable tasks-table"
@@ -198,6 +293,7 @@ function Tasks() {
           pagination={{
             pageSize: 8,
           }}
+<<<<<<< HEAD
         />
         <Modal
           title="Delete Confirmation"
@@ -218,11 +314,77 @@ function Tasks() {
         >
           <TasksForm />
         </Modal>
+=======
+        /><Modal
+        title="Delete Confirmation"
+        visible={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        onOk={handleDelete}
+        okText="Delete"
+        cancelText="Cancel"
+      >
+        Are you sure you want to delete the selected item(s)?
+      </Modal>
+      <Modal
+        title="View Details"
+        visible={viewModalVisible}
+        onCancel={() => setViewModalVisible(false)}
+        footer={null}
+      >
+        <div>
+          <strong>Tasks Number:</strong> {selectedRecord && selectedRecord.tasksnumber}
+        </div>
+        <div>
+          <strong>Projects:</strong> {selectedRecord && selectedRecord.projects && selectedRecord.projects.map(project => (
+            <div key={project.id}>
+              <div><strong>Name:</strong> {project.name}</div>
+              <div><strong>Description:</strong> {project.description}</div>
+              {/* Add more project fields as needed */}
+            </div>
+          ))}
+        </div>
+        <div>
+          <strong>Status:</strong> {selectedRecord && selectedRecord.status}
+        </div>
+        <div>
+          <strong>Teams:</strong> {selectedRecord && selectedRecord.teams}
+        </div>
+        <div>
+          <strong>Title:</strong> {selectedRecord && selectedRecord.title}
+        </div>
+        <div>
+          <strong>Priority:</strong> {selectedRecord && selectedRecord.priority}
+        </div>
+        <div>
+          <strong>Size:</strong> {selectedRecord && selectedRecord.size}
+        </div>
+        <div>
+          <strong>Tags:</strong> {selectedRecord && selectedRecord.tags && selectedRecord.tags.map(tag => (
+            <span key={tag}>{tag}, </span>
+          ))}
+        </div>
+        <div>
+          <strong>Due Date:</strong> {selectedRecord && selectedRecord.duedate}
+        </div>
+        <div>
+          <strong>Estimate Days:</strong> {selectedRecord && selectedRecord.estimate_days}
+        </div>
+        <div>
+          <strong>Estimate Hours:</strong> {selectedRecord && selectedRecord.estimate_hours}
+        </div>
+        <div>
+          <strong>Estimate Minutes:</strong> {selectedRecord && selectedRecord.estimate_minutes}
+        </div>
+      </Modal>
+      
+        <TasksForm/>
+>>>>>>> 68e4740 (Issue -#35)
       </div>
     </Space>
   );
 }
 
+<<<<<<< HEAD
 export default Tasks;
 
 
@@ -495,3 +657,6 @@ export default Tasks;
 // }
 
 // export default Tasks;
+=======
+export default Tasks;
+>>>>>>> 68e4740 (Issue -#35)

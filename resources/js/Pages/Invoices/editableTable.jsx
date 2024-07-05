@@ -67,11 +67,19 @@ const EditableTable = () => {
 
   const handleInvTable = () => {
     const newOriginData = [
+<<<<<<< HEAD
       { key: '1', name: 'sharp Brown', age: 32, location: 'New York No. 1 Lake Park' },
       { key: '2', name: 'sharp Green', age: 42, location: 'London No. 1 Lake Park' },
       { key: '3', name: 'sharp Black', age: 32, location: 'Sidney No. 1 Lake Park' },
     ];
 
+=======
+      { id: '1', label: 'sharp Brown', age: 32, location: 'New York No. 1 Lake Park', status: 'active' },
+      { id: '2', label: 'sharp Green', age: 42, location: 'London No. 1 Lake Park', status: 'active' },
+      { id: '3', label: 'sharp Black', age: 32, location: 'Sidney No. 1 Lake Park', status: 'active' },
+    ];
+    
+>>>>>>> 68e4740 (Issue -#35)
     const newColumns = Object.keys(newOriginData[0]).map((key) => ({
       title: key,
       dataIndex: key,
@@ -112,12 +120,20 @@ const EditableTable = () => {
   const isEditing = (record) => record.key === editingKey;
 
   const edit = (record) => {
+<<<<<<< HEAD
     form.setFieldsValue({
       name: '',
       age: '',
       location: '',
       ...record,
     });
+=======
+    const fieldValues = {};
+    Object.keys(record).forEach((key) => {
+      fieldValues[key] = record[key];
+    });
+    form.setFieldsValue(fieldValues);
+>>>>>>> 68e4740 (Issue -#35)
     setEditingKey(record.key);
   };
 
@@ -133,7 +149,14 @@ const EditableTable = () => {
       const index = newData.findIndex((item) => key === item.key);
       if (index > -1) {
         const item = newData[index];
+<<<<<<< HEAD
         newData.splice(index, 1, { ...item, ...row });
+=======
+        newData.splice(index, 1, {
+          ...item,
+          ...row,
+        });
+>>>>>>> 68e4740 (Issue -#35)
         setData(newData);
         setEditingKey('');
       } else {
@@ -148,7 +171,11 @@ const EditableTable = () => {
 
   const addRow = () => {
     const newRowKey = (data.length + 1).toString();
+<<<<<<< HEAD
     const newRecord = { key: newRowKey, name: '', age: '', location: '' };
+=======
+    const newRecord = { key: newRowKey, id: '', label: '', age: '', location: '' };
+>>>>>>> 68e4740 (Issue -#35)
     setData([...data, newRecord]);
     setEditingKey(newRowKey);
     setIsAddingRow(true);
@@ -233,6 +260,7 @@ export default EditableTable;
 
 
 
+<<<<<<< HEAD
 // import React, { useState } from 'react';
 // import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Select } from 'antd';
 
@@ -470,6 +498,8 @@ export default EditableTable;
 
 
 
+=======
+>>>>>>> 68e4740 (Issue -#35)
 // EDIT, SAVE/CANCEL IS NOT WORKING
 
 // import React, { useState } from 'react';
@@ -944,4 +974,8 @@ export default EditableTable;
 //     );
 //   };
   
+<<<<<<< HEAD
 // export default EditableTable;
+=======
+// export default EditableTable;
+>>>>>>> 68e4740 (Issue -#35)

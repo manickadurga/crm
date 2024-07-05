@@ -11,4 +11,8 @@ class Tab extends Model
     protected $table = 'jo_tabs';
     protected $primaryKey = 'tabid';
     protected $guarded = [];
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 68e4740 (Issue -#35)

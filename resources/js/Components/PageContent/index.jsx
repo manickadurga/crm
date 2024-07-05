@@ -46,12 +46,33 @@ const items = [
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
+<<<<<<< HEAD
   { icon: <FlagOutlined />, label: 'Tasks',
     children: [
       { path:'/tasks', icon:<ShoppingCartOutlined />, label: 'Dashboard' },
       { path:'/tasks/teams', icon:<ShoppingCartOutlined />, label: 'Teams Tasks'}
     ] 
   },
+=======
+  // { icon: <UserOutlined />, label: 'Tasks',
+  //   children: [
+  //     { path:'/tasks', icon:<ShoppingCartOutlined />, label: 'customers' },
+  //     { path:'/manage', icon:<ShoppingCartOutlined />, label: 'manage'}
+  //   ] 
+  // },
+  { icon: <UserOutlined />, label: 'Team Tasks',
+    children: [
+      { path: '/tasks/teams', icon: <ShoppingCartOutlined />, label: 'View Team Tasks' },
+      // { path: '/tasks/teams/createform', icon: <ShoppingCartOutlined />, label: 'Create Team Task' }
+    ]
+  }
+  // { icon: <UserOutlined />, label: 'Invoices',
+  //   children: [
+  //     { path:'/Invoices', icon:<ShoppingCartOutlined />, label: 'customers' },
+  //     { path:'/Contact', icon:<ShoppingCartOutlined />, label: 'contact'}
+  //   ] 
+  // },
+>>>>>>> 68e4740 (Issue -#35)
 ];
 // const items = [
 //   { key:'1', path: '/', icon: <AppstoreOutlined />, label: 'Dashboard' },

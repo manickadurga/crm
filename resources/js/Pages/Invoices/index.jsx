@@ -282,4 +282,8 @@ function Invoices() {
   );
 }
 
+<<<<<<< HEAD
 export default Invoices;
+=======
+export default Invoices;
+>>>>>>> 68e4740 (Issue -#35)

@@ -22,4 +22,8 @@ class Product extends Model
         return $query->where('product_type', $productTypeName);
     }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 68e4740 (Issue -#35)

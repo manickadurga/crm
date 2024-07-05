@@ -33,19 +33,28 @@ return [
     |            "postmark", "log", "array", "failover", "roundrobin"
     |
     */
-
-    'mailers' => [
-
+    
+       'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
+<<<<<<< HEAD
             'host' => env('MAIL_HOST', 'smtp.gmail.com'), // Use Outlook SMTP server
             'port' => env('MAIL_PORT', 587), // Outlook SMTP port
             'encryption' => env('MAIL_ENCRYPTION', 'tls'), // Use TLS encryption
             'username' => env('MAIL_USERNAME', 'sukasini2001@gmail.com'), // Your Outlook email address
             'password' => env('MAIL_PASSWORD', 'yydltuacnazwlzyz'), // Your Outlook email password
+=======
+            'host' => env('MAIL_HOST', 'smtp.gmail.com'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME','mukilaraj1007@gmail.com'),
+            'password' => env('MAIL_PASSWORD','qrwtlvidioubfqbc'),
+>>>>>>> 68e4740 (Issue -#35)
             'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'local_domain'=>env('MAIL_EHLO_DOMAIN'),
+            
         ],
+    ],
 
 
     
@@ -92,7 +101,7 @@ return [
             ],
         ],
 
-    ],
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -104,9 +113,16 @@ return [
     | used globally for all emails that are sent by your application.
     |
     */
-
     'from' => [
+<<<<<<< HEAD
         'address' => env('MAIL_FROM_ADDRESS', 'sukasini2001@gmail.com'), // Your Outlook email address
         'name' => env('MAIL_FROM_NAME', 'SUKASINI'), // Your Name or Your App Name
     ],
 ];
+=======
+        'address' => env('MAIL_FROM_ADDRESS', 'mukilaraj1007@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', 'mukila'),
+    ],
+
+];
+>>>>>>> 68e4740 (Issue -#35)

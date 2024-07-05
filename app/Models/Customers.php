@@ -26,4 +26,8 @@ class Customers extends Model
     //     return Tags::whereIn('id', json_decode($this->attributes['tags']))->get();
     // }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 68e4740 (Issue -#35)

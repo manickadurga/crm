@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { Space, Table, Button, Modal, Input, Select, Tag, DatePicker, Tooltip, Typography } from "antd";
 import { EyeOutlined, DeleteOutlined, ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { getTasks } from "../../API";
+=======
+import { Space, Table, Button, Modal, Input, Select, Tag, DatePicker, Row, Col, Card, Tooltip, Typography,message } from "antd";
+import {  EyeOutlined, DeleteOutlined, ArrowLeftOutlined, EditOutlined, PlusOutlined,UnorderedListOutlined, WindowsOutlined,UserOutlined} from "@ant-design/icons";
+import { getTasks, getTeamtask } from "../../API";
+import axios from "axios";
+>>>>>>> 68e4740 (Issue -#35)
 import { Link } from "react-router-dom";
 import TasksForm from "./form";
 
@@ -18,11 +25,19 @@ const selectOptions = [
     dataIndex: "paid",
     options: ['none','paid', 'unpaid']
   },
+<<<<<<< HEAD
   {
     title: "Status",
     dataIndex: "status",
     options: ['none','inprogress', 'pending', 'completed']
   }
+=======
+  // {
+  //   title: "Status",
+  //   dataIndex: "status",
+  //   options: ['none','inprogress', 'pending', 'completed']
+  // }
+>>>>>>> 68e4740 (Issue -#35)
 ];
 
 function TeamsTasks() {
@@ -30,6 +45,7 @@ function TeamsTasks() {
   const [dataSource, setDataSource] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [searchColumn, setSearchColumn] = useState("");
+<<<<<<< HEAD
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -45,6 +61,35 @@ function TeamsTasks() {
       setDataSource(res.tasks);
 
       // Generate columns dynamically
+=======
+  const [selectedTeamTask, setSelectedTeamTask] = useState(null);
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState([]);
+  // const [columns, setColumns] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [teamTasksIdToDelete,setTeamTasksIdToDelete]=useState(null)
+  const [columns, setColumns] = useState([]);
+
+  useEffect(() => {
+    fetchTeamtask(currentPage);
+  }, [currentPage]);
+
+
+  const fetchTeamtask = (page) => {
+    setLoading(true);
+    getTeamtask(page).then((res) => {
+      console.log("res", res);
+      setDataSource(res.tasks);
+      setTotalRecords(res.pagination.total);
+
+ // Generate columns dynamically
+>>>>>>> 68e4740 (Issue -#35)
       const firstRowKeys = Object.keys(res.tasks[0]);
       const generatedColumns = firstRowKeys.map((key, index) => ({
         title: (
@@ -60,7 +105,11 @@ function TeamsTasks() {
                   <Option key={optionIndex} value={option}>{option}</Option>
                 ))}
               </Select>
+<<<<<<< HEAD
             ) : key === 'paid' || key === 'status' ? (
+=======
+            ) : key === 'paid' || key === 'invoice_status' ? (
+>>>>>>> 68e4740 (Issue -#35)
               <Select
                 placeholder={`Filter by ${key}`}
                 style={{ width: '100%' }}
@@ -70,7 +119,11 @@ function TeamsTasks() {
                   <Option key={optionIndex} value={option}>{option}</Option>
                 ))}
               </Select>
+<<<<<<< HEAD
             ) : key === 'createdDate' || key === 'dueDate' ? (
+=======
+            ) : key === 'createdDate' || key === 'duedate' ? (
+>>>>>>> 68e4740 (Issue -#35)
               <DatePicker
                 style={{ width: '100%' }}
                 onChange={(date, dateString) => handleDateSearch(date, dateString, key)}
@@ -85,7 +138,29 @@ function TeamsTasks() {
           </div>
         ),
         dataIndex: key,
+<<<<<<< HEAD
         render: (text) => {
+=======
+      //   render: (text) => {
+      //     if (key === 'tags') {
+      //       return (
+      //         <>
+      //           {text.map((tag, index) => (
+      //             <Tag key={index} className={`badge-${tag}`}>{tag}</Tag>
+      //           ))}
+      //         </>
+      //       );
+      //     } else if (key === 'status' || key === 'paid') {
+      //       return <Tag className={`badge-${text.toLowerCase()}`}>{text}</Tag>;
+      //     } else {
+      //       return text;
+      //     }
+      //   }
+      // }));
+
+      render: (text) => {
+        if (text) {
+>>>>>>> 68e4740 (Issue -#35)
           if (key === 'tags') {
             return (
               <>
@@ -94,11 +169,16 @@ function TeamsTasks() {
                 ))}
               </>
             );
+<<<<<<< HEAD
           } else if (key === 'status' || key === 'paid') {
+=======
+          } else if (key === 'invoice_status' || key === 'paid') {
+>>>>>>> 68e4740 (Issue -#35)
             return <Tag className={`badge-${text.toLowerCase()}`}>{text}</Tag>;
           } else {
             return text;
           }
+<<<<<<< HEAD
         }
       }));
 
@@ -114,12 +194,24 @@ function TeamsTasks() {
         ),
       });
 
+=======
+        } else {
+          return null; // or handle the case where text is null
+        }
+      }
+        }));
+      
+>>>>>>> 68e4740 (Issue -#35)
       setColumns(generatedColumns);
 
       setLoading(false);
     });
 
+<<<<<<< HEAD
   }, []);
+=======
+  };
+>>>>>>> 68e4740 (Issue -#35)
 
   const handleDateSearch = (date, dateString, dataIndex) => {
     setSearchText(dateString);
@@ -140,22 +232,39 @@ function TeamsTasks() {
     const value = record[searchColumn];
     if (!value) return false;
 
+<<<<<<< HEAD
     if (searchColumn === 'createdDate' || searchColumn === 'dueDate') {
+=======
+    if (searchColumn === 'createdDate' || searchColumn === 'duedate') {
+>>>>>>> 68e4740 (Issue -#35)
       const dateValue = new Date(value).getTime();
       const searchTextValue = new Date(searchText).getTime();
       return dateValue === searchTextValue;
     } else if (searchColumn === 'tags') {
       return value.some(tag => tag.toLowerCase().includes(searchText.toLowerCase()));
+<<<<<<< HEAD
     } else if (searchColumn === 'status' || searchColumn === 'paid') {
+=======
+    } else if (searchColumn === 'invoice_status' || searchColumn === 'paid') {
+>>>>>>> 68e4740 (Issue -#35)
       return value.toLowerCase().includes(searchText.toLowerCase());
     } else {
       return value.toString().toLowerCase().includes(searchText.toLowerCase());
     }
   });
 
+<<<<<<< HEAD
   const showDeleteModal = (record) => {
     console.log('Delete:', record);
     setDeleteModalVisible(true);
+=======
+  const showDeleteModal = (id) => {
+    setTeamTasksIdToDelete(id);
+    setIsModalVisible(true);
+  };
+const handlePageChange = (page) => {
+    setCurrentPage(page);
+>>>>>>> 68e4740 (Issue -#35)
   };
 
   const handleDelete = () => {
@@ -171,6 +280,69 @@ function TeamsTasks() {
     setCreateModalVisible(false);
   };
 
+<<<<<<< HEAD
+=======
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setInvoiceIdToDelete(null);
+  };
+
+  const handleRowClick = (record) => {
+    setSelectedTeamTask(prevTeamTask => {
+      // Toggle selection if clicking on the same invoice
+      if (prevTeamTask && prevTeamTask.id === record.id) {
+        return null; // Deselect
+      } else {
+        return record; // Select the new invoice
+      }
+    });
+  };
+  const deleteTeamtask = async () => {
+    try {
+      if (!teamTasksIdToDelete) {
+        console.error('Invoice ID is undefined');
+        return;
+      }
+      await axios.delete(`http://127.0.0.1:8000/teamtasks/${teamTasksIdToDelete}`);
+      console.log('Teamtaks deleted');
+      setDataSource(dataSource.filter(teamTasks => teamTasks.id !== teamTasksIdToDelete)); // Update state
+      
+      message.success('Teamtask Deleted Successfully')
+      
+      setIsModalVisible(false);
+        currentPage();
+      // navigate('/tea'); // Redirect to the invoices page after deletion if needed
+    } catch (error) {
+      console.error('There was an error deleting the teamTasks:', error);
+    }
+  };
+  
+
+  const renderCardsComponent = (record) => (
+    <Row gutter={16}>
+      {dataSource.map((teamTasks) => (
+        <Col key={teamTasks.id} span={8}>
+          <Card
+            title={`TeamTask ${teamTasks.id}`}
+            onClick={() => handleRowClick(teamTasks)}
+            style={{
+              cursor: 'pointer',
+              backgroundColor: selectedTeamTask && selectedTeamTask.id === teamTasks.id ? '#f0f0f0' : 'white'
+            }}
+          >
+            {Object.keys(teamTasks).map((key) => (
+              <p key={key}>
+                <strong>{key}:</strong> {teamTasks[key]}
+              </p>
+            ))}
+          </Card>
+        </Col>
+      ))}
+    </Row>
+  );
+
+  
+>>>>>>> 68e4740 (Issue -#35)
   return (
     <Space size={20} direction="vertical" style={{ width: '100%' }}>
       <div style={{ position: 'sticky', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
@@ -182,11 +354,39 @@ function TeamsTasks() {
           </Link>
           <b style={{ fontSize: '18px', marginLeft: '18px' }}>Team's Tasks</b>
         </div>
+<<<<<<< HEAD
         <Link to="/tasks/teams/createform"> 
+=======
+        <div>
+        {selectedTeamTask && (
+    <>
+      <Link to={`/invoices/view/${selectedTeamTask.id}`}>
+        <Button type="link" style={{ marginRight: '8px', border: '1px solid #ccc', background: 'white' }}>
+          <EyeOutlined /> View
+        </Button>
+      </Link>
+      <Link to={`/tasks/teams/editfrom/${selectedTeamTask.id}`}>
+        <Button type="link" style={{ marginRight: '8px', border: '1px solid #ccc', background: 'white' }}>
+          <EditOutlined /> Edit
+        </Button>
+      
+      </Link>
+      <Button 
+        // type="danger" 
+        onClick={() => showDeleteModal(selectedTeamTask.id)} 
+        // onClick={() => showDeleteModal(selectedInvoice.id)} 
+        style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
+         <DeleteOutlined />
+      </Button>
+      </>
+  )}
+          <Link to="/tasks/teams/createform"> 
+>>>>>>> 68e4740 (Issue -#35)
         <Button type="primary" htmlType="button" icon={<PlusOutlined />} >
           Create
         </Button>
         </Link>
+<<<<<<< HEAD
       </div>
 
       <div style={{ overflowX: 'scroll' }}>
@@ -211,6 +411,57 @@ function TeamsTasks() {
           Are you sure you want to delete the selected item(s)?
         </Modal>
 
+=======
+        <Button
+            type={viewMode === 'table' ? 'primary' : 'default'}
+            onClick={() => setViewMode('table')}
+          >
+            <UnorderedListOutlined/> 
+          </Button>
+          <Button
+            type={viewMode === 'card' ? 'primary' : 'default'}
+            onClick={() => setViewMode('card')}
+          >
+             <WindowsOutlined/>
+             </Button>
+             </div>
+
+      </div>
+
+      <div style={{ overflowX: 'scroll' }}>
+      {viewMode === 'table' ? ( 
+        <Table
+        className="datatable tasks-table"
+        loading={loading}
+        columns={columns}
+        dataSource={filteredData}
+        scroll={{ x: true, y: 340 }}
+        pagination={{
+          current: currentPage,
+          pageSize: 10,
+          total: totalRecords,
+          onChange: handlePageChange,
+        }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          style: { 
+            cursor: 'pointer',
+            backgroundColor: selectedTeamTask && selectedTeamTask.id === record.id ? '#f0f0f0' : 'white',
+          },
+         })}
+      />
+      ):(renderCardsComponent())
+}
+        
+<Modal
+  title="Confirm Deletion"
+  visible={isModalVisible}
+  onOk={deleteTeamtask} // Call deleteInvoice on modal confirmation
+  onCancel={handleCancel}
+>
+  <p>Are you sure you want to delete this invoice?</p>
+</Modal>
+>>>>>>> 68e4740 (Issue -#35)
         <Modal
           title="Create Task"
           open={createModalVisible}
