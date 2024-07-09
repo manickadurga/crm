@@ -1,3 +1,6 @@
+
+// import axios from 'axios'; 
+
 export const getOrders = () => {
   return fetch("https://dummyjson.com/carts/1").then((res) => res.json());
 };
@@ -9,63 +12,63 @@ export const getRevenue = () => {
 export const getInventory = () => {
   return fetch("https://dummyjson.com/products").then((res) => res.json());
 };
+export const getTasks = () => {
+  return fetch("https://dummyjson.com/task").then((res) => res.json());
+};
+
 
 export const getCustomers = () => {
-  return fetch("https://dummyjson.com/users").then((res) => res.json());
+  return fetch("https://dummyjson.com/customers").then((res) => res.json());
 };
+// console.log(getCustomers());
+
 export const getComments = () => {
   return fetch("https://dummyjson.com/comments").then((res) => res.json());
 };
 
-export const getGoals = () => {
-  return new Promise((resolve, reject) => {
-    const data = {
-      "invoices": [
-        {
-          "invoiceNumber": "INV-001",
-          "invoiceDate": "2024-05-14",
-          "dueDate": "2024-06-14",
-          "totalValue": 1000.00,
-          "tax": 50.00,
-          "tax2": 20.00,
-          "discount": 100.00,
-          "contact": "John Doe",
-          "tags": ["urgent", "important"],
-          "paidStatus": "Paid",
-          "status": "Completed",
-        },
-        {
-          "invoiceNumber": "INV-002",
-          "invoiceDate": "2024-05-15",
-          "dueDate": "2024-06-15",
-          "totalValue": 1500.00,
-          "tax": 75.00,
-          "tax2": 30.00,
-          "discount": 50.00,
-          "contact": "Jane Smith",
-          "tags": ["pending"],
-          "paidStatus": "Unpaid",
-          "status": "Pending",
-        },
-        {
-          "invoiceNumber": "INV-003",
-          "invoiceDate": "2024-05-16",
-          "dueDate": "2024-06-16",
-          "totalValue": 2000.00,
-          "tax": 100.00,
-          "tax2": 40.00,
-          "discount": 200.00,
-          "contact": "Michael Johnson",
-          "tags": ["completed", "paid"],
-          "paidStatus": "Paid",
-          "status": "Completed",
-        }
-      ]
-    };
-    // Simulate an asynchronous operation with setTimeout
-    setTimeout(() => {
-      resolve(data); // Resolve the Promise with the JSON data
-    }, 1000); // Simulate 1 second delay
-  });
-};
+  export const getInvoices = async () => {
+    try {
+      const response = await fetch('http://127.0.01:8000/invoice'); // Update this URL to the correct API endpoint
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // console.log(data.teamtasks);
 
+      return data;
+    } catch (error) {
+      console.error('Error fetching Invoices:', error);
+      throw error; // Re-throw the error so it can be caught by the caller
+    }
+  };
+
+  import axios from 'axios';
+
+  export const deleteInvoice = async (deleteId) => {
+    try {
+      const response = await axios.delete(`http://127.0.0.1:8000/invoices/${deleteId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      throw error; // Re-throw the error so it can be caught by the caller
+    }
+  };
+
+
+  export const getInvoicesId = async (id) => {
+      const response = await axios.get(`http://127.0.0.1:8000/invoices/${id}`);
+      return response.data;
+  };
+
+  export const updateInvoices = async (id) => {
+    try {
+      const response = await axios.put(`http://127.0.0.1:8000/invoices/${id}`,data);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      throw error; // Re-throw the error so it can be caught by the caller
+    }
+  };
+  
+
+  

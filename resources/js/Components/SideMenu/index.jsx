@@ -15,12 +15,32 @@ const items = [
       { path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales'}
     ] 
   },
+  
+  { icon: <AppstoreOutlined />, label: 'Invoices',
+    children: [
+      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
+      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
+    ]
+  },
+  { icon: <AppstoreOutlined />, label: 'Task',
+    children: [
+      { path: '/task', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
+      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
+    ]
+  },
+  { icon: <AppstoreOutlined />, label: 'Teamtask',
+    children: [
+      { path: '/tasks/teams', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
+      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
+    ]
+  },
   { icon: <UserOutlined />, label: 'Contacts',
     children: [
       { path:'/customers', icon:<ShoppingCartOutlined />, label: 'Customers' },
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
+  
   { icon: <FlagOutlined />, label: 'Goals',
     children: [
       { path:'/goals', icon:<ShoppingCartOutlined />, label: 'Manage' },

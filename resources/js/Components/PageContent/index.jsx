@@ -23,6 +23,22 @@ const items = [
       { path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales'}
     ] 
   },
+  { icon: <AppstoreOutlined />, label: 'Invoices',
+    children: [
+      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoice' }
+    ]
+  },
+
+  { icon: <AppstoreOutlined />, label: 'Task',
+    children: [
+      { path: '/task', icon: <ShoppingCartOutlined />, label: 'View Task' }
+    ]
+  },
+  { icon: <AppstoreOutlined />, label: 'Teamtask',
+    children: [
+      { path: '/tasks/teams', icon: <ShoppingCartOutlined />, label: 'View TeamTask' },
+    ]
+  },
   { icon: <ShoppingCartOutlined />, label: 'Orders', 
     children: [
       { path:'/orders', icon:<ShoppingCartOutlined />, label: 'Purchase' },
