@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     use HasFactory;
-    protected $guarded = [];
-    protected $table = "jo_expenses";
+
+    protected $table='jo_expenses';
+    protected $guarded=[];
     protected $casts=[
-        'contact'=>'array'
+      'projects'=>'array',
+      'tags'=>'array',
+      'contacts'=>'array',
+      //'currency'=>'array'
     ];
 }
+

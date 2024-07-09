@@ -33,20 +33,23 @@ return [
     |            "postmark", "log", "array", "failover", "roundrobin"
     |
     */
+    
+       'mailers' => [
+        'smtp' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_HOST', 'smtp.gmail.com'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME','mukilaraj1007@gmail.com'),
+            'password' => env('MAIL_PASSWORD','qrwtlvidioubfqbc'),
+            'timeout' => null,
+            'local_domain'=>env('MAIL_EHLO_DOMAIN'),
+            
+        ],
+    ],
 
-    'mailers' => [
 
-            'smtp' => [
-                'transport' => 'smtp',
-                'url' => env('MAIL_URL'),
-                'host' => env('MAIL_HOST', 'smtp.gmail.com'),
-                'port' => env('MAIL_PORT', 587),
-                'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-                'username' => env('MAIL_USERNAME','maharajan1201@gmail.com'),
-                'password' => env('MAIL_PASSWORD','rcfomattairzzdfu'),
-                'timeout' => null,
-                'local_domain' => env('MAIL_EHLO_DOMAIN'),
-            ],
+    
 
         'ses' => [
             'transport' => 'ses',
@@ -90,7 +93,7 @@ return [
             ],
         ],
 
-    ],
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -102,10 +105,9 @@ return [
     | used globally for all emails that are sent by your application.
     |
     */
-
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'maharajan1201@gmail.com'),
-        'name' => env('MAIL_FROM_NAME', 'Maharajan'),
+        'address' => env('MAIL_FROM_ADDRESS', 'mukilaraj1007@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', 'mukila'),
     ],
 
 ];

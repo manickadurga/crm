@@ -19,4 +19,5 @@ class Estimate extends Model
         // Assuming there's a Task model related to Estimate
         return $this->hasMany(Tasks::class);
     }
+
 }

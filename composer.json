@@ -8,8 +8,10 @@
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^2.2",
         "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "nwidart/laravel-modules": "^11.0"
+        "nwidart/laravel-modules": "^11.0",
+        "symfony/filesystem": "^7.0"
     },
     
     "require-dev": {

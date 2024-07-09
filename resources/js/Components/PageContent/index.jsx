@@ -23,25 +23,9 @@ const items = [
       { path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales'}
     ] 
   },
-  { icon: <AppstoreOutlined />, label: 'Invoices',
+  { icon: <ShoppingCartOutlined />, label: 'Sales', 
     children: [
-      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoice' }
-    ]
-  },
-
-  { icon: <AppstoreOutlined />, label: 'Task',
-    children: [
-      { path: '/task', icon: <ShoppingCartOutlined />, label: 'View Task' }
-    ]
-  },
-  { icon: <AppstoreOutlined />, label: 'Teamtask',
-    children: [
-      { path: '/tasks/teams', icon: <ShoppingCartOutlined />, label: 'View TeamTask' },
-    ]
-  },
-  { icon: <ShoppingCartOutlined />, label: 'Orders', 
-    children: [
-      { path:'/orders', icon:<ShoppingCartOutlined />, label: 'Purchase' },
+      { path:'/proposals', icon:<ShoppingCartOutlined />, label: 'Proposals' },
       { path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales',
         // children: [
         //   { path: '/salesexport', label: 'Sales Expo'},
@@ -56,10 +40,16 @@ const items = [
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
-  { icon: <FlagOutlined />, label: 'Goals',
+  { icon: <FlagOutlined />, label: 'Invoices',
     children: [
-      { path:'/goals', icon:<ShoppingCartOutlined />, label: 'Manage' },
+      { path:'/invoices', icon:<ShoppingCartOutlined />, label: 'Manage' },
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
+    ] 
+  },
+  { icon: <FlagOutlined />, label: 'Tasks',
+    children: [
+      { path:'/tasks', icon:<ShoppingCartOutlined />, label: 'Dashboard' },
+      { path:'/tasks/teams', icon:<ShoppingCartOutlined />, label: 'Teams Tasks'}
     ] 
   },
 ];

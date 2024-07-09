@@ -14,6 +14,21 @@ use Modules\Customers\Http\Controllers\CustomersController;
 |
 */
 
-Route::group([], function () {
+/*Route::group([], function () {
     Route::resource('customers', CustomersController::class)->names('customers');
 });
+
+Route::get('/csrf-token', function () {
+    return response()->json(['csrfToken' => csrf_token()]);
+});
+
+Route::get('/customers',[CustomersController::class,'index']);
+
+Route::post('/customers',[CustomersController::class,'store']);
+
+Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
+
+Route::get('/customers/{id}', [CustomersController::class, 'show']);
+
+Route::put('/customers/{id}',[CustomersController::class,'update']);
+Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);*/

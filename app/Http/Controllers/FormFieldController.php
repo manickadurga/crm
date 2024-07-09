@@ -2,81 +2,86 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Block;
+use App\Models\Blocks;
 use App\Models\Tab;
-use App\Models\Tasks;
-use App\Models\Product;
-use App\Models\Employee;
-use App\Models\Project;
-use App\Models\Expense;
+use App\Models\Field;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FormFieldController extends Controller
 {
+    /**
+     * Fetch form fields dynamically based on tab name.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getFormFields(Request $request)
     {
         try {
-            $tabname = $request->input('name');
+            $tabName = $request->input('name');
 
-            if (!$tabname) {
-                Log::info('Tab name is missing from the request.');
+            // Validate that tabName is present in the request
+            if (!$tabName) {
+                Log::error('Tab name is missing from the request.');
                 return response()->json(['error' => 'Tab name is required'], 400);
             }
 
-            // Log the tabname for debugging
-            Log::info('Tab name received: ', ['name' => $tabname]);
+            // Log the received tab name for debugging
+            Log::info('Tab name received: ' . $tabName);
 
-            // Enable query logging
-            DB::connection()->enableQueryLog();
+            // Fetch the tab from the database using the tab name
+            $tab = Tab::where('name', $tabName)->first();
 
-            // Fetch the tabid from the jo_tabs table using tabname
-            $tab = Tab::where('name', $tabname)->first();
-
+            // Handle case where no tab is found
             if (!$tab) {
-                Log::info('No tab found for the given tabname', ['name' => $tabname]);
+                Log::error('No tab found for the given tab name', ['name' => $tabName]);
                 return response()->json(['error' => 'Tab not found'], 404);
             }
 
-            $tabid = $tab->tabid;
+            $tabId = $tab->tabid;
 
-            // Fetch blocks with the given tabid, including their fields
-            $blocks = Block::where('tabid', $tabid)->with('fields')->get();
+            // Fetch blocks with their associated fields based on tab ID
+            $blocks = Blocks::where('tabid', $tabId)->with('fields')->get();
 
-            // Log the SQL queries
+            // Log the SQL queries executed
             Log::info('SQL Query: ', DB::getQueryLog());
-
-            // Log the fetched blocks for debugging
-            Log::info('Fetched blocks: ', $blocks->toArray());
 
             // Handle case where no blocks are found
             if ($blocks->isEmpty()) {
-                Log::info('No blocks found for the given tabid', ['tabid' => $tabid]);
+                Log::error('No blocks found for the given tab ID', ['tabid' => $tabId]);
                 return response()->json([]);
             }
 
-            // Prepare the form fields array dynamically
+            // Prepare an array to store form fields data dynamically
             $formFields = [];
 
             foreach ($blocks as $block) {
-                // Log each block being processed
-                Log::info('Processing block: ', ['blockname' => $block->blocklabel]);
+                // Log the processing of each block for debugging
+                Log::info('Processing block: ' . $block->blocklabel);
 
                 $fields = [];
                 foreach ($block->fields as $field) {
+                    // Fetch additional details about the field using the Fields model
+                    $fieldDetails = Field::where('fieldid', $field->fieldid)->first();
+
+                    // Prepare basic field data
                     $fieldData = [
                         'name' => $field->fieldname,
                         'type' => $field->uitype,
                         'label' => $field->fieldlabel,
-                    ];
+                            ];
 
-                    // Add options for types 33 and 16
+                    // Example: Fetch options for specific field types
                     if (in_array($field->uitype, [33, 16])) {
-                        $fieldData['options'] = $this->getFieldOptions($field->fieldname);
+                        $options = $this->getFieldOptions($field->fieldname);
+                        if ($options) {
+                            $fieldData['options'] = $options;
+                        }
                     }
 
-                    // Add validation rules if required
+                    // Example: Add validation rules if specified in typeofdata
                     if (str_contains($field->typeofdata, 'V~M') || str_contains($field->typeofdata, 'D~M')) {
                         $fieldData['rules'][] = [
                             'required' => true,
@@ -84,121 +89,289 @@ class FormFieldController extends Controller
                         ];
                     }
 
+                    // Add the field data to the fields array
                     $fields[] = $fieldData;
                 }
 
+                // Add the block data with its fields to the formFields array
                 $formFields[] = [
                     'blockid' => $block->blockid,
                     'blockname' => $block->blocklabel,
                     'fields' => $fields,
                 ];
 
-                // Log the form fields being added for each block
+                // Log the form fields added for each block
                 Log::info('Form fields for block: ', ['blockname' => $block->blocklabel, 'fields' => $fields]);
             }
 
+            // Return the dynamically fetched form fields as JSON response
             return response()->json($formFields);
         } catch (\Exception $e) {
-            // Log the error message with the exception details
-            Log::error('Error fetching form fields: ', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            // Log the error encountered during form fields fetching
+            Log::error('Error fetching form fields: ' . $e->getMessage());
             return response()->json(['error' => 'Error fetching form fields'], 500);
         }
     }
 
-    private function getFieldOptions($fieldName)
-    {
-        $modelMapping = [
-            'tasks' => ['model' => Tasks::class, 'select' => ['id', 'title'], 'label' => 'title'],
-            'products' => ['model' => Product::class, 'select' => ['id', 'name'], 'label' => 'name'],
-            'employees' => ['model' => Employee::class, 'select' => ['id', 'firstname', 'lastname'], 'label' => 'full_name'],
-            'projects' => ['model' => Project::class, 'select' => ['id', 'projects'], 'label' => 'projects'],
-            'expenses' => ['model' => Expense::class, 'select' => ['id', 'expense'], 'label' => 'expense'],
-        ];
+    /**
+     * Fetch options for a specific field dynamically.
+     *
+     * @param string $fieldName
+     * @return array
+     */
+  
+private function getFieldOptions($fieldName)
+{
+    // Initialize an empty options array
+    $options = [];
 
-        if (array_key_exists($fieldName, $modelMapping)) {
-            $modelClass = $modelMapping[$fieldName]['model'];
-            $selectFields = $modelMapping[$fieldName]['select'];
-            $labelField = $modelMapping[$fieldName]['label'];
+    // Define options fetching logic based on field name
+    $optionsMap = [
+        'tags' => function () {
+            $options = DB::table('jo_tags')->select('tags_name as value', 'tags_name as label', 'tag_color as color')->get()->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a tag...', 'color' => '']);
+            return $options;
+        },
+        
+        'projects' => function () {
+            $options = DB::table('jo_projects')->pluck('project_name')->map(function ($project) {
+                return ['value' => $project, 'label' => $project];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a project...']);
+            return $options;
+        },
+        
+        'teams' => function () {
+            $options = DB::table('jo_teams')->pluck('team_name')->map(function ($teams) {
+                return ['value' => $teams, 'label' => $teams];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a team...']);
+            return $options;
+        },
+        
+        'contacts' => function () {
+            $customers = DB::table('jo_customers')->pluck('name')->map(function ($customer) {
+                return ['value' => $customer, 'label' => $customer];
+            })->toArray();
 
-            $items = $modelClass::select($selectFields)->get();
+            $leads = DB::table('jo_leads')->pluck('name')->map(function ($lead) {
+                return ['value' => $lead, 'label' => $lead];
+            })->toArray();
 
-            return $items->map(function ($item) use ($labelField) {
-                return [
-                    'value' => $item->id,
-                    'label' => $labelField === 'full_name' ? trim($item->firstname . ' ' . $item->lastname) : $item->$labelField,
-                ];
-            });
-        }
+            $clients = DB::table('jo_clients')->pluck('name')->map(function ($client) {
+                return ['value' => $client, 'label' => $client];
+            })->toArray();
 
-        // If no specific field name matches, provide static options or handle accordingly
-        return $this->getDefaultOptions($fieldName);
-    }
+            $options = array_merge($customers, $leads, $clients);
+            array_unshift($options, ['value' => '', 'label' => 'Select a contact...']);
+            return $options;
+        },
+        
+        'Employee that generate income' => function () {
+            $options = DB::table('jo_manage_employees')->pluck('first_name as value', 'first_name as label')->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...']);
+            return $options;
+        },
+        
+        'invoice_number' => function () {
+            $options = DB::table('jo_invoices')->pluck('invoicenumber')->map(function ($invoice) {
+                return ['value' => $invoice, 'label' => $invoice];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an invoice number...']);
+            return $options;
+        },
+        
+        'product_type' => function () {
+            $options = DB::table('jo_product_types')->pluck('name')->map(function ($product_types) {
+                return ['value' => $product_types, 'label' => $product_types];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a product type...']);
+            return $options;
+        },
+        
+        'product_category' => function () {
+            $options = DB::table('jo_product_categories')->pluck('name')->map(function ($product_categories) {
+                return ['value' => $product_categories, 'label' => $product_categories];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a product category...']);
+            return $options;
+        },
+        
+        'employees_that_generate' => function () {
+            $options = DB::table('jo_manage_employees')->pluck('first_name')->map(function ($employees) {
+                return ['value' => $employees, 'label' => $employees];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...']);
+            return $options;
+        },
+        
+        'categories' => function () {
+            $options = DB::table('jo_manage_categories')->pluck('expense_name')->map(function ($categories) {
+                return ['value' => $categories, 'label' => $categories];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a category...']);
+            return $options;
+        },
+        
+        'category_name' => function () {
+            $options = DB::table('jo_manage_categories')->pluck('expense_name')->map(function ($categories) {
+                return ['value' => $categories, 'label' => $categories];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a category...']);
+            return $options;
+        },
+        
+        'vendor' => function () {
+            $options = DB::table('jo_vendors')->pluck('name')->map(function ($vendors) {
+                return ['value' => $vendors, 'label' => $vendors];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a vendor...']);
+            return $options;
+        },
+        
+        // Add more mappings as needed
+    ];
 
-    private function getDefaultOptions($fieldName)
-    {
-        $options = [
-            'contacts' => DB::table('jo_customers')->pluck('name')->map(function ($name) {
-                return ['value' => $name, 'label' => $name];
-            })->toArray(),
-            'tags' => DB::table('jo_tags')->select('tag_color', 'tags_names')->get()->map(function ($tag) {
-                return ['value' => $tag->tag_color, 'label' => $tag->tags_names];
-            })->toArray(),
-            'projects' => DB::table('jo_projects')->pluck('projects')->map(function ($projects) {
-                return ['value' => $projects, 'label' => $projects];
-            })->toArray(),
-            // Add more default options as needed
-        ];
-        $options = array_merge($options, [
-            'contact_type' => [
-                ['value' => 'customers', 'label' => 'CUSTOMERS'],
-                ['value' => 'clients', 'label' => 'CLIENTS'],
-                ['value' => 'leads', 'label' => 'LEADS'],
-            ],
-            'type' => [
-                ['value' => 'cost', 'label' => 'Cost'],
-                ['value' => 'hours', 'label' => 'Hours'],
-            ],
-            'currency' => [
-                ['value' => 'india(INR)', 'label' => 'India(INR)'],
-                ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
-                ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
-            ],
-            'discount_suffix' => [
-                ['value' => '%', 'label' => '%'],
-                ['value' => 'flat', 'label' => 'Flat'],
-            ],
-            'taxtype' => [
-                ['value' => 'individual', 'label' => 'Individual'],
-                ['value' => 'group', 'label' => 'Group'],
-            ],
-            'estimate_status' => [
-                ['value' => 'created', 'label' => 'Created'],
-                ['value' => 'delivered', 'label' => 'Delivered'],
-                ['value' => 'reviewed', 'label' => 'Reviewed'],
-                ['value' => 'accepted', 'label' => 'Accepted'],
-                ['value' => 'rejected', 'label' => 'Rejected'],
-            ],
-            'invoice_status' => [
-                ['value' => 'created', 'label' => 'Created'],
-                ['value' => 'auto created', 'label' => 'Auto Created'],
-                ['value' => 'cancel', 'label' => 'Cancel'],
-                ['value' => 'approved', 'label' => 'Approved'],
-                ['value' => 'sent', 'label' => 'Sent'],
-                ['value' => 'credit invoice', 'label' => 'Credit Invoice'],
-                ['value' => 'paid', 'label' => 'Paid'],
-            ],
-            'select_invoice_type' => [
-                ['value' => 'employees', 'label' => 'Employee'],
-                ['value' => 'projects', 'label' => 'Projects'],
-                ['value' => 'tasks', 'label' => 'Tasks'],
-                ['value' => 'products', 'label' => 'Products'],
-                ['value' => 'expenses', 'label' => 'Expenses'],
-            ],
-        ]);
+    // Default options if fieldName doesn't match specific cases
+    $defaultOptions = [
+        'status' => [
+            ['value' => '', 'label' => 'Select status...'],
+            ['value' => 'none', 'label' => 'None'],
+            ['value' => 'open', 'label' => 'Open'],
+            ['value' => 'inprogress', 'label' => 'In Progress'],
+            ['value' => 'inreview', 'label' => 'In Review'],
+            ['value' => 'completed', 'label' => 'Completed'],
+            ['value' => 'closed', 'label' => 'Closed'],
+        ],
+        'priority' => [
+            ['value' => '', 'label' => 'Select priority...'],
+            ['value' => 'none', 'label' => 'None'],
+            ['value' => 'low', 'label' => 'Low'],
+            ['value' => 'medium', 'label' => 'Medium'],
+            ['value' => 'high', 'label' => 'High'],
+            ['value' => 'urgent', 'label' => 'Urgent'],
+        ],
+        'size' => [
+            ['value' => '', 'label' => 'Select size...'],
+            ['value' => 'none', 'label' => 'None'],
+            ['value' => 'large', 'label' => 'Large'],
+            ['value' => 'medium', 'label' => 'Medium'],
+            ['value' => 'small', 'label' => 'Small'],
+            ['value' => 'tiny', 'label' => 'Tiny'],
+        ],
+        'currency' => [
+            ['value' => '', 'label' => 'Select currency...'],
+            ['value' => 'india(INR)', 'label' => 'India(INR)'],
+            ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
+            ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
+        ],
+        'Currency' => [
+            ['value' => '', 'label' => 'Select currency...'],
+            ['value' => 'india(INR)', 'label' => 'India(INR)'],
+            ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
+            ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
+        ],
+        'employee_bonus_type' => [
+            ['value' => '', 'label' => 'Select bonus type...'],
+            ['value' => 'none', 'label' => 'None'],
+            ['value' => 'profit bonus type', 'label' => 'Profit Bonus Type'],
+            ['value' => 'revenue based bonus', 'label' => 'Revenue Based Bonus'],
+        ],
+        'start_week_on' => [
+            ['value' => '', 'label' => 'Select start day...'],
+            ['value' => 'monday', 'label' => 'Monday'],
+            ['value' => 'tuesday', 'label' => 'Tuesday'],
+            ['value' => 'wednesday', 'label' => 'Wednesday'],
+            ['value' => 'thursday', 'label' => 'Thursday'],
+            ['value' => 'friday', 'label' => 'Friday'],
+            ['value' => 'saturday', 'label' => 'Saturday'],
+            ['value' => 'sunday', 'label' => 'Sunday'],
+        ],
+        'default_date_type' => [
+            ['value' => '', 'label' => 'Select date type...'],
+            ['value' => 'today', 'label' => 'Today'],
+            ['value' => 'end of the month', 'label' => 'End Of The Month'],
+            ['value' => 'start of the month', 'label' => 'Start Of The Month'],
+        ],
+        'type' => [
+            ['value' => '', 'label' => 'Select type...'],
+            ['value' => 'cost', 'label' => 'Cost'],
+            ['value' => 'hours', 'label' => 'Hours'],
+    ],
+    'contact_type' => [
+        ['value' => '', 'label' => 'Select contact type...'],
+        ['value' => 'client', 'label' => 'Client'],
+        ['value' => 'customer', 'label' => 'Customer'],
+        ['value' => 'lead', 'label' => 'Lead'],
+    ],
+    'estimate' => [
+        ['value' => '', 'label' => 'Select estimate...'],
+        ['value' => 'days', 'label' => 'Day'],
+        ['value' => 'hours', 'label' => 'Hours'],
+        ['value' => 'minutes', 'label' => 'Minutes'],
+    ],
+    'invoice_status' => [
+        ['value' => '', 'label' => 'Select invoice status...'],
+        ['value' => 'none', 'label' => 'None'],
+        ['value' => 'open', 'label' => 'Open'],
+        ['value' => 'inprogress', 'label' => 'In Progress'],
+        ['value' => 'inreview', 'label' => 'In Review'],
+        ['value' => 'completed', 'label' => 'Completed'],
+        ['value' => 'closed', 'label' => 'Closed'],
+    ],
+    'payment_method' => [
+        ['value' => '', 'label' => 'Select payment method...'],
+        ['value' => 'bank transfer', 'label' => 'Bank Transfer'],
+        ['value' => 'cash', 'label' => 'Cash'],
+        ['value' => 'cheque', 'label' => 'Cheque'],
+        ['value' => 'credit card', 'label' => 'Credit Card'],
+        ['value' => 'debit', 'label' => 'Debit'],
+        ['value' => 'online', 'label' => 'Online'],
+    ],
+    'select_status' => [
+        ['value' => '', 'label' => 'Select status...'],
+        ['value' => 'not billable', 'label' => 'Not Billable'],
+    ],
+    'discount_suffix' => [
+        ['value' => '', 'label' => 'Select discount suffix...'],
+        ['value' => '%', 'label' => '%'],
+        ['value' => 'flat', 'label' => 'Flat'],
+    ],
+    'taxtype' => [
+        ['value' => '', 'label' => 'Select tax type...'],
+        ['value' => 'individual', 'label' => 'Individual'],
+        ['value' => 'group', 'label' => 'Group'],
+    ],
+    'estimate_status' => [
+        ['value' => '', 'label' => 'Select estimate status...'],
+        ['value' => 'created', 'label' => 'Created'],
+        ['value' => 'delivered', 'label' => 'Delivered'],
+        ['value' => 'reviewed', 'label' => 'Reviewed'],
+        ['value' => 'accepted', 'label' => 'Accepted'],
+        ['value' => 'rejected', 'label' => 'Rejected'],
+    ],
+    'select_invoice_type' => [
+        ['value' => '', 'label' => 'Select invoice type...'],
+        ['value' => 'employees', 'label' => 'Employee'],
+        ['value' => 'projects', 'label' => 'Projects'],
+        ['value' => 'tasks', 'label' => 'Tasks'],
+        ['value' => 'products', 'label' => 'Products'],
+        ['value' => 'expenses', 'label' => 'Expenses'],
+    ],
 
-        return $options[$fieldName] ?? [];
-    }
+    // Add more options arrays as needed
+];
+
+// Execute the appropriate function if fieldName matches a specific case
+$optionsFunction = $optionsMap[$fieldName] ?? null;
+if ($optionsFunction && is_callable($optionsFunction)) {
+    return $optionsFunction();
 }
 
-    
+// Log a warning if no options function is defined for the fieldName
+Log::warning('No options defined for fieldName: ' . $fieldName);
 
+// Return default options if fieldName doesn't match specific cases
+return $defaultOptions[$fieldName] ?? [];
+}
+}

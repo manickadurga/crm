@@ -26,4 +26,12 @@ class Product extends Model
     {
         return $this->hasManyThrough(Product::class, InventoryProductRel::class, 'id', 'product_id', 'id', 'product_id');
     }
+
+
+    public function scopeByProductType($query, $productTypeName)
+    {
+        return $query->where('product_type', $productTypeName);
+    }
 }
+
+

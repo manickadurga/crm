@@ -26,8 +26,10 @@ class Invoices extends Model
             ->withPivot('quantity', 'list_price', 'discount_percent');
             return $this->hasMany(InventoryProductRel::class, 'id', 'id');
         }
+
         public function inventoryProductRels()
         {
             return $this->hasMany(InventoryProductRel::class, 'invoice_id');
         }
+
 }

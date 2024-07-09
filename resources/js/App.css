@@ -51,5 +51,7 @@ border-top: 1px solid rgba(0, 0, 0, 0.15);
 .PageContent{
     padding-left: 12px;
 }
-
+.ck.ck-balloon-panel.ck-balloon-panel_visible{
+    display: none !important;
+}
 /* class="ant-select-dropdown ant-slide-up-leave ant-slide-up-leave-start ant-slide-up css-dev-only-do-not-override-1okl62o ant-select-dropdown-placement-bottomLeft" */

@@ -1,14 +1,17 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Organization extends Model
 {
-    protected $table ='jo_organizations';
+
+    use HasFactory;
+    protected $table = 'jo_organizations';
+     protected $primaryKey = 'organizationid';
+    // Define the fields that can be mass-assigned
     protected $fillable = [
-        'image',
         'organization_name',
         'currency',
         'official_name',
@@ -34,3 +37,7 @@ class Organization extends Model
     ];
    
 }
+
+
+
+

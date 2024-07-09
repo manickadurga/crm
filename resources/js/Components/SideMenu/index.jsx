@@ -47,6 +47,33 @@ const items = [
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
+<<<<<<< HEAD
+  { icon: <AppstoreOutlined />, label: 'Invoices',
+    children: [
+      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
+      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
+    ]
+  }
+=======
+  // { icon: <UserOutlined />, label: 'Tasks',
+  //   children: [
+  //     { path:'/tasks/createform', icon:<ShoppingCartOutlined />, label: 'customers' },
+  //     { path:'/manage', icon:<ShoppingCartOutlined />, label: 'manage'}
+  //   ] 
+  // },
+  { icon: <UserOutlined />, label: 'Team Tasks',
+  children: [
+    { path:'/tasks/teams', icon:<ShoppingCartOutlined />, label: 'View Team Tasks' },
+    { path:'/manage', icon:<ShoppingCartOutlined />, label: 'manage'}
+  ] 
+},
+  // { icon: <UserOutlined />, label: 'Invoices',
+  //   children: [
+  //     { path:'/Invoices', icon:<ShoppingCartOutlined />, label: 'customers' },
+  //     { path:'/Contact', icon:<ShoppingCartOutlined />, label: 'contact'}
+  //   ] 
+  // },
+>>>>>>> 68e4740 (Issue -#35)
 ];
 // const items = [
 //   { key: '1', path: '/', icon: <AppstoreOutlined />, label: 'Dashboard' },
@@ -136,3 +163,4 @@ function SideMenu() {
 }
 
 export default SideMenu;
+

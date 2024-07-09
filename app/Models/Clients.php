@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Clients extends Model
 {
     use HasFactory;
-    protected $table = 'jo_clients';
+
+    protected $table='jo_clients';
+
 
     protected $fillable = [
         'image',
@@ -35,5 +37,4 @@ class Clients extends Model
     {
         return $this->belongsTo(Organization::class, 'orgid', 'id');
     }
-
 }

@@ -12,8 +12,10 @@ class Customers extends Model
     protected $table = 'jo_customers';
     protected $guarded = [];
     protected $casts = [
+
         'projects' => 'json',
         'tags' => 'json',
         'location' => 'json',
     ];
 }
+

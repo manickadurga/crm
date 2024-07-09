@@ -1,13 +1,79 @@
 .datatable th,
 .datatable td{
     white-space: nowrap;
-    min-width: 200px;
+    min-width: 180px; 
 }
-
+.datatable th:last-child,
+.datatable td:last-child{
+    text-align: center !important;
+    min-width: 90px !important;
+}
+.goals-table table th:last-child, .goals-table table td:last-child{
+    width: 30px;
+}
 .ant-form-item-explain-error {
     font-size: 11px;
 }
 .ant-steps.ant-steps-small .ant-steps-item-title::after {
     top: 10px;
     height: 2px;
+}
+.ant-tag{
+    text-transform: capitalize;
+    border: none;
+}
+.badge-urgent {
+    background-color: #ff6347; /* Tomato */
+    color: #fff; /* White */
+}
+
+.badge-important {
+    background-color: #ff8c00; /* Dark Orange */
+    color: #fff; /* White */
+}
+
+.badge-pending,
+.badge-sent {
+    background-color: #ffc107; /* Gold */
+    color: #000; /* Black */
+}
+
+.badge-completed,
+.badge-accepted  {
+    background-color: #32cd32; /* Lime Green */
+    color: #fff; /* White */
+}
+
+.badge-paid{
+    background-color: #008000; /* Green */
+    color: #fff; /* White */
+}
+
+.badge-unpaid {
+    background-color: #dc3545; /* Red */
+    color: #fff; /* White */
+}
+
+.ck.ck-icon.ck-icon_inherit-color, .ck.ck-icon.ck-icon_inherit-color *{
+    font-size: 8px;
+}
+.ck.ck-toolbar>.ck-toolbar__items>:not(.ck-toolbar__line-break), .ck.ck-toolbar>.ck.ck-toolbar__grouped-dropdown{
+    margin: 0;
+    padding: 0;
+}
+.ck-rounded-corners .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content, .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content.ck-rounded-corners,
+.ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content .ck-menu-bar, .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content .ck-toolbar{
+    border-radius: 8px 8px 0px 0px;
+}
+.ck.ck-editor__main>.ck-editor__editable{
+    border-radius: 0px 0px 8px 8px !important;
+}
+.leaflet-control-attribution.leaflet-control{display: none;}
+.listedView .ant-select-selection-overflow{
+    position: absolute;
+    top: 48px;
+}
+.listedView .ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix{
+    position: absolute;
+    top: -48px;
 }
