@@ -14,8 +14,4 @@ class Payments extends Model
         'tags'=>'array',
     ];
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 68e4740 (Issue -#35)

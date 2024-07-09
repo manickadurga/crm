@@ -232,135 +232,88 @@ private function getFieldOptions($fieldName)
         // Add more mappings as needed
     ];
 
-    // Default options if fieldName doesn't match specific cases
-    $defaultOptions = [
-        'status' => [
-            ['value' => '', 'label' => 'Select status...'],
-            ['value' => 'none', 'label' => 'None'],
-            ['value' => 'open', 'label' => 'Open'],
-            ['value' => 'inprogress', 'label' => 'In Progress'],
-            ['value' => 'inreview', 'label' => 'In Review'],
-            ['value' => 'completed', 'label' => 'Completed'],
-            ['value' => 'closed', 'label' => 'Closed'],
-        ],
-        'priority' => [
-            ['value' => '', 'label' => 'Select priority...'],
-            ['value' => 'none', 'label' => 'None'],
-            ['value' => 'low', 'label' => 'Low'],
-            ['value' => 'medium', 'label' => 'Medium'],
-            ['value' => 'high', 'label' => 'High'],
-            ['value' => 'urgent', 'label' => 'Urgent'],
-        ],
-        'size' => [
-            ['value' => '', 'label' => 'Select size...'],
-            ['value' => 'none', 'label' => 'None'],
-            ['value' => 'large', 'label' => 'Large'],
-            ['value' => 'medium', 'label' => 'Medium'],
-            ['value' => 'small', 'label' => 'Small'],
-            ['value' => 'tiny', 'label' => 'Tiny'],
-        ],
-        'currency' => [
-            ['value' => '', 'label' => 'Select currency...'],
-            ['value' => 'india(INR)', 'label' => 'India(INR)'],
-            ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
-            ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
-        ],
-        'Currency' => [
-            ['value' => '', 'label' => 'Select currency...'],
-            ['value' => 'india(INR)', 'label' => 'India(INR)'],
-            ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
-            ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
-        ],
-        'employee_bonus_type' => [
-            ['value' => '', 'label' => 'Select bonus type...'],
-            ['value' => 'none', 'label' => 'None'],
-            ['value' => 'profit bonus type', 'label' => 'Profit Bonus Type'],
-            ['value' => 'revenue based bonus', 'label' => 'Revenue Based Bonus'],
-        ],
-        'start_week_on' => [
-            ['value' => '', 'label' => 'Select start day...'],
-            ['value' => 'monday', 'label' => 'Monday'],
-            ['value' => 'tuesday', 'label' => 'Tuesday'],
-            ['value' => 'wednesday', 'label' => 'Wednesday'],
-            ['value' => 'thursday', 'label' => 'Thursday'],
-            ['value' => 'friday', 'label' => 'Friday'],
-            ['value' => 'saturday', 'label' => 'Saturday'],
-            ['value' => 'sunday', 'label' => 'Sunday'],
-        ],
-        'default_date_type' => [
-            ['value' => '', 'label' => 'Select date type...'],
-            ['value' => 'today', 'label' => 'Today'],
-            ['value' => 'end of the month', 'label' => 'End Of The Month'],
-            ['value' => 'start of the month', 'label' => 'Start Of The Month'],
-        ],
-        'type' => [
-            ['value' => '', 'label' => 'Select type...'],
-            ['value' => 'cost', 'label' => 'Cost'],
-            ['value' => 'hours', 'label' => 'Hours'],
-    ],
-    'contact_type' => [
-        ['value' => '', 'label' => 'Select contact type...'],
-        ['value' => 'client', 'label' => 'Client'],
-        ['value' => 'customer', 'label' => 'Customer'],
-        ['value' => 'lead', 'label' => 'Lead'],
-    ],
-    'estimate' => [
-        ['value' => '', 'label' => 'Select estimate...'],
-        ['value' => 'days', 'label' => 'Day'],
-        ['value' => 'hours', 'label' => 'Hours'],
-        ['value' => 'minutes', 'label' => 'Minutes'],
-    ],
-    'invoice_status' => [
-        ['value' => '', 'label' => 'Select invoice status...'],
-        ['value' => 'none', 'label' => 'None'],
-        ['value' => 'open', 'label' => 'Open'],
-        ['value' => 'inprogress', 'label' => 'In Progress'],
-        ['value' => 'inreview', 'label' => 'In Review'],
-        ['value' => 'completed', 'label' => 'Completed'],
-        ['value' => 'closed', 'label' => 'Closed'],
-    ],
-    'payment_method' => [
-        ['value' => '', 'label' => 'Select payment method...'],
-        ['value' => 'bank transfer', 'label' => 'Bank Transfer'],
-        ['value' => 'cash', 'label' => 'Cash'],
-        ['value' => 'cheque', 'label' => 'Cheque'],
-        ['value' => 'credit card', 'label' => 'Credit Card'],
-        ['value' => 'debit', 'label' => 'Debit'],
-        ['value' => 'online', 'label' => 'Online'],
-    ],
-    'select_status' => [
-        ['value' => '', 'label' => 'Select status...'],
-        ['value' => 'not billable', 'label' => 'Not Billable'],
-    ],
-    'discount_suffix' => [
-        ['value' => '', 'label' => 'Select discount suffix...'],
-        ['value' => '%', 'label' => '%'],
-        ['value' => 'flat', 'label' => 'Flat'],
-    ],
-    'taxtype' => [
-        ['value' => '', 'label' => 'Select tax type...'],
-        ['value' => 'individual', 'label' => 'Individual'],
-        ['value' => 'group', 'label' => 'Group'],
-    ],
-    'estimate_status' => [
-        ['value' => '', 'label' => 'Select estimate status...'],
-        ['value' => 'created', 'label' => 'Created'],
-        ['value' => 'delivered', 'label' => 'Delivered'],
-        ['value' => 'reviewed', 'label' => 'Reviewed'],
-        ['value' => 'accepted', 'label' => 'Accepted'],
-        ['value' => 'rejected', 'label' => 'Rejected'],
-    ],
-    'select_invoice_type' => [
-        ['value' => '', 'label' => 'Select invoice type...'],
-        ['value' => 'employees', 'label' => 'Employee'],
-        ['value' => 'projects', 'label' => 'Projects'],
-        ['value' => 'tasks', 'label' => 'Tasks'],
-        ['value' => 'products', 'label' => 'Products'],
-        ['value' => 'expenses', 'label' => 'Expenses'],
-    ],
+        // Default options if fieldName doesn't match specific cases
+        $defaultOptions = [
+            'status' => [
+                ['value' => 'none', 'label' => 'None'],
+                ['value' => 'open', 'label' => 'Open'],
+                ['value' => 'inprogress', 'label' => 'In Progress'],
+                ['value' => 'inreview', 'label' => 'In Review'],
+                ['value' => 'completed', 'label' => 'Completed'],
+                ['value' => 'closed', 'label' => 'Closed'],
+            ],
+            'priority' => [
+                ['value' => 'none', 'label' => 'None'],
+                ['value' => 'low', 'label' => 'Low'],
+                ['value' => 'medium', 'label' => 'Medium'],
+                ['value' => 'high', 'label' => 'High'],
+                ['value' => 'urgent', 'label' => 'Urgent'],
+            ],
+            'size' => [
+                ['value' => 'none', 'label' => 'None'],
+                ['value' => 'large', 'label' => 'Large'],
+                ['value' => 'medium', 'label' => 'Medium'],
+                ['value' => 'small', 'label' => 'Small'],
+                ['value' => 'tiny', 'label' => 'Tiny'],
+            ],
+            'currency' => [
+                ['value' => 'india(INR)', 'label' => 'India(INR)'],
+                ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
+                ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
+            ],
+            'Currency' => [
+                ['value' => 'india(INR)', 'label' => 'India(INR)'],
+                ['value' => 'canadian dollar(CAD)', 'label' => 'Canadian Dollar(CAD)'],
+                ['value' => 'israeli pound(ILP)', 'label' => 'Israeli Pound(ILP)'],
+            ],
 
-    // Add more options arrays as needed
-];
+            
+            'employee_bonus_type'=>[
+                ['value'=>'none','label'=>'None'],
+                ['value'=>'profit bonus type','label'=>'Profit Bonus Type'],
+                ['value'=>'revenue based bonus','label'=>'Revenue Based Bonus'],
+            ],
+            'start_week_on'=>[
+                ['value'=>'monday','label'=>'Monday'],
+                ['value'=>'tuesday','label'=>'Tuesday'],
+                ['value'=>'wednesday','label'=>'Wednesday'],
+                ['value'=>'thursday','label'=>'Thursday'],
+                ['value'=>'friday','label'=>'Friday'],
+                ['value'=>'saturday','label'=>'Saturday'],
+                ['value'=>'sunday','label'=>'Sunday'],
+            
+            ],
+            'default_date_type'=>[
+                ['value'=>'today','label'=>'Today'],
+                ['value'=>'end of the month','label'=>'end Of The MOnth'],
+                ['value'=>'start of the month','label'=>'Start Of The Month'],
+
+>>>>>>> 68e4740 (Issue -#35)
+            ],
+            'type'=>[
+                ['value'=>'cost','label'=>'Cost'],
+                ['value'=>'hours','label'=>'Hours'],
+<<<<<<< HEAD
+            ]
+        ];
+
+        return $options[$fieldName] ?? [];
+    }
+}
+=======
+            ],
+            'contact_type'=>[
+                ['value'=>'client','label'=>'Client'],
+                ['value'=>'customer','label'=>'Customer'],
+                ['value'=>'lead','label'=>'Lead'],
+            ],
+            'estimate'=>[
+                ['value'=>'days','label'=>'Day'],
+                ['value'=>'hours','label'=>'Hours'],
+                ['value'=>'minutes','label'=>'Minutes'],
+            ],
+
+        ];
 
 // Execute the appropriate function if fieldName matches a specific case
 $optionsFunction = $optionsMap[$fieldName] ?? null;
@@ -375,5 +328,4 @@ Log::warning('No options defined for fieldName: ' . $fieldName);
 return $defaultOptions[$fieldName] ?? [];
 }
 }
-
-           
+>>>>>>> 68e4740 (Issue -#35)

@@ -10,11 +10,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "nwidart/laravel-modules": "^11.0",
-<<<<<<< HEAD
-        "spatie/laravel-permission": "^6.7"
-=======
         "symfony/filesystem": "^7.0"
->>>>>>> 68e4740 (Issue -#35)
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

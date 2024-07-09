@@ -1,13 +1,6 @@
 <?php
-<<<<<<< HEAD
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-=======
-namespace App\Models;
-
->>>>>>> 68e4740 (Issue -#35)
 use Illuminate\Database\Eloquent\Model;
 
 class Block extends Model
@@ -45,15 +38,10 @@ class Block extends Model
     {
         return $this->belongsTo(Tab::class, 'tabid', 'tabid');
     }
-
     public function fields()
     {
-        return $this->hasMany(Field::class, 'block', 'blockid'); // Define the relationship
+        return $this->hasMany(Field::class, 'block', 'blockid');
     }
-<<<<<<< HEAD
-
-    
-=======
 =======
     protected $table = 'jo_blocks';
     protected $primaryKey = 'blockid';
@@ -70,5 +58,4 @@ class Block extends Model
     }
     
 >>>>>>> 68e4740 (Issue -#35)
->>>>>>> f72665c (issue -#19)
 }

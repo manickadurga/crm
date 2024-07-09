@@ -9,14 +9,6 @@ class Teams extends Model
 {
     use HasFactory;
     protected $table='jo_teams';
-<<<<<<< HEAD
-    protected $guarded=[];
-    protected $casts=[
-        'tags'=>'array'
-    ];
-    
-}
-=======
     protected $fillable = [
         'image',
         'team_name',
@@ -29,4 +21,3 @@ class Teams extends Model
         'tags'=>'json',
     ];
 }
->>>>>>> 68e4740 (Issue -#35)

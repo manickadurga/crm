@@ -8,31 +8,64 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Clients;
 use Illuminate\Validation\ValidationException;
-=======
-use App\Models\Projects;
-use App\Models\Leads;
-use App\Models\Tags;
-use App\Models\Customers;
-use App\Models\Clients as ClientsModel;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
->>>>>>> 68e4740 (Issue -#35)
 
 class ClientsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+<<<<<<< HEAD
     public function index()
     {
         $clients = Clients::all();
         return response()->json($clients);
+=======
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            // Set the number of items per page, default is 10
+            $perPage = $request->input('per_page', 10);
+
+            // Get paginated clients
+            $clients = Clients::paginate($perPage);
+
+            // Return JSON response with clients and pagination information
+            return response()->json([
+                'status' => 200,
+                'clients' => $clients->items(),
+                'pagination' => [
+                    'total' => $clients->total(),
+                    'per_page' => $clients->perPage(),
+                    'current_page' => $clients->currentPage(),
+                    'last_page' => $clients->lastPage(),
+                    'from' => $clients->firstItem(),
+                    'to' => $clients->lastItem(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Failed to retrieve clients: ' . $e->getMessage());
+
+            // Return error response
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to retrieve clients',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+>>>>>>> 68e4740 (Issue -#35)
     }
 
     /**
      * Store a newly created resource in storage.
      */
+<<<<<<< HEAD
     public function store(Request $request)
+=======
+   
+
+    public function store(Request $request): JsonResponse
+>>>>>>> 68e4740 (Issue -#35)
     {
         try {
             $validatedData = $request->validate([
@@ -43,6 +76,7 @@ class ClientsController extends Controller
                 'website' => 'nullable|string|max:255',
                 'fax' => 'nullable|string|max:255',
                 'fiscal_information' => 'nullable|string',
+<<<<<<< HEAD
                 'projects' => 'nullable|array',
                 'contact_type' => 'nullable|string|max:255',
                 'tags' => 'nullable|array',
@@ -65,19 +99,77 @@ class ClientsController extends Controller
      * Display the specified resource.
      */
     public function show($id)
+=======
+                'projects.*' => 'exists:jo_projects,id', // Validate project IDs
+                'contact_type' => 'nullable|string|max:255',
+                'tags.*' => 'exists:jo_tags,id', // Validate tag IDs
+                'contacts.*' => 'exists:jo_clients,id|exists:jo_leads,id|exists:jo_customers,id', // Validate contact IDs
+                'location' => 'nullable|array',
+                'type' => 'nullable|string|max:255',
+                'type_suffix' => 'nullable|integer',
+            ]);
+    
+            // Fetch project names
+            if (isset($validatedData['projects'])) {
+                $projectNames = Projects::whereIn('id', $validatedData['projects'])->pluck('projects_name')->toArray();
+                $validatedData['projects'] = $projectNames;
+            }
+    
+            // Fetch tag names
+            // Fetch tag names
+            if (isset($validatedData['tags'])) {
+                $tagNames = \App\Models\Tags::whereIn('id', $validatedData['tags'])->pluck('tags_name')->toArray();
+                $validatedData['tags'] = $tagNames;
+            }
+            $client = Clients::create($validatedData);
+            return response()->json($client, 201);
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Failed to create client: ' . $e->getMessage());
+    
+            // Return error response
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to create client',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    /**
+     * Display the specified resource.
+     */
+    public function show($id): JsonResponse
+>>>>>>> 68e4740 (Issue -#35)
     {
         try {
             $client = Clients::findOrFail($id);
             return response()->json($client);
         } catch (\Exception $e) {
+<<<<<<< HEAD
             return response()->json(['message' => 'Failed to retrieve client', 'error' => $e->getMessage()], 500);
+=======
+            // Log the error
+            \Log::error('Failed to retrieve client: ' . $e->getMessage());
+
+            // Return error response
+            return response()->json([
+                'status' => 404,
+                'message' => 'Client not found',
+                'error' => $e->getMessage(),
+            ], 404);
+>>>>>>> 68e4740 (Issue -#35)
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
+<<<<<<< HEAD
     public function update(Request $request, $id)
+=======
+    public function update(Request $request, $id): JsonResponse
+>>>>>>> 68e4740 (Issue -#35)
     {
         try {
             $validatedData = $request->validate([
@@ -89,6 +181,31 @@ class ClientsController extends Controller
                 'fax' => 'nullable|string|max:255',
                 'fiscal_information' => 'nullable|string',
                 'projects' => 'nullable|array',
+<<<<<<< HEAD
+                'contact_type' => 'nullable|string|max:255',
+                'tags' => 'nullable|array',
+                'location' => 'nullable|array',
+                'type' => 'nullable|string|max:255',
+                'type_suffix' => 'nullable|integer',
+                'orgid' => 'nullable|integer',
+            ]);
+
+            $client = Clients::findOrFail($id);
+            $client->update($validatedData);
+            return response()->json($client);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update client', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+=======
+                'projects.*' => 'exists:jo_projects,id', // Validate project IDs
                 'contact_type' => 'nullable|string|max:255',
                 'tags' => 'nullable|array',
                 'tags.*' => 'exists:jo_tags,id', // Validate tag IDs
@@ -130,14 +247,85 @@ class ClientsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
+>>>>>>> 68e4740 (Issue -#35)
     {
         try {
             $client = Clients::findOrFail($id);
             $client->delete();
             return response()->json(['message' => 'Client deleted successfully'], 200);
         } catch (\Exception $e) {
+<<<<<<< HEAD
             return response()->json(['message' => 'Failed to delete client', 'error' => $e->getMessage()], 500);
         }
     }
 }
+=======
+            // Log the error
+            \Log::error('Failed to delete client: ' . $e->getMessage());
+
+            // Return error response
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to delete client',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    public function search(Request $request): JsonResponse
+    {
+        try {
+            // Validate the search input
+            $validatedData = $request->validate([
+                'name' => 'nullable|string',
+                'primary_email' => 'nullable|string',
+                'primary_phone' => 'nullable|string',
+                'website' => 'nullable|string',
+                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+            ]);
+    
+            // Initialize the query builder
+            $query = Clients::query();
+    
+            // Apply search filters
+            foreach ($validatedData as $key => $value) {
+                if ($value !== null && in_array($key, ['name', 'primary_email', 'primary_phone', 'website'])) {
+                    $query->where($key, 'like', '%' . $value . '%');
+                }
+            }
+    
+            // Paginate the search results
+            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $clients = $query->paginate($perPage);
+    
+            // Check if any clients found
+            if ($clients->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No matching records found',
+                ], 404);
+            }
+    
+            return response()->json([
+                'status' => 200,
+                'clients' => $clients->items(),
+                'pagination' => [
+                    'total' => $clients->total(),
+                    'per_page' => $clients->perPage(),
+                    'current_page' => $clients->currentPage(),
+                    'last_page' => $clients->lastPage(),
+                    'from' => $clients->firstItem(),
+                    'to' => $clients->lastItem(),
+                ],
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            \Log::error('Failed to search clients: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to search clients: ' . $e->getMessage()], 500);
+        }
+    }
+}    
+>>>>>>> 68e4740 (Issue -#35)

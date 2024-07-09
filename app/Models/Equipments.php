@@ -13,8 +13,4 @@ class Equipments extends Model
     protected $casts=[
         'tags'=>'array',
     ];
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 68e4740 (Issue -#35)

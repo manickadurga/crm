@@ -5,15 +5,11 @@
         "This file is @generated automatically"
     ],
 <<<<<<< HEAD
-    "content-hash": "076ee02ba4bbe9033826aeebc43af2c0",
-=======
-<<<<<<< HEAD
     "content-hash": "62bebe7787fc925e96a282e79b481010",
     "content-hash": "0315beee83a03eeddb2c5d59cd6efa98",
 =======
     "content-hash": "a0479226a9729b49f9aa280e80aabfc5",
 >>>>>>> 68e4740 (Issue -#35)
->>>>>>> f72665c (issue -#19)
     "packages": [
         {
             "name": "brick/math",
