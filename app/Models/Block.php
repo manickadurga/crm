@@ -5,10 +5,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Block extends Model
 {
-<<<<<<< HEAD
+
     use HasFactory;
     protected $table = 'jo_blocks';
     protected $primaryKey = 'blockid';
+    public $timestamps = false; 
+    // protected $fillable = ['tabid', 'blocklabel'];
+  
     
     protected $fillable = [
        'tabid',
@@ -42,20 +45,14 @@ class Block extends Model
     {
         return $this->hasMany(Field::class, 'block', 'blockid');
     }
-=======
-    protected $table = 'jo_blocks';
-    protected $primaryKey = 'blockid';
-    public $timestamps = false; 
-    protected $fillable = ['tabid', 'blocklabel'];
+
+    
+    
     public function module()
     {
         return $this->belongsTo(Module::class, 'tabid', 'tabid');
     }
 
-    public function fields()
-    {
-        return $this->hasMany(Field::class, 'blockid', 'blockid');
-    }
-    
->>>>>>> 68e4740 (Issue -#35)
+   
+
 }
