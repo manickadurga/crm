@@ -6,80 +6,110 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 use App\Models\Customers;
 use App\Models\Projects;
 use App\Models\Tags;
+use App\Models\Crmentity;
+use JsonException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class CustomersController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        try {
-            // Set the number of items per page, default is 10
-            $perPage = $request->input('per_page', 10);
-    
-            // Get paginated customers with specific fields including 'id'
-            $customers = Customers::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
-                ->paginate($perPage);
-    
-            // Prepare array to hold formatted customers
-            $formattedCustomers = [];
-    
-            // Iterate through each customer to format data
-            foreach ($customers as $customer) {
-                // Ensure projects and location are valid JSON strings before decoding
-                $projectsArray = is_string($customer->projects) ? json_decode($customer->projects, true) : [];
-                $locationArray = is_string($customer->location) ? json_decode($customer->location, true) : [];
-    
-                // Build formatted customer array and embed 'id'
-                $formattedCustomers[] = [
-                        'id' => $customer->id,
-                        'name' => $customer->name,
-                        'primary_phone' => $customer->primary_phone,
-                        'primary_email' => $customer->primary_email,
-                        'projects' => $projectsArray,
-                        'country' => $locationArray['country'] ?? null,
-                        'city' => $locationArray['city'] ?? null,
-                ];
+
+     public function index(Request $request)
+{
+    try {
+        // Set the number of items per page, default is 10
+        $perPage = $request->input('per_page', 10);
+
+        // Get paginated customers with specific fields including 'id', 'name', 'primary_phone', 'primary_email', 'projects', 'location'
+        $customers = Customers::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+            ->paginate($perPage);
+
+        // Prepare array to hold formatted customers
+        $formattedCustomers = [];
+
+        // Iterate through each customer to format data
+        foreach ($customers as $customer) {
+            // Initialize arrays
+            $projects = [];
+            $location = [];
+
+            // Handle projects field
+            if (!empty($customer->projects)) {
+                // Decode projects field if it's a string
+                $projectIds = is_string($customer->projects) ? json_decode($customer->projects) : $customer->projects;
+
+                // Fetch project names using project IDs
+                $projectNames = Projects::whereIn('id', $projectIds)
+                    ->pluck('project_name')
+                    ->toArray();
+
+                // Combine project names into a comma-separated string
+                $projects = implode(',', $projectNames);
             }
-    
-            // Return JSON response with formatted data and pagination information
-            return response()->json([
-                'status' => 200,
-                'customers' => $formattedCustomers,
-                'pagination' => [
-                    'total' => $customers->total(),
-                    'per_page' => $customers->perPage(),
-                    'current_page' => $customers->currentPage(),
-                    'last_page' => $customers->lastPage(),
-                    'from' => $customers->firstItem(),
-                    'to' => $customers->lastItem(),
-                ],
-            ], 200);
-    
-        } catch (Exception $e) {
-            // Log the error
-            Log::error('Failed to retrieve customers: ' . $e->getMessage());
-    
-            // Return error response
-            return response()->json([
-                'status' => 500,
-                'message' => 'Failed to retrieve customers',
-                'error' => $e->getMessage(),
-            ], 500);
+
+            // Decode location field if it's a string
+            if (!empty($customer->location)) {
+                $location = json_decode($customer->location, true);
+                if (!is_array($location)) {
+                    throw new \RuntimeException('Invalid JSON format for location');
+                }
+            }
+
+            // Build formatted customer array and embed 'id'
+            $formattedCustomers[] = [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'primary_phone' => $customer->primary_phone,
+                'primary_email' => $customer->primary_email,
+                'projects' => $projects,
+                'country' => $location['country'] ?? null,
+                'city' => $location['city'] ?? null,
+            ];
         }
+
+        // Return JSON response with formatted data and pagination information
+        return response()->json([
+            'status' => 200,
+            'customers' => $formattedCustomers,
+            'pagination' => [
+                'total' => $customers->total(),
+                'per_page' => $customers->perPage(),
+                'current_page' => $customers->currentPage(),
+                'last_page' => $customers->lastPage(),
+                'from' => $customers->firstItem(),
+                'to' => $customers->lastItem(),
+            ],
+        ], 200);
+
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Failed to retrieve customers: ' . $e->getMessage());
+
+        // Return error response
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to retrieve customers',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-    
+}
+
+     
     public function store(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             // Validate the incoming request data
-            $validatedData = $request->validate([
+            $validatedData = Validator::make($request->all(), [
                 'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'name' => 'required|string',
                 'primary_email' => 'nullable|email',
@@ -101,8 +131,9 @@ class CustomersController extends Controller
                 'location.latitude' => 'nullable|numeric',
                 'type' => 'nullable|integer',
                 'type_suffix' => 'nullable|in:cost,hours',
-            ]);
-    
+            ])->validate();
+            //dd($validatedData);
+
             // Process image if provided
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
@@ -110,54 +141,60 @@ class CustomersController extends Controller
                 $image->move(public_path('images'), $imageName);
                 $validatedData['image'] = $imageName; // Save $imageName to database
             }
-    
+
             // Ensure 'location' is stored as JSON
             if (isset($validatedData['location'])) {
                 $validatedData['location'] = json_encode($validatedData['location']);
             }
-    
-            // Ensure 'projects' is stored as JSON
-            if (isset($validatedData['projects'])) {
-                $projects = [];
-                foreach ($validatedData['projects'] as $id) {
-                    $project = Projects::find($id);
-                    if ($project) {
-                        $projects[] = $project->project_name;
-                    } else {
-                        throw ValidationException::withMessages(['projects' => "Project with ID '$id' not found"]);
-                    }
-                }
-                $validatedData['projects'] = json_encode($projects);
+            // Retrieve default values from an existing Crmentity record
+            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
+
+            // Check if defaultCrmentity exists
+            if (!$defaultCrmentity) {
+                throw new \Exception('Default Crmentity not found');
             }
-    
-            // Ensure 'tags' is stored as JSON
-            if (isset($validatedData['tags'])) {
-                $tags = [];
-                foreach ($validatedData['tags'] as $id) {
-                    $tag = Tags::find($id);
-                    if ($tag) {
-                        $tags[] = [
-                            'tags_name' => $tag->tags_name,
-                            'tag_color' => $tag->tag_color,
-                        ];
-                    } else {
-                        throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
-                    }
-                }
-                $validatedData['tags'] = json_encode($tags);
-            }
-    
-            // Create a new customer record in the database
-            Customers::create($validatedData);
-    
-            // Return a success response
-            return response()->json(['message' => 'Customer created successfully']);
-    
-        } catch (ValidationException $e) {
-            return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (Exception $e) {
-            Log::error('Failed to create customer: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to create customer: ' . $e->getMessage()], 500);
+
+            // Create a new Crmentity record with a new crmid
+            $newCrmentity = new Crmentity();
+            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
+            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
+            $newCrmentity->smownerid = $defaultCrmentity->smownerid;
+            $newCrmentity->setype = 'Customers';
+            $newCrmentity->description = $defaultCrmentity->description ?? '';
+            $newCrmentity->createdtime = now();
+            $newCrmentity->modifiedtime = now();
+            $newCrmentity->viewedtime = now();
+            $newCrmentity->status = $defaultCrmentity->status ?? '';
+            $newCrmentity->version = $defaultCrmentity->version ?? 0;
+            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
+            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
+            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
+            $newCrmentity->source = $defaultCrmentity->source ?? '';
+            $newCrmentity->label = $validatedData['name'];
+            $newCrmentity->save();
+
+            // Set the new crmid as the customer ID
+            $validatedData['id'] = $newCrmentity->crmid;
+
+            // Create a new customer record with the crmid
+            $customer = Customers::create($validatedData);
+
+            DB::commit();
+
+            // Return success response
+            return response()->json([
+                'message' => 'Customer created successfully',
+                'customer' => $customer,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Handle any exceptions or errors
+            return response()->json([
+                'error' => 'Failed to create customer',
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -371,3 +408,4 @@ public function update(Request $request, string $id)
     }
 }
 }
+

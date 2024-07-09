@@ -15,7 +15,9 @@ return new class extends Migration
         try {
             Schema::create('jo_recuring_expenses', function (Blueprint $table) {
                 $table->id();
-                $table->string('category_name')->nullable(false);
+                $table->unsignedBigInteger('category_name')->nullable(false);
+                $table->foreign('category_name')->references('id')->on('jo_manage_categories')->onDelete('set null');
+               // $table->string('category_name')->nullable(false);
                 $table->boolean('split_expense')->default(false)->nullable();
                 $table->decimal('value')->nullable(false);
                 $table->string('currency')->default('BGN')->nullable();

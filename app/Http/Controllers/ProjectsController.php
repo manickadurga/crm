@@ -8,6 +8,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use App\Models\Projects;
+use App\Models\Crmentity;
+use Illuminate\Support\Facades\DB;
 use App\Models\Tags;
 
 class ProjectsController extends Controller
@@ -35,53 +37,112 @@ class ProjectsController extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+    
         try {
-            $validated = $request->validate([
-                'image'=>'nullable|image',
-                'project_name'=>'required|string',
-                'code'=>'nullable|string',
-                'project_url'=>'nullable|string',
-                'owner'=>'nullable|string',
-                'clients'=>'nullable|string',
-                'add_or_remove_employees'=>'nullable|string',
-                'add_or_remove_teams'=>'nullable|string',
-                'project_start_date'=>'nullable|date',
-                'project_end_date'=>'nullable|date',
-
-                //DESCRIPTION
-
-                'description'=>'nullable|string',
+            // Validate the request data
+            $validatedData = $request->validate([
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+                'project_name' => 'required|string|max:255',
+                'code' => 'nullable|string',
+                'project_url' => 'nullable|string',
+                'owner' => 'nullable|string',
+                'clients' => 'nullable|string',
+                'add_or_remove_employees' => 'nullable|string',
+                'add_or_remove_teams' => 'nullable|string',
+                'project_start_date' => 'nullable|date',
+                'project_end_date' => 'nullable|date',
+                'description' => 'nullable|string',
                 'tags' => 'nullable|array',
-                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
-
-                //bILLING
-
-                'billing'=>'nullable|string',
-                'currency'=>'nullable|string',
-                //BUDGET
-                'type'=>'nullable|string',
-                'cost'=>'nullable|integer',
-
-                //open source
-
-                'open_source'=>'nullable|boolean',
-                'open_source_url'=>'nullable|string',
-
-                //SETTINGS
-
-                'color'=>'nullable|string',
-                'task_view_mode'=>'nullable|string',
-                'public'=>'nullable|boolean',
-                'billable'=>'nullable|boolean',
+                'tags.*' => 'exists:jo_tags,id',
+                'billing' => 'nullable|string',
+                'currency' => 'nullable|string',
+                'type' => 'nullable|string',
+                'cost' => 'nullable|integer',
+                'open_source' => 'nullable|boolean',
+                'open_source_url' => 'nullable|string',
+                'color' => 'nullable|string',
+                'task_view_mode' => 'nullable|string',
+                'public' => 'nullable|boolean',
+                'billable' => 'nullable|boolean',
                 'orgid' => 'integer',
             ]);
-
-            Projects::create($validated);
-
-            return response()->json(['message' => 'Project created successfully']);
+    
+            // Handle image upload if an image is provided
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('images'), $imageName); // Move the file to public/images directory
+                $validatedData['image'] = 'images/' . $imageName; // Store relative path
+            } else {
+                // If no image is provided, set a default value or null as needed
+                // $validatedData['image'] = null; // or handle accordingly
+            }
+    
+            // Handle tags
+            if (isset($validatedData['tags'])) {
+                $tags = [];
+                foreach ($validatedData['tags'] as $id) {
+                    $tag = Tags::find($id);
+                    if ($tag) {
+                        $tags[] = [
+                            'tags_name' => $tag->tags_name,
+                            'tag_color' => $tag->tag_color,
+                        ];
+                    } else {
+                        throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
+                    }
+                }
+                $validatedData['tags'] = json_encode($tags);
+            }
+    
+            // Retrieve or create a new Crmentity record
+            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
+    
+            if (!$defaultCrmentity) {
+                // Log an error if default Crmentity not found
+                Log::error('Default Crmentity for Projects not found');
+                throw new \Exception('Default Crmentity not found');
+            }
+    
+            // Create a new Crmentity record with a new crmid
+            $newCrmentity = new Crmentity();
+            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
+            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid ?? 0; // Replace with appropriate default
+            $newCrmentity->smownerid = $defaultCrmentity->smownerid ?? 0; // Replace with appropriate default
+            $newCrmentity->setype = 'Projects';
+            $newCrmentity->description = $defaultCrmentity->description ?? '';
+            $newCrmentity->createdtime = now();
+            $newCrmentity->modifiedtime = now();
+            $newCrmentity->viewedtime = now();
+            $newCrmentity->status = $defaultCrmentity->status ?? '';
+            $newCrmentity->version = $defaultCrmentity->version ?? 0;
+            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
+            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
+            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
+            $newCrmentity->source = $defaultCrmentity->source ?? '';
+            $newCrmentity->label = $validatedData['project_name'];
+            $newCrmentity->save();
+    
+            // Set the new crmid as the project ID
+            $validatedData['id'] = $newCrmentity->crmid;
+    
+            // Create the project entry
+            $project = Projects::create($validatedData);
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Project created successfully', 'project' => $project], 201);
+    
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation failed while creating project: ' . $e->getMessage());
+            return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            DB::rollBack();
+            Log::error('Failed to create project: ' . $e->getMessage());
+            Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
+            return response()->json(['error' => 'Failed to create project: ' . $e->getMessage()], 500);
         }
     }
 

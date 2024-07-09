@@ -18,8 +18,10 @@ class CreateJoPaymentsTable extends Migration
         try {
             Schema::create('jo_payments', function (Blueprint $table) {
                 $table->id();
-                $table->bigInteger('invoice_number')->nullable();
-                $table->string('contacts');
+                $table->unsignedBigInteger('invoice_number')->nullable();
+                $table->foreign('invoice_number')->references('id')->on('jo_invoices')->onDelete('set null');
+                $table->unsignedBigInteger('contacts')->nullable();
+                $table->foreign('contacts')->references('crmid')->on('jo_crmentity')->onDelete('set null');
                 $table->string('projects');
                 $table->date('payment_date')->default(DB::raw('CURRENT_DATE'));
                 $table->string('payment_method')->nullable(false);

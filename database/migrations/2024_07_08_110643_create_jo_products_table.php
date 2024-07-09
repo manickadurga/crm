@@ -18,16 +18,18 @@ return new class extends Migration
                 $table->string('image')->nullable();
                 $table->string('name')->nullable(false);
                 $table->string('code')->nullable(false);
-                $table->string('product_type')->nullable(false); // Store the name of the product type
-                //$table->foreign('product_type')->references('name')->on('jo_product_types')->onDelete('cascade');
-                $table->string('product_category')->nullable(false); // Store the name of the product category
+                $table->unsignedBigInteger('product_type')->nullable(false);
+                $table->foreign('product_type')->references('id')->on('jo_product_types')->onDelete('set null');
+                $table->unsignedBigInteger('product_category')->nullable(false);
+                $table->foreign('product_category')->references('id')->on('jo_product_categories')->onDelete('set null');
                 $table->text('description')->nullable();
                 $table->boolean('enabled')->default(false);
                 $table->json('options')->nullable();
                 $table->json('tags')->nullable();
                 $table->json('add_variants')->nullable();
                 $table->string('list_price')->nullable();
-                $table->integer('quantity_in_stock')->nullable();
+                $table->unsignedBigInteger('quantity_in_stock')->nullable();
+                $table->foreign('quantity_in_stock')->references('id')->on('jo_product_types')->onDelete('set null');
                 $table->timestamps();
 
                 

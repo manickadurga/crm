@@ -36,17 +36,18 @@ class ProductTypesController extends Controller
     {
         try {
             $request->validate([
-              'name' => 'required|string|in:Inventory,Non Inventory',
-              'quantity_in_stock' => 'required_if:name,Inventory|integer|min:0|default:0',
+                'name' => 'required|string|in:Inventory,Non Inventory',
+                'quantity_in_stock' => 'required_if:name,Inventory|integer|min:0',
             ]);
-
+    
             $productType = ProductTypes::create($request->all());
             return response()->json($productType, 201);
         } catch (Exception $e) {
             Log::error('Failed to create product type: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to create product type'], 500);
+            return response()->json(['message' => 'Failed to create product type', 'error' => $e->getMessage()], 500); // Include error message for debugging
         }
     }
+    
 
     /**
      * Display the specified product type.
@@ -145,4 +146,64 @@ class ProductTypesController extends Controller
             return response()->json(['error' => 'Failed to retrieve products by type'], 500);
         }
     }
+    public function search(Request $request)
+{
+    try {
+        // Validate the search input
+        $validatedData = $request->validate([
+            'name' => 'nullable|string',
+            'quantity_in_stock' => 'nullable|integer|min:0',
+            // Add more validation rules as needed
+        ]);
+
+        // Initialize the query builder
+        $query = ProductTypes::query();
+
+        // Apply search filters
+        if (isset($validatedData['name'])) {
+            $query->where('name', 'like', '%' . $validatedData['name'] . '%');
+        }
+
+        if (isset($validatedData['quantity_in_stock'])) {
+            $query->where('quantity_in_stock', $validatedData['quantity_in_stock']);
+        }
+
+        // Add more filters based on additional validated data
+
+        // Retrieve paginated product types based on the query
+        $productTypes = $query->paginate(10); // Adjust 10 to the number of product types per page you want
+
+        // Check if any product types found
+        if ($productTypes->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No matching records found',
+            ], 404);
+        }
+
+        // Return paginated response
+        return response()->json([
+            'status' => 200,
+            'product_types' => $productTypes->items(),
+            'pagination' => [
+                'total' => $productTypes->total(),
+                'per_page' => $productTypes->perPage(),
+                'current_page' => $productTypes->currentPage(),
+                'last_page' => $productTypes->lastPage(),
+                'from' => $productTypes->firstItem(),
+                'to' => $productTypes->lastItem(),
+            ],
+        ], 200);
+
+    } catch (Exception $e) {
+        // Log the error
+        Log::error('Failed to search product types: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to search product types',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
 }

@@ -33,7 +33,7 @@ class TagsController extends Controller
 {
     try {
         $tags = $request->validate([
-            'name'=>'required|string',
+            'tags_name'=>'required|string',
             'tag_color'=>'required|string',
             'tenant_level'=>'nullable|boolean',
             'description'=>'nullable|string',

@@ -39,8 +39,11 @@ class Block extends Model
     {
         return $this->belongsTo(Tab::class, 'tabid', 'tabid');
     }
+
     public function fields()
     {
-        return $this->hasMany(Field::class, 'block', 'blockid');
+        return $this->hasMany(Field::class, 'block', 'blockid'); // Define the relationship
     }
+
+    
 }

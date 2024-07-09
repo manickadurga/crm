@@ -36,6 +36,9 @@ use App\Http\Controllers\Profile2StandardPermissionsController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamsController;
+use App\Http\Controllers\SharingAccessController;
+//use App\Http\Controllers\PurchaseController;
+
 
 /*
  *--------------------------------------------------------------------------
@@ -52,6 +55,8 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::apiResource('customers', CustomersController::class)->names('customers');
 });
 
+
+
 //Customers Routes
 Route::get('/customers',[CustomersController::class,'index']);
 Route::post('/customers',[CustomersController::class,'store']);
@@ -63,6 +68,7 @@ Route::post('customers/search', [CustomersController::class, 'search']);
 //Payments Routes
 Route::get('/payments',[PaymentsController::class,'index']);
 Route::post('/payments',[PaymentsController::class,'store']);
+Route::get('/payments/search',[PaymentsController::class,'search']);
 Route::get('/payments/{id}', [PaymentsController::class, 'show']);
 Route::put('payments/{id}', [PaymentsController::class,'update']);
 Route::delete('/payments/{id}',[PaymentsController::class,'destroy']);
@@ -70,6 +76,7 @@ Route::delete('/payments/{id}',[PaymentsController::class,'destroy']);
 //Pipelines Routes
 Route::get('/pipelines',[PipelinesController::class,'index']);
 Route::post('/pipelines',[PipelinesController::class,'store']);
+Route::get('/pipelines/search',[PipelinesController::class,'search']);
 Route::get('/pipelines/{id}',[PipelinesController::class,'show']);
 Route::put('/pipelines/{id}',[PipelinesController::class,'update']);
 Route::delete('/pipelines/{id}',[PipelinesController::class,'destroy']);
@@ -85,14 +92,17 @@ Route::delete('/customersinvite/{id}',[CustomersInviteController::class,'destroy
 //Equipments Routes
 Route::get('/equipments',[EquipmentsController::class,'index']);
 Route::post('/equipments',[EquipmentsController::class,'store']);
-Route::get('/equipments/{id}',[EquipmentsController::class,'show']);
+Route::get('/equipments/search', [EquipmentsController::class, 'search']);
+Route::get('/equipments/{id}', [EquipmentsController::class, 'show']);
 Route::put('/equipments/{id}',[EquipmentsController::class,'update']);
 Route::delete('/equipments/{id}',[EquipmentsController::class,'destroy']);
+
 
 
 //Equipments Sharing Routes
 Route::get('/equipments-sharing', [EquipmentsSharingController::class, 'index']);
 Route::post('/equipments-sharing', [EquipmentsSharingController::class, 'store']);
+Route::get('/equipments-sharing/search', [EquipmentsSharingController::class, 'search']);
 Route::get('/equipments-sharing/{id}', [EquipmentsSharingController::class, 'show']);
 Route::put('/equipments-sharing/{id}', [EquipmentsSharingController::class, 'update']);
 Route::delete('/equipments-sharing/{id}', [EquipmentsSharingController::class, 'destroy']);
@@ -100,12 +110,14 @@ Route::delete('/equipments-sharing/{id}', [EquipmentsSharingController::class, '
 //Equipments Sharing Policy Routes
 Route::get('/equipments-sharing-policy', [EquipmentsSharingPolicyController::class, 'index']);
 Route::post('/equipments-sharing-policy', [EquipmentsSharingPolicyController::class, 'store']);
+Route::get('/equipments-sharing-policy/search', [EquipmentsSharingPolicyController::class, 'search']);
 Route::get('/equipments-sharing-policy/{id}', [EquipmentsSharingPolicyController::class, 'show']);
 Route::put('/equipments-sharing-policy/{id}', [EquipmentsSharingPolicyController::class, 'update']);
 Route::delete('/equipments-sharing-policy/{id}', [EquipmentsSharingPolicyController::class, 'destroy']);
 
 //Product Types Routes
 Route::get('/product-types',[ProductTypesController::class,'index']);
+Route::get('/product-types/search',[ProductTypesController::class,'search']);
 Route::post('/product-types',[ProductTypesController::class,'store']);
 Route::get('/product-types/{id}',[ProductTypesController::class,'show']);
 Route::put('/product-types/{id}',[ProductTypesController::class,'update']);
@@ -115,6 +127,7 @@ Route::get('product-types/{typeName}/products', [ProductTypesController::class, 
 //Product Categories Routes
 Route::get('/product-categories',[ProductCategoriesController::class,'index']);
 Route::post('/product-categories',[ProductCategoriesController::class,'store']);
+Route::get('/product-categories/search',[ProductCategoriesController::class,'search']);
 Route::get('/product-categories/{id}',[ProductCategoriesController::class,'show']);
 Route::put('/product-categories/{id}',[ProductCategoriesController::class,'update']);
 Route::delete('/product-categories/{id}',[ProductCategoriesController::class,'destroy']);
@@ -143,10 +156,12 @@ Route::delete('/inventories/{id}',[InventoryController::class,'destroy']);
 //Products Routes
 Route::get('/products',[ProductsController::class,'index']);
 Route::post('/products',[ProductsController::class,'store']);
+Route::get('/products/search', [ProductsController::class, 'search']);
 Route::get('/products/{id}',[ProductsController::class,'show']);
 Route::put('/products/{id}',[ProductsController::class,'update']);
 Route::delete('/products/{id}',[ProductsController::class,'destroy']);
 Route::get('/products/{typeName}', [ProductsController::class, 'showByType']);
+
 
 
 //Recuring Expenses Routes
@@ -159,6 +174,7 @@ Route::delete('/recuring-expenses/{id}',[RecuringExpensesController::class,'dest
 //Manage Categories Routes
 Route::get('/manage-categories',[ManageCategoriesController::class,'index']);
 Route::post('/manage-categories',[ManageCategoriesController::class,'store']);
+Route::get('/manage-categories/search',[ManageCategoriesController::class,'search']);
 Route::get('/manage-categories/{id}',[ManageCategoriesController::class,'show']);
 Route::put('/manage-categories/{id}',[ManageCategoriesController::class,'update']);
 Route::delete('/manage-categories/{id}',[ManageCategoriesController::class,'destroy']);
@@ -218,16 +234,19 @@ Route::get('/projects/{id}',[ProjectsController::class,'destroy']);
 //Expenses Routes
 Route::get('/expenses',[ExpensesController::class,'index']);
 Route::post('/expenses',[ExpensesController::class,'store']);
+Route::get('/expenses/search',[ExpensesController::class,'search']);
 Route::get('/expenses/{id}',[ExpensesController::class,'show']);
 Route::put('/expenses/{id}',[ExpensesController::class,'update']);
-Route::get('/expenses/{id}',[ExpensesController::class,'destroy']);
+Route::delete('/expenses/{id}',[ExpensesController::class,'destroy']);
 
 //Groups Routes
 Route::get('/groups',[GroupsController::class,'index']);
 Route::post('/groups',[GroupsController::class,'store']);
+Route::get('/groups/search', [GroupsController::class, 'search']);
 Route::get('/groups/{id}',[GroupsController::class,'show']);
 Route::put('/groups/{id}',[GroupsController::class,'update']);
-Route::get('/groups/{id}',[GroupsController::class,'destroy']);
+Route::delete('/groups/{id}',[GroupsController::class,'destroy']);
+
 
 //Roles Routes
 Route::get('/roles', [RolesController::class, 'index']);
@@ -300,3 +319,22 @@ Route::post('/profile2globalpermissions',[Profile2GlobalPermissionsController::c
 Route::get('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'show']);
 Route::put('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'update']);
 Route::delete('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsController::class,'destroy']);
+
+//Sharing Access Routes
+    Route::get('/sharing-access', [SharingAccessController::class, 'index']);
+    Route::post('/sharing-access', [SharingAccessController::class, 'store']);
+    Route::get('/sharing-access/search',[SharingAccessController::class,'search']);
+    Route::get('/sharing-access/{id}', [SharingAccessController::class, 'show']);
+    Route::put('/sharing-access/{id}', [SharingAccessController::class, 'update']);
+    Route::delete('/sharing-access/{id}', [SharingAccessController::class, 'destroy']);
+    //Route::get('/sharing-access/{id}/customers', [SharingAccessController::class, 'getCustomers']);
+   // Route::get('/customers/access/{id}', [SharingAccessController::class, 'getCustomersBySharingAccess']);
+   //Route::get('/sharing-access/{sharingAccessId}/customers', [SharingAccessController::class, 'getCustomersBySharingAccessId']);
+   Route::get('/sharing-access/customers/{sharingAccessId}',[SharingAccessController::class,'getCustomersBySharingAccessId']);
+   //Route::post('/sharing-access/{sharingAccessId}/update-customers', [SharingAccessController::class, 'updateCustomersData']);
+   Route::post('/sharing-access/{sharingAccessId}/update-customers',[SharingAccessController::class,'updateCustomersData']);
+
+
+
+
+

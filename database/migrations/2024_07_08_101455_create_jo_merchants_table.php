@@ -28,7 +28,9 @@ class CreateJoMerchantsTable extends Migration
                 $table->json('tags')->nullable();
                 $table->boolean('is_active')->default(false)->nullable();
                 $table->json('location')->nullable();
-                $table->string('warehouses')->nullable(); // Column to store the name of the warehouse
+                // $table->string('warehouses')->nullable(); // Column to store the name of the warehouse
+                $table->unsignedBigInteger('warehouses')->nullable();
+                $table->foreign('warehouses')->references('id')->on('jo_warehouses')->onDelete('set null');
                 $table->timestamps();
             });
         } catch (\Exception $e) {

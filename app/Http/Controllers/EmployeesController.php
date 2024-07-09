@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Crmentity;
+use App\Models\Tags;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 
 class EmployeesController extends Controller
@@ -33,6 +38,8 @@ class EmployeesController extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
+    
         try {
             // Validate the request data
             $validator = Validator::make($request->all(), [
@@ -52,20 +59,81 @@ class EmployeesController extends Controller
                 'orgid' => 'nullable|integer',
                 // Add more validation rules as needed
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-
-            // Create a new employee
-            $employee = Employee::create($request->all());
-
-            return response()->json($employee, 201);
+    
+            $validatedData = $validator->validated();
+    
+            // Handle tags
+            if (isset($validatedData['tags'])) {
+                $tags = [];
+                foreach ($validatedData['tags'] as $tag) {
+                    $tagModel = Tags::where('tags_name', $tag['tags_name'])
+                                    ->where('tag_color', $tag['tag_color'])
+                                    ->first();
+                    if ($tagModel) {
+                        $tags[] = [
+                            'tags_name' => $tagModel->tags_name,
+                            'tag_color' => $tagModel->tag_color,
+                        ];
+                    } else {
+                        throw ValidationException::withMessages(['tags' => "Tag '{$tag['tags_name']}' with color '{$tag['tag_color']}' not found"]);
+                    }
+                }
+                $validatedData['tags'] = json_encode($tags);
+            }
+    
+            // Retrieve or create a new Crmentity record
+            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
+    
+            if (!$defaultCrmentity) {
+                // Log an error if default Crmentity not found
+                Log::error('Default Crmentity for Employees not found');
+                throw new \Exception('Default Crmentity not found');
+            }
+    
+            // Create a new Crmentity record with a new crmid
+            $newCrmentity = new Crmentity();
+            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
+            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid ?? 0; // Replace with appropriate default
+            $newCrmentity->smownerid = $defaultCrmentity->smownerid ?? 0; // Replace with appropriate default
+            $newCrmentity->setype = 'Employees';
+            $newCrmentity->description = $defaultCrmentity->description ?? '';
+            $newCrmentity->createdtime = now();
+            $newCrmentity->modifiedtime = now();
+            $newCrmentity->viewedtime = now();
+            $newCrmentity->status = $defaultCrmentity->status ?? '';
+            $newCrmentity->version = $defaultCrmentity->version ?? 0;
+            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
+            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
+            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
+            $newCrmentity->source = $defaultCrmentity->source ?? '';
+            $newCrmentity->label = $validatedData['first_name'];
+            $newCrmentity->save();
+    
+            // Set the new crmid as the employee ID
+            $validatedData['id'] = $newCrmentity->crmid;
+    
+            // Create the employee entry
+            $employee = Employee::create($validatedData);
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Employee created successfully', 'employee' => $employee], 201);
+    
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation failed while creating employee: ' . $e->getMessage());
+            return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create employee.'], 500);
+            DB::rollBack();
+            Log::error('Failed to create employee: ' . $e->getMessage());
+            Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
+            return response()->json(['error' => 'Failed to create employee: ' . $e->getMessage()], 500);
         }
-    }
-
+    }    
     /**
      * Display the specified resource.
      *

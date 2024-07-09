@@ -11,7 +11,9 @@ class Expense extends Model
     protected $table='jo_expenses';
     protected $guarded=[];
     protected $casts=[
-      'project'=>'array',
-      'tags'=>'array'
+      'projects'=>'array',
+      'tags'=>'array',
+      'contacts'=>'array',
+      //'currency'=>'array'
     ];
 }

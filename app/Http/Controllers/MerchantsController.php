@@ -19,7 +19,10 @@ class MerchantsController extends Controller
     public function index()
     {
         try {
-            $merchants = Merchants::all();
+            // Retrieve paginated merchants
+            $merchants = Merchants::paginate(10); // Adjust 10 to the number of merchants per page you want
+
+            // Check if any merchants found
             if ($merchants->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -29,9 +32,19 @@ class MerchantsController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'merchants' => $merchants,
+                'merchants' => $merchants->items(),
+                'pagination' => [
+                    'total' => $merchants->total(),
+                    'per_page' => $merchants->perPage(),
+                    'current_page' => $merchants->currentPage(),
+                    'last_page' => $merchants->lastPage(),
+                    'from' => $merchants->firstItem(),
+                    'to' => $merchants->lastItem(),
+                ],
             ], 200);
+
         } catch (Exception $e) {
+            // Log the error
             Log::error('Failed to retrieve merchants: ' . $e->getMessage());
 
             return response()->json([
@@ -41,7 +54,6 @@ class MerchantsController extends Controller
             ], 500);
         }
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -59,11 +71,13 @@ class MerchantsController extends Controller
             'website' => 'nullable|string',
             'description' => 'nullable|string',
             'tags' => 'nullable|array',
-            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+            'tags.*' => 'exists:jo_tags,id',
+            // 'tags' => 'nullable|array',
+            // 'tags.*.tags_name' => 'exists:jo_tags,tags_name',
+            // 'tags.*.tag_color' => 'exists:jo_tags,tag_color',
             'is_active' => 'boolean',
             'location' => 'nullable|array',
-            'warehouses' => 'nullable|string|exists:jo_warehouses,name',
+            'warehouses' => 'nullable|exists:jo_warehouses,id',
         ]);
 
         if ($validator->fails()) {
@@ -110,7 +124,7 @@ class MerchantsController extends Controller
             'image' => 'nullable|string',
             'name' => 'nullable|string',
             'code' => 'nullable|string',
-            'email' => 'required|email',
+            'email' => 'nullable|email',
             'phone' => 'nullable|string',
             'currency' => 'nullable|string',
             'fax' => 'nullable|string',
@@ -118,11 +132,10 @@ class MerchantsController extends Controller
             'website' => 'nullable|string',
             'description' => 'nullable|string',
             'tags' => 'nullable|array',
-            'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-            'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+            'tags.*' => 'exists:jo_tags,id',
             'is_active' => 'boolean',
             'location' => 'nullable|array',
-            'warehouses' => 'nullable|string|exists:jo_warehouses,name',
+            'warehouses' => 'nullable|exists:jo_warehouses,id',
         ]);
 
         if ($validator->fails()) {
@@ -161,6 +174,81 @@ class MerchantsController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to delete merchant: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to delete merchant'], 500);
+        }
+    }
+    public function search(Request $request)
+    {
+        try {
+            // Validate the search input
+            $validatedData = $request->validate([
+                'image' => 'nullable|string',
+                'name' => 'nullable|string',
+                'code' => 'nullable|string',
+                'email' => 'nullable|email',
+                'phone' => 'nullable|string',
+                'currency' => 'nullable|string',
+                'fax' => 'nullable|string',
+                'fiscal_information' => 'nullable|string',
+                'website' => 'nullable|string',
+                'description' => 'nullable|string',
+               'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+                'is_active' => 'boolean',
+                'location' => 'nullable|array',
+                'warehouses' => 'nullable|string|exists:jo_warehouses,id',
+                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+            ]);
+
+            // Initialize the query builder
+            $query = Merchants::query();
+
+            // Apply search filters
+            foreach ($validatedData as $key => $value) {
+                if ($value !== null && in_array($key, [
+                    'image', 'name', 'code', 'email', 'phone', 'currency',
+                    'fax', 'fiscal_information', 'website', 'description',
+                    'is_active', 'location', 'warehouses'
+                ])) {
+                    if (is_array($value)) {
+                        foreach ($value as $item) {
+                            $query->where($key, 'like', '%' . $item . '%');
+                        }
+                    } else {
+                        $query->where($key, 'like', '%' . $value . '%');
+                    }
+                }
+            }
+
+            // Paginate the search results
+            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $merchants = $query->paginate($perPage);
+
+            // Check if any merchants found
+            if ($merchants->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No matching records found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'merchants' => $merchants->items(),
+                'pagination' => [
+                    'total' => $merchants->total(),
+                    'per_page' => $merchants->perPage(),
+                    'current_page' => $merchants->currentPage(),
+                    'last_page' => $merchants->lastPage(),
+                    'from' => $merchants->firstItem(),
+                    'to' => $merchants->lastItem(),
+                ],
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (Exception $e) {
+            Log::error('Failed to search merchants: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to search merchants: ' . $e->getMessage()], 500);
         }
     }
 }

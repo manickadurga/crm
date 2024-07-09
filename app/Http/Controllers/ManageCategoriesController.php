@@ -19,7 +19,10 @@ class ManageCategoriesController extends Controller
     public function index()
     {
         try {
-            $categories = ManageCategories::all();
+            // Retrieve paginated categories
+            $categories = ManageCategories::paginate(10); // Adjust 10 to the number of categories per page you want
+
+            // Check if any categories found
             if ($categories->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -29,10 +32,21 @@ class ManageCategoriesController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'categories' => $categories,
+                'categories' => $categories->items(),
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                    'last_page' => $categories->lastPage(),
+                    'from' => $categories->firstItem(),
+                    'to' => $categories->lastItem(),
+                ],
             ], 200);
+
         } catch (Exception $e) {
+            // Log the error
             Log::error('Failed to retrieve categories: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 500,
                 'message' => 'Failed to retrieve categories',
@@ -50,8 +64,7 @@ class ManageCategoriesController extends Controller
             $validator = Validator::make($request->all(), [
                 'expense_name' => 'required|string|max:255',
                 'tags' => 'nullable|array',
-                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+                'tags.*' => 'exists:jo_tags,id',
             ]);
 
             if ($validator->fails()) {
@@ -60,9 +73,7 @@ class ManageCategoriesController extends Controller
 
             $data = $validator->validated();
 
-            if (isset($data['tags'])) {
-                $data['tags'] = json_encode($data['tags']);
-            }
+            
 
             $category = ManageCategories::create($data);
 
@@ -100,8 +111,7 @@ class ManageCategoriesController extends Controller
             $validator = Validator::make($request->all(), [
                 'expense_name' => 'required|string|max:255',
                 'tags' => 'nullable|array',
-                'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-                'tags.*.tag_color' => 'exists:jo_tags,tag_color',
+                'tags.*' => 'exists:jo_tags,id',
             ]);
 
             if ($validator->fails()) {
@@ -109,11 +119,6 @@ class ManageCategoriesController extends Controller
             }
 
             $data = $validator->validated();
-
-            if (isset($data['tags'])) {
-                $data['tags'] = json_encode($data['tags']);
-            }
-
             $category = ManageCategories::findOrFail($id);
             $category->update($data);
 
@@ -144,4 +149,59 @@ class ManageCategoriesController extends Controller
             return response()->json(['error' => 'Failed to delete category: ' . $e->getMessage()], 500);
         }
     }
+    public function search(Request $request)
+    {
+        try {
+            // Validate the search input
+            $validatedData = $request->validate([
+                'expense_name' => 'nullable|string',
+                'tags' => 'nullable|string',
+                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+            ]);
+
+            // Initialize the query builder
+            $query = ManageCategories::query();
+
+            // Apply search filters
+            if (isset($validatedData['expense_name'])) {
+                $query->where('expense_name', 'like', '%' . $validatedData['expense_name'] . '%');
+            }
+
+            if (isset($validatedData['tags'])) {
+                $query->where('tags', 'like', '%' . $validatedData['tags'] . '%');
+            }
+
+            // Paginate the search results
+            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $categories = $query->paginate($perPage);
+
+            // Check if any categories found
+            if ($categories->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No matching records found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'categories' => $categories->items(),
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                    'last_page' => $categories->lastPage(),
+                    'from' => $categories->firstItem(),
+                    'to' => $categories->lastItem(),
+                ],
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (Exception $e) {
+            Log::error('Failed to search categories: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to search categories: ' . $e->getMessage()], 500);
+        }
+    }
+
 }

@@ -29,8 +29,8 @@ return new class extends Migration
                 $table->integer('type')->nullable();
                 $table->enum('type_suffix', ['cost', 'hours'])->nullable();
                 $table->timestamps();
-
             });
+
         } catch (Exception $e) {
             Log::error('Failed to create customers table: ' . $e->getMessage());
             throw $e;
@@ -50,3 +50,4 @@ return new class extends Migration
         }
     }
 };
+

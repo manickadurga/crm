@@ -17,7 +17,10 @@ class ProductCategoriesController extends Controller
     public function index()
     {
         try {
-            $categories = ProductCategories::all();
+            // Retrieve paginated product categories
+            $categories = ProductCategories::paginate(10); // Adjust 10 to the number of categories per page you want
+
+            // Check if any categories found
             if ($categories->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -27,10 +30,21 @@ class ProductCategoriesController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'categories' => $categories,
+                'categories' => $categories->items(),
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                    'last_page' => $categories->lastPage(),
+                    'from' => $categories->firstItem(),
+                    'to' => $categories->lastItem(),
+                ],
             ], 200);
+
         } catch (Exception $e) {
+            // Log the error
             Log::error('Failed to retrieve product categories: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 500,
                 'message' => 'Failed to retrieve product categories',
@@ -122,6 +136,63 @@ class ProductCategoriesController extends Controller
         } catch (Exception $e) {
             Log::error('Failed to delete product category: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to delete product category'], 500);
+        }
+    }
+    public function search(Request $request)
+    {
+        try {
+            // Validate the search input
+            $validatedData = $request->validate([
+                'name' => 'nullable|string',
+                'description' => 'nullable|string',
+                'language' => 'nullable|string',
+                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+            ]);
+
+            // Initialize the query builder
+            $query = ProductCategories::query();
+
+            // Apply search filters
+            if (isset($validatedData['name'])) {
+                $query->where('name', 'like', '%' . $validatedData['name'] . '%');
+            }
+
+            if (isset($validatedData['description'])) {
+                $query->where('description', 'like', '%' . $validatedData['description'] . '%');
+            }
+
+            if (isset($validatedData['language'])) {
+                $query->where('language', 'like', '%' . $validatedData['language'] . '%');
+            }
+
+            // Paginate the search results
+            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $categories = $query->paginate($perPage);
+
+            // Check if any categories found
+            if ($categories->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No matching records found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'categories' => $categories->items(),
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                    'last_page' => $categories->lastPage(),
+                    'from' => $categories->firstItem(),
+                    'to' => $categories->lastItem(),
+                ],
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('Failed to search product categories: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to search product categories'], 500);
         }
     }
 }

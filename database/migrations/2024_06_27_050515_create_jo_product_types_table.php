@@ -18,7 +18,7 @@ return new class extends Migration
                 //$table->string('language')->nullable()->default('english');
                 //$table->string('icon')->nullable()->default('star');
                 $table->enum('name', ['Inventory', 'Non Inventory'])->default('Inventory');
-                $table->integer('quantity_in_Stock')->nullable();
+                $table->integer('quantity_in_stock')->nullable();
                 //$table->string('description')->nullable();
                 $table->timestamps();
             });

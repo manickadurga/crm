@@ -21,13 +21,18 @@ return new class extends Migration
                 $table->boolean('billable_to_contact')->default(false)->nullable();
                 $table->string('employees_that_generate')->nullable()->default('all employees');
                 $table->string('currency')->nullable()->default('Bulgarian LEV(BGN)');
-                $table->string('categories')->nullable();
+                $table->unsignedBigInteger('categories')->nullable();
+                $table->foreign('categories')->references('id')->on('jo_manage_categories')->onDelete('set null');
                 $table->date('date')->default(DB::raw('CURRENT_DATE'))->nullable();
-                $table->string('vendor')->nullable();
+                $table->unsignedBigInteger('vendors')->nullable();
+                $table->foreign('vendors')->references('id')->on('jo_vendors')->onDelete('set null');
                 $table->integer('amount')->nullable(false);
                 $table->text('purpose')->nullable();
-                $table->string('contact')->nullable();
-                $table->json('project')->nullable();
+                $table->unsignedBigInteger('contacts')->nullable();
+                $table->foreign('contacts')->references('crmid')->on('jo_crmentity')->onDelete('set null');
+                // $table->foreign('contacts')->references('id')->on('jo_leads')->onDelete('set null');
+                // $table->foreign('contacts')->references('id')->on('jo_clients')->onDelete('set null');   // This will store 'customer', 'client', or 'lead'
+                $table->json('projects')->nullable();
                 $table->json('tags')->nullable();
                 $table->string('select_status')->nullable();
                 $table->text('notes')->nullable();
