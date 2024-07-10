@@ -184,7 +184,7 @@ class LeadsController extends Controller
             // }
     
             // Retrieve default values from an existing Crmentity record
-            $defaultCrmentity = Crmentity::where('setype', 'Leads')->first();
+            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
     
             // Check if defaultCrmentity exists
             if (!$defaultCrmentity) {

@@ -10,6 +10,7 @@ use App\Models\Clients;
 use App\Models\Projects;
 use App\Models\Tags;
 use App\Models\Crmentity;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Validation\ValidationException;
 
@@ -87,7 +88,7 @@ class ClientsController extends Controller
 
     } catch (\Exception $e) {
         // Log the error
-        \Log::error('Failed to retrieve client: ' . $e->getMessage());
+        Log::error('Failed to retrieve client: ' . $e->getMessage());
 
         // Return error response
         return response()->json([
@@ -177,7 +178,7 @@ class ClientsController extends Controller
             ], 200);
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Failed to create client: ' . $e->getMessage());
+            Log::error('Failed to create client: ' . $e->getMessage());
         
             // Check if the exception is due to a unique constraint violation
             if (strpos($e->getMessage(), 'Unique violation') !== false) {
@@ -207,7 +208,7 @@ class ClientsController extends Controller
             return response()->json($client);
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Failed to retrieve client: ' . $e->getMessage());
+            Log::error('Failed to retrieve client: ' . $e->getMessage());
 
             // Return error response
             return response()->json([
@@ -270,7 +271,7 @@ class ClientsController extends Controller
             return response()->json($client);
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Failed to update client: ' . $e->getMessage());
+            Log::error('Failed to update client: ' . $e->getMessage());
     
             // Return error response
             return response()->json([
@@ -292,7 +293,7 @@ class ClientsController extends Controller
             return response()->json(['message' => 'Client deleted successfully'], 200);
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Failed to delete client: ' . $e->getMessage());
+            Log::error('Failed to delete client: ' . $e->getMessage());
 
             // Return error response
             return response()->json([
@@ -360,7 +361,7 @@ class ClientsController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
-            \Log::error('Failed to search clients: ' . $e->getMessage());
+            Log::error('Failed to search clients: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to search clients: ' . $e->getMessage()], 500);
         }
     }

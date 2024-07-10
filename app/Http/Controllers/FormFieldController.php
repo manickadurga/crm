@@ -375,3 +375,4 @@ Log::warning('No options defined for fieldName: ' . $fieldName);
 return $defaultOptions[$fieldName] ?? [];
 }
 }
+
