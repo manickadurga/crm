@@ -102,103 +102,101 @@ class CustomersController extends Controller
     }
 }
 
-     
-    public function store(Request $request)
-    {
-        DB::beginTransaction();
+public function store(Request $request)
+{
+    DB::beginTransaction();
 
-        try {
-            // Validate the incoming request data
-            $validatedData = Validator::make($request->all(), [
-                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-                'name' => 'required|string',
-                'primary_email' => 'nullable|email',
-                'primary_phone' => 'nullable|string',
-                'website' => 'nullable|url',
-                'fax' => 'nullable|string',
-                'fiscal_information' => 'nullable|string',
-                'projects' => 'nullable|array|max:5000',
-                'projects.*' => 'exists:jo_projects,id',
-                'contact_type' => 'nullable|string|max:5000',
-                'tags' => 'nullable|array',
-                'tags.*' => 'exists:jo_tags,id',
-                'location' => 'nullable|array|max:5000',
-                'location.country' => 'nullable|string',
-                'location.city' => 'nullable|string',
-                'location.address' => 'nullable|string',
-                'location.postal_code' => 'nullable|string',
-                'location.longitude' => 'nullable|numeric',
-                'location.latitude' => 'nullable|numeric',
-                'type' => 'nullable|integer',
-                'type_suffix' => 'nullable|in:cost,hours',
-            ])->validate();
-            //dd($validatedData);
+    try {
+        // Validate the incoming request data
+        $validatedData = Validator::make($request->all(), [
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string',
+            'primary_email' => 'nullable|email',
+            'primary_phone' => 'nullable|string',
+            'website' => 'nullable|url',
+            'fax' => 'nullable|string',
+            'fiscal_information' => 'nullable|string',
+            'projects' => 'nullable|array|max:5000',
+            'projects.*' => 'exists:jo_projects,id',
+            'contact_type' => 'nullable|string|max:5000',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            'location' => 'nullable|array|max:5000',
+            'location.country' => 'nullable|string',
+            'location.city' => 'nullable|string',
+            'location.address' => 'nullable|string',
+            'location.postal_code' => 'nullable|string',
+            'location.longitude' => 'nullable|numeric',
+            'location.latitude' => 'nullable|numeric',
+            'type' => 'nullable|integer',
+            'type_suffix' => 'nullable|in:cost,hours',
+        ])->validate();
+        //dd($validatedData);
 
-            // Process image if provided
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('images'), $imageName);
-                $validatedData['image'] = $imageName; // Save $imageName to database
-            }
-
-            // Ensure 'location' is stored as JSON
-            if (isset($validatedData['location'])) {
-                $validatedData['location'] = json_encode($validatedData['location']);
-            }
-            // Retrieve default values from an existing Crmentity record
-            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
-
-            // Check if defaultCrmentity exists
-            if (!$defaultCrmentity) {
-                throw new \Exception('Default Crmentity not found');
-            }
-
-            // Create a new Crmentity record with a new crmid
-            $newCrmentity = new Crmentity();
-            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
-            $newCrmentity->smownerid = $defaultCrmentity->smownerid;
-            $newCrmentity->setype = 'Customers';
-            $newCrmentity->description = $defaultCrmentity->description ?? '';
-            $newCrmentity->createdtime = now();
-            $newCrmentity->modifiedtime = now();
-            $newCrmentity->viewedtime = now();
-            $newCrmentity->status = $defaultCrmentity->status ?? '';
-            $newCrmentity->version = $defaultCrmentity->version ?? 0;
-            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-            $newCrmentity->source = $defaultCrmentity->source ?? '';
-            $newCrmentity->label = $validatedData['name'];
-            $newCrmentity->save();
-
-            // Set the new crmid as the customer ID
-            $validatedData['id'] = $newCrmentity->crmid;
-
-            // Create a new customer record with the crmid
-            $customer = Customers::create($validatedData);
-
-            DB::commit();
-
-            // Return success response
-            return response()->json([
-                'message' => 'Customer created successfully',
-                'customer' => $customer,
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Handle any exceptions or errors
-            return response()->json([
-                'error' => 'Failed to create customer',
-                'message' => $e->getMessage(),
-            ], 500);
+        // Process image if provided
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $validatedData['image'] = $imageName; // Save $imageName to database
         }
-    }
 
-    public function show(string $id)
+        // Ensure 'location' is stored as JSON
+        if (isset($validatedData['location'])) {
+            $validatedData['location'] = json_encode($validatedData['location']);
+        }
+        // Retrieve default values from an existing Crmentity record
+        $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
+
+        // Check if defaultCrmentity exists
+        if (!$defaultCrmentity) {
+            throw new \Exception('Default Crmentity not found');
+        }
+
+        // Create a new Crmentity record with a new crmid
+        $newCrmentity = new Crmentity();
+        $newCrmentity->crmid = Crmentity::max('crmid') + 1;
+        $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
+        $newCrmentity->smownerid = $defaultCrmentity->smownerid;
+        $newCrmentity->setype = 'Customers';
+        $newCrmentity->description = $defaultCrmentity->description ?? '';
+        $newCrmentity->createdtime = now();
+        $newCrmentity->modifiedtime = now();
+        $newCrmentity->viewedtime = now();
+        $newCrmentity->status = $defaultCrmentity->status ?? '';
+        $newCrmentity->version = $defaultCrmentity->version ?? 0;
+        $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
+        $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
+        $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
+        $newCrmentity->source = $defaultCrmentity->source ?? '';
+        $newCrmentity->label = $validatedData['name'];
+        $newCrmentity->save();
+
+        // Set the new crmid as the customer ID
+        $validatedData['id'] = $newCrmentity->crmid;
+
+        // Create a new customer record with the crmid
+        $customer = Customers::create($validatedData);
+
+        DB::commit();
+
+        // Return success response
+        return response()->json([
+            'message' => 'Customer created successfully',
+            'customer' => $customer,
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        // Handle any exceptions or errors
+        return response()->json([
+            'error' => 'Failed to create customer',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+public function show(string $id)
 {
     try {
         $customer = Customers::findOrFail($id);
@@ -217,6 +215,7 @@ class CustomersController extends Controller
         return response()->json(['status' => 500, 'message' => 'Failed to retrieve customer details'], 500);
     }
 }
+
 public function update(Request $request, string $id)
 {
     try {
@@ -227,7 +226,7 @@ public function update(Request $request, string $id)
 
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'image' => 'nullable|string', // Expecting a base64 string
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Expecting an image file
             'name' => 'nullable|string',
             'primary_email' => 'nullable|email',
             'primary_phone' => 'nullable|string',
@@ -251,8 +250,9 @@ public function update(Request $request, string $id)
         ]);
 
         // Process image if provided
-        if ($request->has('image')) {
-            $imageData = $request->get('image');
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
 
             // Delete old image if it exists
             if ($customer->image) {
@@ -262,14 +262,8 @@ public function update(Request $request, string $id)
                 }
             }
 
-            // Decode the base64 string and save the image
-            $imageName = time() . '.jpg'; // You can change the extension based on the actual file type
-            $imagePath = public_path('images/' . $imageName);
-
-            // Extract the base64 data
-            $imageData = explode(',', $imageData)[1];
-            File::put($imagePath, base64_decode($imageData));
-
+            // Move the new image to the public/images directory
+            $image->move(public_path('images'), $imageName);
             $validatedData['image'] = $imageName; // Save $imageName to database
         }
 
@@ -299,6 +293,7 @@ public function update(Request $request, string $id)
         return response()->json(['message' => 'An unexpected error occurred while processing your request. Please try again later.'], 500);
     }
 }
+
     public function destroy(string $id)
     {
         try {
