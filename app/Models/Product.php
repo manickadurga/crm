@@ -17,9 +17,21 @@ class Product extends Model
         'tags' => 'array',
         'add_variants' => 'array'
     ];
+    public function invoices()
+    {
+        return $this->belongsToMany(Invoices::class, 'inventory_product_rel')
+                    ->withPivot('quantity', 'list_price', 'discount_percent');
+    }
+    public function products()
+    {
+        return $this->hasManyThrough(Product::class, InventoryProductRel::class, 'id', 'product_id', 'id', 'product_id');
+    }
+
+
     public function scopeByProductType($query, $productTypeName)
     {
         return $query->where('product_type', $productTypeName);
     }
-
 }
+
+

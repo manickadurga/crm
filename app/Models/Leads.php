@@ -12,7 +12,7 @@ class Leads extends Model
     protected $guarded = [];
     protected $casts = [
         'tags' => 'array',
-        'location'=>'json',
+        'location'=>'array',
         'projects'=>'array'
     ];
 }

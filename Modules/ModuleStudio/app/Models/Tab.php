@@ -18,7 +18,7 @@ class Tab extends Model
     protected $guarded = [];
 
 
-    protected static function newFactory(): TabFactory
+    protected static function newFactory()
     {
         //return TabFactory::new();
     }

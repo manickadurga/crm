@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     use HasFactory;
+
     protected $table='jo_employees';
     protected $guarded=[];
     protected $casts=[
         'tags'=>'array',
     ];
+
 }

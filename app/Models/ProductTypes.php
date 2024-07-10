@@ -10,12 +10,9 @@ class ProductTypes extends Model
     use HasFactory;
     protected $table = 'jo_product_types';
     protected $guarded=[];
-  // ProductType.php
+
 public function products()
 {
     return $this->hasMany(Product::class);
 }
-
-
-
 }

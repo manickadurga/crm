@@ -1,15 +1,17 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Block extends Model
 {
-    use HasFactory;
+
+    //use HasFactory;
     protected $table = 'jo_blocks';
     protected $primaryKey = 'blockid';
+    public $timestamps = false; 
+    // protected $fillable = ['tabid', 'blocklabel'];
+  
     
     protected $fillable = [
        'tabid',
@@ -39,11 +41,18 @@ class Block extends Model
     {
         return $this->belongsTo(Tab::class, 'tabid', 'tabid');
     }
-
     public function fields()
     {
-        return $this->hasMany(Field::class, 'block', 'blockid'); // Define the relationship
+        return $this->hasMany(Field::class, 'block', 'blockid');
     }
 
     
+    
+    public function module()
+    {
+        return $this->belongsTo(Module::class, 'tabid', 'tabid');
+    }
+
+   
+
 }

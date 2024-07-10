@@ -1,0 +1,11 @@
+{
+    "name": "Teamtask",
+    "alias": "teamtask",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Teamtask\\Providers\\TeamtaskServiceProvider"
+    ],
+    "files": []
+}

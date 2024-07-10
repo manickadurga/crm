@@ -12,18 +12,10 @@ class Customers extends Model
     protected $table = 'jo_customers';
     protected $guarded = [];
     protected $casts = [
-        'projects' => 'array',
+
+        'projects' => 'json',
         'tags' => 'json',
         'location' => 'json',
     ];
-    // public function getProjectsAttribute()
-    // {
-    //     return Projects::whereIn('id', json_decode($this->attributes['projects']))->get();
-    // }
-
-    // public function getTagsAttribute()
-    // {
-    //     return Tags::whereIn('id', json_decode($this->attributes['tags']))->get();
-    // }
-
 }
+

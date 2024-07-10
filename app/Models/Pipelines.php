@@ -14,4 +14,8 @@ class Pipelines extends Model
         'stages'=>'json',
 
     ];
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 68e4740 (Issue -#35)

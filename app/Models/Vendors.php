@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Vendors extends Model
 {
     use HasFactory;
-    protected $table='jo_vendors';
-    protected $guarded=[];
+    protected $guarded = [];
+    protected $table="jo_vendors";
     protected $casts=[
-
-        'tags'=>'array',
-    ];
+             'tags'=>'array'
+         ];
+        
 }
+

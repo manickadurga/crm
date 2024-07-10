@@ -86,6 +86,7 @@ class EmployeesController extends Controller
             }
     
             // Retrieve or create a new Crmentity record
+
             $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
     
             if (!$defaultCrmentity) {

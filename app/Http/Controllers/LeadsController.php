@@ -1,6 +1,6 @@
 <?php
 
-// app/Http/Controllers/CustomersController.php
+// app/Http/Controllers/leadsController.php
 
 namespace App\Http\Controllers;
 
@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\File;
 use Exception;
-use App\Models\Customers;
 use App\Models\Leads;
 use App\Models\Project;
 use App\Models\Projects;
@@ -26,67 +25,84 @@ class LeadsController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        try {
-            // Check if the user has permission to read customers data
-            //$this->checkAccessPermissions('Customers', 'Read');
+{
+    try {
+        // Set the number of items per page, default is 10
+        $perPage = $request->input('per_page', 10);
 
-            // Set the number of items per page, default is 10
-            $perPage = $request->input('per_page', 10);
+        // Get paginated leads with specific fields including 'id', 'name', 'primary_phone', 'primary_email', 'projects', 'location'
+        $leads = leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+            ->paginate($perPage);
 
-            // Get paginated customers with specific fields including 'id'
-            $leads = Leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
-                ->paginate($perPage);
+        // Prepare array to hold formatted leads
+        $formattedleads = [];
 
-            // Prepare array to hold formatted customers
-            $formattedCustomers = [];
+        // Iterate through each lead to format data
+        foreach ($leads as $lead) {
+            // Initialize arrays
+            $projects = [];
+            $location = [];
 
-            // Iterate through each customer to format data
-            foreach ($leads as $lead) {
-                // Ensure projects and location are valid JSON strings before decoding
-                $projectsArray = is_string($lead->projects) ? json_decode($lead->projects, true) : [];
-                $locationArray = is_string($lead->location) ? json_decode($lead->location, true) : [];
+            // Handle projects field
+            if (!empty($lead->projects)) {
+                // Decode projects field if it's a string
+                $projectIds = is_string($lead->projects) ? json_decode($lead->projects) : $lead->projects;
 
-                
+                // Fetch project names using project IDs
+                $projectNames = Project::whereIn('id', $projectIds)
+                    ->pluck('project_name')
+                    ->toArray();
 
-                // Build formatted lead array and embed 'id'
-                $formattedCustomers[] = [
-                    'id' => $lead->id,
-                    'name' => $lead->name,
-                    'primary_phone' => $lead->primary_phone,
-                    'primary_email' => $lead->primary_email,
-                    'projects' => $projectsArray,
-                    'country' => $locationArray['country'] ?? null,
-                    'city' => $locationArray['city'] ?? null,
-                ];
+                // Combine project names into a comma-separated string
+                $projects = implode(',', $projectNames);
             }
 
-            // Return JSON response with formatted data and pagination information
-            return response()->json([
-                'status' => 200,
-                'leads' => $formattedCustomers,
-                'pagination' => [
-                    'total' => $leads->total(),
-                    'per_page' => $leads->perPage(),
-                    'current_page' => $leads->currentPage(),
-                    'last_page' => $leads->lastPage(),
-                    'from' => $leads->firstItem(),
-                    'to' => $leads->lastItem(),
-                ],
-            ], 200);
+            // Decode location field if it's a string
+            if (!empty($lead->location)) {
+                $location = json_decode($lead->location, true);
+                if (!is_array($location)) {
+                    throw new \RuntimeException('Invalid JSON format for location');
+                }
+            }
 
-        } catch (Exception $e) {
-            // Log the error
-            Log::error('Failed to retrieve leads: ' . $e->getMessage());
-
-            // Return error response
-            return response()->json([
-                'status' => 500,
-                'message' => 'Failed to retrieve leads',
-                'error' => $e->getMessage(),
-            ], 500);
+            // Build formatted lead array and embed 'id'
+            $formattedleads[] = [
+                'id' => $lead->id,
+                'name' => $lead->name,
+                'primary_phone' => $lead->primary_phone,
+                'primary_email' => $lead->primary_email,
+                'projects' => $projects,
+                'country' => $location['country'] ?? null,
+                'city' => $location['city'] ?? null,
+            ];
         }
+
+        // Return JSON response with formatted data and pagination information
+        return response()->json([
+            'status' => 200,
+            'leads' => $formattedleads,
+            'pagination' => [
+                'total' => $leads->total(),
+                'per_page' => $leads->perPage(),
+                'current_page' => $leads->currentPage(),
+                'last_page' => $leads->lastPage(),
+                'from' => $leads->firstItem(),
+                'to' => $leads->lastItem(),
+            ],
+        ], 200);
+
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Failed to retrieve leads: ' . $e->getMessage());
+
+        // Return error response
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to retrieve leads',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
 
 
@@ -137,35 +153,35 @@ class LeadsController extends Controller
             }
     
             // Ensure 'projects' is stored as JSON
-            if (isset($validatedData['projects'])) {
-                $projects = [];
-                foreach ($validatedData['projects'] as $id) {
-                    $project = Projects::find($id);
-                    if ($project) {
-                        $projects[] = $project->project_name;
-                    } else {
-                        throw new \Exception("Project with ID '$id' not found");
-                    }
-                }
-                $validatedData['projects'] = json_encode($projects);
-            }
+            // if (isset($validatedData['projects'])) {
+            //     $projects = [];
+            //     foreach ($validatedData['projects'] as $id) {
+            //         $project = Project::find($id);
+            //         if ($project) {
+            //             $projects[] = $project->project_name;
+            //         } else {
+            //             throw new \Exception("Project with ID '$id' not found");
+            //         }
+            //     }
+            //     $validatedData['projects'] = json_encode($projects);
+            // }
     
-            // Ensure 'tags' is stored as JSON
-            if (isset($validatedData['tags'])) {
-                $tags = [];
-                foreach ($validatedData['tags'] as $id) {
-                    $tag = Tags::find($id);
-                    if ($tag) {
-                        $tags[] = [
-                            'tags_name' => $tag->tags_name,
-                            'tag_color' => $tag->tag_color,
-                        ];
-                    } else {
-                        throw new \Exception("Tag with ID '$id' not found");
-                    }
-                }
-                $validatedData['tags'] = json_encode($tags);
-            }
+            // // Ensure 'tags' is stored as JSON
+            // if (isset($validatedData['tags'])) {
+            //     $tags = [];
+            //     foreach ($validatedData['tags'] as $id) {
+            //         $tag = Tags::find($id);
+            //         if ($tag) {
+            //             $tags[] = [
+            //                 'tags_name' => $tag->tags_name,
+            //                 'tag_color' => $tag->tag_color,
+            //             ];
+            //         } else {
+            //             throw new \Exception("Tag with ID '$id' not found");
+            //         }
+            //     }
+            //     $validatedData['tags'] = json_encode($tags);
+            // }
     
             // Retrieve default values from an existing Crmentity record
             $defaultCrmentity = Crmentity::where('setype', 'Leads')->first();
@@ -230,8 +246,8 @@ class LeadsController extends Controller
     public function show(string $id)
     {
         try {
-            // Check if the user has permission to read customers data
-            //$this->checkAccessPermissions('Customers', 'Read');
+            // Check if the user has permission to read leads data
+            //$this->checkAccessPermissions('leads', 'Read');
 
             $lead = Leads::findOrFail($id);
 
@@ -240,7 +256,7 @@ class LeadsController extends Controller
             $lead->tags = is_string($lead->tags) ? json_decode($lead->tags, true) : [];
             $lead->projects = is_string($lead->projects) ? json_decode($lead->projects, true) : [];
 
-            return response()->json(['status' => 200, 'customer' => $lead], 200);
+            return response()->json(['status' => 200, 'lead' => $lead], 200);
         } catch (ModelNotFoundException $e) {
             Log::warning('lead not found: ' . $id);
             return response()->json(['status' => 404, 'message' => 'lead not found'], 404);
@@ -256,8 +272,8 @@ class LeadsController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            // Check if the user has permission to write customers data
-            //$this->checkAccessPermissions('Customers', 'Write');
+            // Check if the user has permission to write leads data
+            //$this->checkAccessPermissions('leads', 'Write');
 
             $lead = Leads::findOrFail($id);
 
@@ -294,7 +310,7 @@ class LeadsController extends Controller
                 // Save or update the image in the database or storage
             }
 
-            // Update customer fields based on validated data
+            // Update lead fields based on validated data
             $lead->fill($validatedData);
             $lead->save();
 
@@ -317,8 +333,8 @@ class LeadsController extends Controller
     public function destroy(string $id)
     {
         try {
-            // Check if the user has permission to delete customers data
-            //$this->checkAccessPermissions('Customers', 'Write');
+            // Check if the user has permission to delete leads data
+            //$this->checkAccessPermissions('leads', 'Write');
 
             $lead = Leads::findOrFail($id);
             $lead->delete();

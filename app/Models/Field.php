@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Tab;
+use App\Models\Block;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,10 +35,21 @@ class Field extends Model
         'summaryfield',
         'headerfield',
     ];
+
+
+    public function tab()
+    {
+        return $this->belongsTo(Tab::class, 'tabid', 'tabid');
+    }
+
+    
+
     public function block()
     {
         return $this->belongsTo(Block::class, 'block', 'blockid');
     }
 
-   
 }
+
+
+   

@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Organization extends Model
 {
+
     use HasFactory;
     protected $table = 'jo_organizations';
      protected $primaryKey = 'organizationid';
@@ -17,23 +17,27 @@ class Organization extends Model
         'official_name',
         'tax_id',
         'tags',
-        'find_address',
-        'country',
-        'city',
-        'postcode',
-        'address',
-        'address_2',
+        'location',
         'employee_bonus_type',
-        'bonus_percentage',
-        'timezone',
+        'choose_time_zone',
         'start_week_on',
         'default_date_type',
         'regions',
-        'number_format',
+        'select_number_format',
         'date_format',
         'fiscal_year_start_date',
         'fiscal_year_end_date',
+        'enable_disable_invites',
         'invite_expiry_period',
-        'allow_users_to_send_invites',
+        
     ];
+
+    protected $casts = [
+        'location' => 'array', // Cast the location attribute to an array
+    ];
+   
 }
+
+
+
+
