@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 
 use Illuminate\Support\Facades\Route;
 use Modules\Customers\Http\Controllers\CustomersController;
@@ -14,7 +14,7 @@ use Modules\Customers\Http\Controllers\CustomersController;
 |
 */
 
-/*Route::group([], function () {
+Route::group([], function () {
     Route::resource('customers', CustomersController::class)->names('customers');
 });
 
@@ -31,4 +31,4 @@ Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
 Route::get('/customers/{id}', [CustomersController::class, 'show']);
 
 Route::put('/customers/{id}',[CustomersController::class,'update']);
-Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);*/
+Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);

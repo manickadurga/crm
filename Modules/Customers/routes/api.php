@@ -61,7 +61,7 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
 });
 
 
-Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
+//Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 // Route::get('/form-fields', [FormFieldsController::class, 'getFormField']);
 
 
@@ -316,6 +316,7 @@ Route::delete('/leads/{id}',[LeadsController::class,'destroy']);
 
 //FormField Routes
 Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
+//Route::get('form-fields', [FormFieldsController::class, 'getFormFields']);
 
 //Tags Routes
 Route::get('/tags',[TagsController::class,'index']);
@@ -440,5 +441,4 @@ Route::delete('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsContro
    Route::get('/sharing-access/customers/{sharingAccessId}',[SharingAccessController::class,'getCustomersBySharingAccessId']);
    //Route::post('/sharing-access/{sharingAccessId}/update-customers', [SharingAccessController::class, 'updateCustomersData']);
    Route::post('/sharing-access/{sharingAccessId}/update-customers',[SharingAccessController::class,'updateCustomersData']);
-
 
