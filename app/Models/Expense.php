@@ -17,5 +17,24 @@ class Expense extends Model
       'contacts'=>'array',
       //'currency'=>'array'
     ];
+    public function vendor()
+    {
+        return $this->belongsTo(Vendors::class, 'vendors');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ManageCategories::class, 'categories');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employees_that_generate');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'projects');
+    }
 }
 

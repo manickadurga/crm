@@ -66,7 +66,7 @@ class EquipmentsSharingController extends Controller
             'choose_approve_policy' => 'required|string',
             'choice' => 'required|in:employees,teams',
             'add_or_remove_employees' => 'nullable|array',
-            'add_or_remove_employees.*' => 'exists:jo_employees,id',
+            'add_or_remove_employees.*' => 'exists:jo_manage_employees,id',
             'select_request_date' => 'nullable|date',
             'select_start_date' => 'required|date',
             'select_end_date' => 'required|date',
@@ -138,21 +138,6 @@ class EquipmentsSharingController extends Controller
     try {
         $sharing = EquipmentsSharing::findOrFail($id);
         $sharing->update($request->all());
-
-        // Sync employees and update their first names
-        // if ($request->has('add_or_remove_employees')) {
-        //     $employeeIds = $request->input('add_or_remove_employees');
-        //     $employees = Employee::whereIn('id', $employeeIds)->get();
-
-        //     $employeeNames = $employees->pluck('first_name')->toArray();
-        //     $sharing->add_or_remove_employees = $employeeNames;
-        //     $sharing->save();
-        // } else {
-        //     // If no employees are provided, clear the names
-        //     $sharing->add_or_remove_employees = [];
-        //     $sharing->save();
-        // }
-
         return response()->json(['data' => $sharing], 200);
     } catch (ModelNotFoundException $e) {
         return response()->json(['error' => 'Equipment sharing not found'], 404);
@@ -161,10 +146,6 @@ class EquipmentsSharingController extends Controller
         return response()->json(['error' => 'Failed to update equipment sharing'], 500);
     }
 }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
@@ -181,7 +162,6 @@ class EquipmentsSharingController extends Controller
     public function search(Request $request)
 {
     try {
-        // Validate the search input
         $validatedData = $request->validate([
             'name' => 'nullable|string',
             'select_equipment' => 'nullable|string',
@@ -192,34 +172,24 @@ class EquipmentsSharingController extends Controller
             'select_request_date' => 'nullable|date',
             'select_start_date' => 'nullable|date',
             'select_end_date' => 'nullable|date',
-            'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+            'per_page' => 'nullable|integer|min:1',
         ]);
-
-        // Initialize the query builder
         $query = EquipmentsSharing::query();
-
-        // Apply search filters
         foreach ($validatedData as $key => $value) {
             if ($value !== null && in_array($key, ['name', 'select_equipment', 'choose_approve_policy', 'choice'])) {
                 $query->where($key, 'like', '%' . $value . '%');
             }
-
             if (in_array($key, ['select_request_date', 'select_start_date', 'select_end_date']) && $value !== null) {
                 $query->whereDate($key, $value);
             }
-
             if ($key === 'add_or_remove_employees' && $value !== null) {
                 $query->whereHas('employees', function ($q) use ($value) {
                     $q->whereIn('id', $value);
                 });
             }
         }
-
-        // Paginate the search results
-        $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+        $perPage = $validatedData['per_page'] ?? 10;
         $equipmentssharing = $query->paginate($perPage);
-
-        // Check if any equipment sharing entries found
         if ($equipmentssharing->isEmpty()) {
             return response()->json([
                 'status' => 404,

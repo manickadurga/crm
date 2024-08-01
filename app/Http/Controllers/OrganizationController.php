@@ -8,6 +8,7 @@ use App\Models\Clients;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Models\Crmentity;
 
 use Exception;
 
@@ -86,14 +87,9 @@ class OrganizationController extends Controller
                 'enable_disable_invites' => 'nullable|string|max:255',
                 'invite_expiry_period' => 'nullable|string|max:255',
             ]);
-
-            $tagsIds = $validatedData['tags'] ?? [];
-            $tagsNames = DB::table('jo_tags')
-                ->whereIn('id', $tagsIds)
-                ->pluck('tags_name')
-                ->toArray();
-            $validatedData['tags'] = json_encode($tagsNames);
-
+            $crmentityController = new CrmentityController();
+            $crmid = $crmentityController->createCrmentity('Organization', $validatedData['organization_name']);
+            $validatedData['id'] = $crmid;
             $organization = Organization::create($validatedData);
             return response()->json($organization, 201);
         } catch (\Exception $e) {
@@ -102,48 +98,65 @@ class OrganizationController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        try {
-            $organization = Organization::find($id);
-            if (!$organization) {
-                return response()->json(['message' => 'Organization not found'], 404);
-            }
-
-            $validatedData = $request->validate([
-                'image' => 'nullable|image',
-                'organization_name' => 'required|string|max:255',
-                'currency' => 'nullable|string|max:255',
-                'official_name' => 'nullable|string|max:255',
-                'tax_id' => 'nullable|string|max:255',
-                'tags' => 'nullable|array',
-                'tags.*' => 'exists:jo_tags,id',
-                'location' => 'nullable|array',
-                'employee_bonus_type' => 'nullable|string|max:255',
-                'choose_time_zone' => 'nullable|string|max:255',
-                'start_week_on' => 'nullable|string|max:255',
-                'default_date_type' => 'nullable|string|max:255',
-                'regions' => 'nullable|string|max:255',
-                'select_number_format' => 'nullable|string|max:255',
-                'date_format' => 'nullable|string|max:255',
-                'fiscal_year_start_date' => 'nullable|string|max:255',
-                'fiscal_year_end_date' => 'nullable|string|max:255',
-                'enable_disable_invites' => 'nullable|string|max:255',
-                'invite_expiry_period' => 'nullable|string|max:255',
-            ]);
-
-            $tagsIds = $validatedData['tags'] ?? [];
-            $tagsNames = DB::table('jo_tags')
-                ->whereIn('id', $tagsIds)
-                ->pluck('tags_name')
-                ->toArray();
-            $validatedData['tags'] = json_encode($tagsNames);
-
-            $organization->update($validatedData);
-            return response()->json($organization);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+{
+    try {
+        // Find the organization by ID
+        $organization = Organization::find($id);
+        if (!$organization) {
+            return response()->json(['message' => 'Organization not found'], 404);
         }
+
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'image' => 'nullable|image',
+            'organization_name' => 'required|string|max:255',
+            'currency' => 'nullable|string|max:255',
+            'official_name' => 'nullable|string|max:255',
+            'tax_id' => 'nullable|string|max:255',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            'location' => 'nullable|array',
+            'employee_bonus_type' => 'nullable|string|max:255',
+            'choose_time_zone' => 'nullable|string|max:255',
+            'start_week_on' => 'nullable|string|max:255',
+            'default_date_type' => 'nullable|string|max:255',
+            'regions' => 'nullable|string|max:255',
+            'select_number_format' => 'nullable|string|max:255',
+            'date_format' => 'nullable|string|max:255',
+            'fiscal_year_start_date' => 'nullable|string|max:255',
+            'fiscal_year_end_date' => 'nullable|string|max:255',
+            'enable_disable_invites' => 'nullable|string|max:255',
+            'invite_expiry_period' => 'nullable|string|max:255',
+        ]);
+
+        // Process image if provided
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $validatedData['image'] = $imageName; // Save $imageName to database
+        }
+
+        // Update the Crmentity entry
+        $crmentity = Crmentity::where('crmid', $organization->id)->first();
+        if ($crmentity) {
+            $crmentity->label = $validatedData['organization_name'];
+            $crmentity->save();
+        }
+
+        // Update the organization with validated data
+        $organization->update($validatedData);
+
+        return response()->json([
+            'message' => 'Organization updated successfully',
+            'organization' => $organization,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Failed to update organization: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to update organization: ' . $e->getMessage()], 500);
     }
+}
+
 
     public function destroy($id)
     {

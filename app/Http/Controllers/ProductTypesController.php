@@ -10,11 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 class ProductTypesController extends Controller
 {
-    /**
-     * Display a listing of the product types.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         try {
@@ -25,13 +21,6 @@ class ProductTypesController extends Controller
             return response()->json(['message' => 'Failed to retrieve product types'], 500);
         }
     }
-
-    /**
-     * Store a newly created product type in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try {
@@ -47,14 +36,6 @@ class ProductTypesController extends Controller
             return response()->json(['message' => 'Failed to create product type', 'error' => $e->getMessage()], 500); // Include error message for debugging
         }
     }
-    
-
-    /**
-     * Display the specified product type.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try {
@@ -70,14 +51,6 @@ class ProductTypesController extends Controller
             return response()->json(['message' => 'Failed to retrieve product type'], 500);
         }
     }
-
-    /**
-     * Update the specified product type in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -98,13 +71,6 @@ class ProductTypesController extends Controller
             return response()->json(['message' => 'Failed to update product type'], 500);
         }
     }
-
-    /**
-     * Remove the specified product type from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try {
@@ -167,21 +133,13 @@ class ProductTypesController extends Controller
         if (isset($validatedData['quantity_in_stock'])) {
             $query->where('quantity_in_stock', $validatedData['quantity_in_stock']);
         }
-
-        // Add more filters based on additional validated data
-
-        // Retrieve paginated product types based on the query
-        $productTypes = $query->paginate(10); // Adjust 10 to the number of product types per page you want
-
-        // Check if any product types found
+        $productTypes = $query->paginate(10);
         if ($productTypes->isEmpty()) {
             return response()->json([
                 'status' => 404,
                 'message' => 'No matching records found',
             ], 404);
         }
-
-        // Return paginated response
         return response()->json([
             'status' => 200,
             'product_types' => $productTypes->items(),
@@ -196,9 +154,7 @@ class ProductTypesController extends Controller
         ], 200);
 
     } catch (Exception $e) {
-        // Log the error
         Log::error('Failed to search product types: ' . $e->getMessage());
-
         return response()->json([
             'status' => 500,
             'message' => 'Failed to search product types',

@@ -128,110 +128,111 @@ private function getFieldOptions($fieldName)
     // Define options fetching logic based on field name
     $optionsMap = [
         'tags' => function () {
-            $options = DB::table('jo_tags')->select('tags_name as value', 'tags_name as label', 'tag_color as color')->get()->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a tag...', 'color' => '']);
+            $options = DB::table('jo_tags')->select('id', 'tags_name as value', 'tags_name as label', 'tag_color as color')->get()->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a tag...', 'color' => '', 'id' => null]);
             return $options;
         },
         
         'projects' => function () {
-            $options = DB::table('jo_projects')->pluck('project_name')->map(function ($project) {
-                return ['value' => $project, 'label' => $project];
+            $options = DB::table('jo_projects')->pluck('project_name', 'id')->map(function ($project, $id) {
+                return ['value' => $project, 'label' => $project, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a project...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a project...', 'id' => null]);
             return $options;
         },
         
         'teams' => function () {
-            $options = DB::table('jo_teams')->pluck('team_name')->map(function ($teams) {
-                return ['value' => $teams, 'label' => $teams];
+            $options = DB::table('jo_teams')->pluck('team_name', 'id')->map(function ($teams, $id) {
+                return ['value' => $teams, 'label' => $teams, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a team...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a team...', 'id' => null]);
             return $options;
         },
         
         'contacts' => function () {
-            $customers = DB::table('jo_customers')->pluck('name')->map(function ($customer) {
-                return ['value' => $customer, 'label' => $customer];
+            $customers = DB::table('jo_customers')->pluck('name', 'id')->map(function ($customer, $id) {
+                return ['value' => $customer, 'label' => $customer, 'id' => $id];
             })->toArray();
 
-            $leads = DB::table('jo_leads')->pluck('name')->map(function ($lead) {
-                return ['value' => $lead, 'label' => $lead];
+            $leads = DB::table('jo_leads')->pluck('name', 'id')->map(function ($lead, $id) {
+                return ['value' => $lead, 'label' => $lead, 'id' => $id];
             })->toArray();
 
-            $clients = DB::table('jo_clients')->pluck('name')->map(function ($client) {
-                return ['value' => $client, 'label' => $client];
+            $clients = DB::table('jo_clients')->pluck('name', 'id')->map(function ($client, $id) {
+                return ['value' => $client, 'label' => $client, 'id' => $id];
             })->toArray();
 
             $options = array_merge($customers, $leads, $clients);
-            array_unshift($options, ['value' => '', 'label' => 'Select a contact...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a contact...', 'id' => null]);
             return $options;
         },
         
         'Employee that generate income' => function () {
-            $options = DB::table('jo_manage_employees')->pluck('first_name as value', 'first_name as label')->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select an employee...']);
+            $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
+                return ['value' => $employee, 'label' => $employee, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
             return $options;
         },
         
         'invoice_number' => function () {
-            $options = DB::table('jo_invoices')->pluck('invoicenumber')->map(function ($invoice) {
-                return ['value' => $invoice, 'label' => $invoice];
+            $options = DB::table('jo_invoices')->pluck('invoicenumber', 'id')->map(function ($invoice, $id) {
+                return ['value' => $invoice, 'label' => $invoice, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select an invoice number...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select an invoice number...', 'id' => null]);
             return $options;
         },
         
         'product_type' => function () {
-            $options = DB::table('jo_product_types')->pluck('name')->map(function ($product_types) {
-                return ['value' => $product_types, 'label' => $product_types];
+            $options = DB::table('jo_product_types')->pluck('name', 'id')->map(function ($product_type, $id) {
+                return ['value' => $product_type, 'label' => $product_type, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a product type...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a product type...', 'id' => null]);
             return $options;
         },
         
         'product_category' => function () {
-            $options = DB::table('jo_product_categories')->pluck('name')->map(function ($product_categories) {
-                return ['value' => $product_categories, 'label' => $product_categories];
+            $options = DB::table('jo_product_categories')->pluck('name', 'id')->map(function ($product_category, $id) {
+                return ['value' => $product_category, 'label' => $product_category, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a product category...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a product category...', 'id' => null]);
             return $options;
         },
         
         'employees_that_generate' => function () {
-            $options = DB::table('jo_manage_employees')->pluck('first_name')->map(function ($employees) {
-                return ['value' => $employees, 'label' => $employees];
+            $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
+                return ['value' => $employee, 'label' => $employee, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select an employee...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
             return $options;
         },
         
         'categories' => function () {
-            $options = DB::table('jo_manage_categories')->pluck('expense_name')->map(function ($categories) {
-                return ['value' => $categories, 'label' => $categories];
+            $options = DB::table('jo_manage_categories')->pluck('expense_name', 'id')->map(function ($category, $id) {
+                return ['value' => $category, 'label' => $category, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a category...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a category...', 'id' => null]);
             return $options;
         },
         
         'category_name' => function () {
-            $options = DB::table('jo_manage_categories')->pluck('expense_name')->map(function ($categories) {
-                return ['value' => $categories, 'label' => $categories];
+            $options = DB::table('jo_manage_categories')->pluck('expense_name', 'id')->map(function ($category, $id) {
+                return ['value' => $category, 'label' => $category, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a category...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a category...', 'id' => null]);
             return $options;
         },
         
         'vendor' => function () {
-            $options = DB::table('jo_vendors')->pluck('name')->map(function ($vendors) {
-                return ['value' => $vendors, 'label' => $vendors];
+            $options = DB::table('jo_vendors')->pluck('name', 'id')->map(function ($vendor, $id) {
+                return ['value' => $vendor, 'label' => $vendor, 'id' => $id];
             })->toArray();
-            array_unshift($options, ['value' => '', 'label' => 'Select a vendor...']);
+            array_unshift($options, ['value' => '', 'label' => 'Select a vendor...', 'id' => null]);
             return $options;
         },
         
         // Add more mappings as needed
     ];
-
     // Default options if fieldName doesn't match specific cases
     $defaultOptions = [
         'status' => [
@@ -375,4 +376,3 @@ Log::warning('No options defined for fieldName: ' . $fieldName);
 return $defaultOptions[$fieldName] ?? [];
 }
 }
-

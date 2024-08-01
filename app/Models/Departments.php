@@ -14,8 +14,9 @@ class Departments extends Model
 
     // Define the fillable properties for mass assignment
     protected $fillable = [
+        'id',
         'departments',
-        'add_or_remove_employee',
+        'add_or_remove_employees',
         'tags',
         'orgid',
     ];
@@ -23,5 +24,6 @@ class Departments extends Model
     // Cast the 'tags' attribute to an array
     protected $casts = [
         'tags' => 'array',
+        'add_or_remove_employees'=>'array',
     ];
 }

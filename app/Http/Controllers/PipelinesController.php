@@ -9,19 +9,15 @@ use App\Models\Pipelines;
 use App\Models\Crmentity;
 use Exception;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class PipelinesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         try {
             // Retrieve paginated pipelines
             $pipelines = Pipelines::paginate(10); // Adjust 10 to the number of pipelines per page you want
-
-            // Check if any pipelines found
             if ($pipelines->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -53,90 +49,50 @@ class PipelinesController extends Controller
             ], 500);
         }
     }
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
-{
-    // Validate the incoming request data
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'is_active' => 'boolean',
-        'stages' => 'nullable|array|max:5000',
-    ]);
-
-    // Check if validation fails
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 400);
-    }
-
-    try {
-        // Create the pipeline
-        $pipeline = Pipelines::create($validator->validated());
-
-        // Retrieve or create a new Crmentity record for Pipelines
-        $defaultCrmentity = Crmentity::where('setype', 'Pipelines')->first();
-
-        if (!$defaultCrmentity) {
-            // Create a default Crmentity if it doesn't exist
-            $defaultCrmentity = Crmentity::create([
-                'crmid' => Crmentity::max('crmid') + 1,
-                'smcreatorid' => 0, // Replace with appropriate default
-                'smownerid' => 0, // Replace with appropriate default
-                'setype' => 'Pipelines',
-                'description' => '',
-                'createdtime' => now(),
-                'modifiedtime' => now(),
-                'viewedtime' => now(),
-                'status' => '',
-                'version' => 0,
-                'presence' => 0,
-                'deleted' => 0,
-                'smgroupid' => 0,
-                'source' => '',
-                'label' => $pipeline->name, // Adjust as per your requirement
-            ]);
-
-            if (!$defaultCrmentity) {
-                throw new \Exception('Failed to create default Crmentity for Pipelines');
-            }
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+            'stages' => 'nullable|array|max:5000',
+        ]);
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
         }
-
-        // Create a new Crmentity record with a new crmid
-        $newCrmentity = new Crmentity();
-        $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-        $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid ?? 0; // Replace with appropriate default
-        $newCrmentity->smownerid = $defaultCrmentity->smownerid ?? 0; // Replace with appropriate default
-        $newCrmentity->setype = 'Pipelines';
-        $newCrmentity->description = $defaultCrmentity->description ?? '';
-        $newCrmentity->createdtime = now();
-        $newCrmentity->modifiedtime = now();
-        $newCrmentity->viewedtime = now();
-        $newCrmentity->status = $defaultCrmentity->status ?? '';
-        $newCrmentity->version = $defaultCrmentity->version ?? 0;
-        $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-        $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-        $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-        $newCrmentity->source = $defaultCrmentity->source ?? '';
-        $newCrmentity->label = $pipeline->name; // Adjust as per your requirement
-        $newCrmentity->save();
-
-        // Set the new crmid as the pipeline ID
-        $pipeline->id = $newCrmentity->crmid;
-        $pipeline->save();
-
-        // Return a success response with the created pipeline object
-        return response()->json(['message' => 'Pipeline created successfully', 'pipeline' => $pipeline], 201);
-    } catch (\Exception $e) {
-        // Log the error
-        Log::error('Failed to create pipeline: ' . $e->getMessage());
-
-        // Return an error response with the actual error message
-        return response()->json(['error' => 'Failed to create pipeline: ' . $e->getMessage()], 500);
+    
+        DB::beginTransaction();
+    
+        try {
+            // Create Crmentity record via CrmentityController
+            $crmentityController = new CrmentityController();
+            $crmid = $crmentityController->createCrmentity('Pipelines', $validator->validated()['name']);
+    
+            // Prepare pipeline data including crmid as id
+            $pipelineData = array_merge(
+                $validator->validated(),
+                ['id' => $crmid] // Set the crmid as the id
+            );
+    
+            // Create the Pipeline with the crmid
+            $pipeline = Pipelines::create($pipelineData);
+    
+            DB::commit();
+    
+            return response()->json([
+                'message' => 'Pipeline created successfully',
+                'pipeline' => $pipeline
+            ], 201);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create pipeline: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create pipeline: ' . $e->getMessage()], 500);
+        }
     }
-}
-
+    
 
     /**
      * Display the specified resource.
@@ -151,35 +107,52 @@ class PipelinesController extends Controller
             return response()->json(['error' => 'Failed to retrieve pipeline'], 404);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
+        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
+            'stages' => 'nullable|array|max:5000',
+            'crmentity_label' => 'nullable|string|max:255', // Add this if you want to update Crmentity label
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
+    
         try {
+            // Find and update the Pipeline record
             $pipeline = Pipelines::findOrFail($id);
-            $pipeline->update($validator->validated());
-            return response()->json($pipeline);
+            $validatedData = $validator->validated();
+            $pipeline->update($validatedData);
+    
+        // Create an instance of CrmentityController
+        $crmentityController = new CrmentityController();
+        $crmid = $pipeline->id;
+
+        // Update the corresponding Crmentity record
+        $updated = $crmentityController->updateCrmentity($crmid, [
+            'label' => $validatedData['name'],
+            //'description' => $validatedData['fiscal_information'] ?? ''
+        ]);
+
+        if (!$updated) {
+            throw new Exception('Failed to update Crmentity');
+        }
+    
+            return response()->json([
+                'message' => 'Pipeline updated successfully',
+                'pipeline' => $pipeline,
+            ]);
         } catch (Exception $e) {
             Log::error('Failed to update pipeline: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update pipeline'], 500);
         }
     }
+    
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {

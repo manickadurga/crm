@@ -15,7 +15,7 @@ class Customers extends Model
 
         'projects' => 'json',
         'tags' => 'json',
-        'location' => 'json',
+        //'location' => 'json',
     ];
 }
 

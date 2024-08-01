@@ -1,4 +1,15 @@
-import axios from "axios";
+import axios from 'axios';
+
+export const getMenu = async (page) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8001/menuitems`);
+    console.log("Fetched menu:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+    throw error;
+  }
+};
 export const getOrders = () => {
   return fetch("https://dummyjson.com/carts/1").then((res) => res.json());
 };
@@ -14,82 +25,105 @@ export const getRevenue = () => {
 export const getInventory = () => {
   return fetch("https://dummyjson.com/products").then((res) => res.json());
 };
-export const getCustomers = () => {
-  return fetch("http://127.0.0.1:8000/customers")
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return res.json();
+
+// http://127.0.0.1:8000/form-fields
+
+export const getFormfields = (form) => {
+  return axios.get(`http://127.0.0.1:8001/formfields?name=${form}`)
+    .then((response) => {
+      console.log("Fetched formfields:", response.data);
+    
+      return response.data; // Ensure the data is still returned for further processing
     })
     .catch((error) => {
-      console.error("Error fetching customers:", error);
+      console.error("Error fetching formfields:", error);
       throw error;
     });
 };
 
-export const deleteCustomer = (customerId) => {
-  const csrfTokenMetaTag = document.querySelector('meta[name="csrf-token"]');
 
-  if (!csrfTokenMetaTag) {
-    console.error("CSRF token meta tag not found");
-    throw new Error("CSRF token meta tag not found");
+export const getDataFunction = async (pathName , page) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8001/api/${pathName}?page=${page}`);
+    console.log("Fetched data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Data:", error);
+    throw error;
   }
+};
 
-  const csrfToken = csrfTokenMetaTag.getAttribute('content');
+// Example usage in a React component or module
+// const baseURL = REACT_APP_BASE_URL;
 
-  return fetch(`http://127.0.0.1:8000/customers/${customerId}`, {
-    method: "DELETE",
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': csrfToken
-    },
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("Network response was not ok");
+// console.log(baseURL); // This will log "http://127.0.0.1:8000"
+
+
+export const getClient = async (page) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/clients?page=${page}`);
+    console.log("Fetched client:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching client:", error);
+    throw error;
+  }
+};
+
+export const getClientById = async (clientId) => {
+  try {
+    console.log("jdjdhfdhfjddfdj",clientId)
+    const response = await axios.get(`http://127.0.0.1:8000/clients/${clientId}`);
+    return response.data; // Assuming your server returns JSON data for the customer
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    throw error; // Re-throw the error for the caller to handle
+  }
+};
+
+export const getLeadById = async (clientId) => {
+  try {
+    console.log("jdjdhfdhfjddfdj",clientId)
+    const response = await axios.get(`http://127.0.0.1:8000/leads/${clientId}`);
+    return response.data; // Assuming your server returns JSON data for the customer
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    throw error; // Re-throw the error for the caller to handle
+  }
+};
+
+export const getCustomerById = async (customerId) => {
+  try {
+    // console.log("jdjdhfdhfjddfdj",customerId)
+    const response = await axios.get(`http://127.0.0.1:8000/customers/${customerId}`);
+    return response.data; // Assuming your server returns JSON data for the customer
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    throw error; // Re-throw the error for the caller to handle
+  }
+};
+
+export const deleteItem = async (deletepath,deleteId) => {
+  try {
+    const csrfTokenMetaTag = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfTokenMetaTag) {
+      throw new Error("CSRF token meta tag not found");
     }
-    return res.json();
-  });
-};
+    const csrfToken = csrfTokenMetaTag.getAttribute('content');
 
-
-export const updateCustomer = (customerId, newData) => {
-  return fetch(`http://127.0.0.1:8000/customers/${customerId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(newData),
-  })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok');
+    const response = await axios.delete(`http://127.0.0.1:8000/${deletepath}/${deleteId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken
       }
-      return res.json();
-    })
-    .catch((error) => {
-      console.error('Error updating customer:', error);
-      throw error;
     });
+
+    return response.data; // Assuming you expect JSON response on success
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    throw error;
+  }
 };
-
-// API.js
-export const getCustomerById = (customerId) => {
-  return fetch(`http://127.0.0.1:8000/customers/${customerId}`)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return res.json();
-    })
-    .catch((error) => {
-      console.error("Error fetching customer:", error);
-      throw error;
-    });
-};
-
-
-
 
 
 
@@ -113,8 +147,6 @@ export const getGoals = () => {
           "tags": ["urgent", "important"],
           "paidStatus": "Paid",
           "status": "Completed",
-          "invoiceDate": "2024-05-14",
-          "dueDate": "2024-06-14",
         },
         {
           "invoiceNumber": "INV-002",
@@ -128,8 +160,6 @@ export const getGoals = () => {
           "tags": ["pending"],
           "paidStatus": "Unpaid",
           "status": "Pending",
-          "invoiceDate": "2024-05-15",
-          "dueDate": "2024-06-15",
         },
         {
           "invoiceNumber": "INV-003",
@@ -143,8 +173,6 @@ export const getGoals = () => {
           "tags": ["completed", "paid"],
           "paidStatus": "Paid",
           "status": "Completed",
-          "invoiceDate": "2024-05-16",
-          "dueDate": "2024-06-16",
         }
       ]
     };
@@ -154,6 +182,42 @@ export const getGoals = () => {
     }, 1000); // Simulate 1 second delay
   });
 };
+
+export const getProposals = () => {
+  return new Promise((resolve, reject) => {
+    const data = {
+      "proposals": [
+        {
+          "id":"1",
+          "name": "lucas",
+          "Description": "International Usability Planner",
+          "stage": "John Doe",
+          "status": "sent",
+        },
+        {
+          "id":"2",
+          "date": "2024-07-11",
+          "Description": "International Planner",
+          "stage": "John Doe",
+          "status": "accepted",
+        },
+        {
+          "id":"3",
+          "date": "2024-06-14",
+          "Description": "International Usability Planner",
+          "stage": "John Doe",
+          "status": "sent",
+        },
+      ]
+    };
+
+    // Resolve the Promise with the data
+    setTimeout(() => {
+      resolve(data);
+    }, 1000); // Simulating a delay of 1 second
+  });
+};
+
 
 export const getTasks = () => {
   return new Promise((resolve, reject) => {
@@ -194,43 +258,6 @@ export const getTasks = () => {
           "employeeTeams": ["John Doe", "Rusian"],
           "tags": ["paid", "important"],
           "status": "closed"
-        },
-      ]
-    };
-    // Simulate an asynchronous operation with setTimeout
-    setTimeout(() => {
-      resolve(data); // Resolve the Promise with the JSON data
-    }, 1000); // Simulate 1 second delay
-  });
-};
-
-export const getProposals = () => {
-  return new Promise((resolve, reject) => {
-    const data = {
-      "proposals": [
-        {
-          "date": "2024-06-14",
-          "jobTitle": "International Usability Planner",
-          "jobUrl": "https://www.sm.com/",
-          "contactName": "John Doe",
-          "author": "karlc",
-          "status": "sent",
-        },
-        {
-          "date": "2024-07-11",
-          "jobTitle": "International Planner",
-          "jobUrl": "https://www.smackcoders.com/",
-          "contactName": "Jim Carrey",
-          "author": "karlc",
-          "status": "accepted",
-        },
-        {
-          "date": "2024-06-14",
-          "jobTitle": "International Usability Planner",
-          "jobUrl": "https://www.bhurjkalifa.com/",
-          "contactName": "Ash Melina",
-          "author": "galce",
-          "status": "sent",
         },
       ]
     };

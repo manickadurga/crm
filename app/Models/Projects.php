@@ -11,9 +11,6 @@ class Projects extends Model
     protected $table = 'jo_projects'; // Correct table name
     
     // Other model properties and methods
-
     protected $guarded=[];
     
 }
-
-

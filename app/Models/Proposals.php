@@ -14,7 +14,7 @@ class Proposals extends Model
     protected $casts=[
              'tags'=>'array'
          ];
-        
+
 
 
  }

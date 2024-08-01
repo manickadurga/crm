@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImportController;
 use Illuminate\Support\Facades\Route;
 use Modules\Customers\Http\Controllers\CustomersController;
 
@@ -14,21 +15,28 @@ use Modules\Customers\Http\Controllers\CustomersController;
 |
 */
 
-Route::group([], function () {
-    Route::resource('customers', CustomersController::class)->names('customers');
-});
+// Route::group([], function () {
+//     Route::resource('customers', CustomersController::class)->names('customers');
+// });
 
 Route::get('/csrf-token', function () {
     return response()->json(['csrfToken' => csrf_token()]);
 });
 
-Route::get('/customers',[CustomersController::class,'index']);
+// Route::get('/customers',[CustomersController::class,'index']);
 
-Route::post('/customers',[CustomersController::class,'store']);
+// Route::post('/customers',[CustomersController::class,'store']);
 
-Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
+// Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
 
-Route::get('/customers/{id}', [CustomersController::class, 'show']);
+// Route::get('/customers/{id}', [CustomersController::class, 'show']);
 
-Route::put('/customers/{id}',[CustomersController::class,'update']);
-Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);
+// Route::put('/customers/{id}',[CustomersController::class,'update']);
+// Route::get('/customers/{id}/edit', [CustomersController::class, 'edit']);
+// web.php (or routes/web.php in Laravel)
+
+// Route::get('/import', function () {
+//     return view('import.import');
+// });
+
+// Route::post('/import',[ImportController::class,'import'])->name('csv.import');

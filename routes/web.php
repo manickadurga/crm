@@ -3,8 +3,13 @@ use App\Mail\InviteMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\FormFieldController;
+use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleStudioController;
+use App\Http\Controllers\TeamTaskController;
 use App\Http\Controllers\UserController;
 
 
@@ -52,3 +57,43 @@ Route::resource('purchase', 'PurchaseController');
 Route::get('/customers',[CustomersController::class,'index']);
 Route::post('/customers',[CustomersController::class,'store']);
 Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
+Route::get('/formfields',[FormFieldController::class,'getFormFields']);
+Route::get('/menuitems',[MenuController::class,'getMenuItems']);
+
+Route::get('/invoice',[InvoicesController::class,'index']);
+Route::post('/invoice',[InvoicesController::class,'store']);
+
+Route::get('/teamtasks',[TeamTaskController::class,'index']);
+Route::post('/teamtasks',[TeamTaskController::class,'store']);
+
+Route::get('/clients',[ClientsController::class,'index']);
+
+
+use App\Http\Controllers\ImportController;
+// web.php (or your routes file)
+Route::get('/import/{module}/form', [ImportController::class, 'showForm'])->name('import.form');
+Route::post('/import/{module}', [ImportController::class, 'import'])->name('import.process');
+Route::get('/import/{module}/step2', [ImportController::class, 'showStep2Form'])->name('import.step2');
+Route::post('/import/{module}/step2', [ImportController::class, 'processStep2'])->name('import.step2.process');
+Route::get('/import/{module}/field-mapping', [ImportController::class, 'showFieldMappingForm'])->name('import.fieldMapping');
+Route::post('/import/{module}/field-mapping', [ImportController::class, 'processImport'])->name('import.processImport');
+Route::get('/import/{module}/cancel', [ImportController::class, 'cancelImport'])->name('import.cancel');
+Route::get('/imported-data/{module}', [ImportController::class, 'showImported'])->name('imported.data');
+Route::get('/imported/{module}', [ImportController::class, 'showImported'])->name('imported.module');
+Route::get('/import/summary/{module}', [ImportController::class, 'showSummary'])->name('import.summary');
+//Route::get('/import/{module}/form', [ImportController::class, 'showImportForm'])->name('import.form');
+
+
+Route::get('/customers',[CustomersController::class,'index']);
+Route::post('/customers',[CustomersController::class,'store']);
+// Update the specified customer
+Route::get('/customers/{id}', [CustomersController::class, 'show']);
+Route::put('/customers/{id}', [CustomersController::class, 'update']);
+Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
+// Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
+
+Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
+
+Route::get('customers',[CustomersController::class,'index']);
+Route::post('customers',[CustomersController::class,'store']);
+

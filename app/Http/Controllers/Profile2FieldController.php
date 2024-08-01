@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class Profile2FieldController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         try {
@@ -23,13 +18,6 @@ class Profile2FieldController extends Controller
             return response()->json(['error' => 'Unable to fetch jo_profile2field'], 500);
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try {
@@ -48,13 +36,6 @@ class Profile2FieldController extends Controller
             return response()->json(['error' => 'Unable to create jo_profile2field'], 500);
         }
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try {
@@ -65,14 +46,6 @@ class Profile2FieldController extends Controller
             return response()->json(['error' => 'Unable to fetch jo_profile2field'], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -92,13 +65,6 @@ class Profile2FieldController extends Controller
             return response()->json(['error' => 'Unable to update jo_profile2field'], 500);
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try {

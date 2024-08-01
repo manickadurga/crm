@@ -11,4 +11,8 @@ class Tab extends Model
     protected $table = 'jo_tabs';
     protected $primaryKey = 'tabid';
     protected $guarded = [];
+    public function fields()
+    {
+        return $this->hasMany(Field::class, 'tabid', 'tabid');
+    }
 }

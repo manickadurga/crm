@@ -14,16 +14,18 @@ body {
   
   .App{
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     width: 100vw;
-    height: 100vh;
+    height: 100vh;  
 }
 .AppHeader{
     height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 20px 4px 12px;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* padding: 4px 20px 4px 12px; */
     border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 .AppFooter{
@@ -34,7 +36,7 @@ align-items: center;
 border-top: 1px solid rgba(0, 0, 0, 0.15);
 
 }
-.SideMenuAndPageContent{
+/* .SideMenuAndPageContent{
     display: flex;
     flex: 1;
     justify-content: flex-start;
@@ -47,10 +49,10 @@ border-top: 1px solid rgba(0, 0, 0, 0.15);
 .SideMenuVertical{
     height: 100%;
     position: fixed;
-}
-.PageContent{
+} */
+/* .PageContent{
     padding-left: 12px;
-}
+} */
 .ck.ck-balloon-panel.ck-balloon-panel_visible{
     display: none !important;
 }

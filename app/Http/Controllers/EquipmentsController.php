@@ -67,7 +67,7 @@ class EquipmentsController extends Controller
     public function store(Request $request)
     {
         DB::beginTransaction();
-    
+        
         try {
             // Validate the request data
             $validatedData = $request->validate([
@@ -84,93 +84,53 @@ class EquipmentsController extends Controller
                 'auto_approve' => 'boolean|nullable',
             ]);
     
-            // Handle image upload if an image is provided
+            // Handle image upload if present
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('images'), $imageName); // Move the file to public/images directory
-                $validatedData['image'] = 'images/' . $imageName; // Store relative path
-            } else {
-                // If no image is provided, set a default value or null as needed
-                // $validatedData['image'] = null; // or handle accordingly
+                $image->move(public_path('images'), $imageName);
+                $validatedData['image'] = 'images/' . $imageName;
             }
     
-            // Retrieve or create a new Crmentity record
-            $defaultCrmentity = Crmentity::where('setype', 'Equipments')->first();
-            
-            if (!$defaultCrmentity) {
-                // Log an error if default Crmentity not found
-                Log::error('Default Crmentity for Equipments not found');
-                throw new \Exception('Default Crmentity not found');
-            }
-    
-            // Create a new Crmentity record with a new crmid
-            $newCrmentity = new Crmentity();
-            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid ?? 0; // Replace with appropriate default
-            $newCrmentity->smownerid = $defaultCrmentity->smownerid ?? 0; // Replace with appropriate default
-            $newCrmentity->setype = 'Equipments';
-            $newCrmentity->description = $defaultCrmentity->description ?? '';
-            $newCrmentity->createdtime = now();
-            $newCrmentity->modifiedtime = now();
-            $newCrmentity->viewedtime = now();
-            $newCrmentity->status = $defaultCrmentity->status ?? '';
-            $newCrmentity->version = $defaultCrmentity->version ?? 0;
-            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-            $newCrmentity->source = $defaultCrmentity->source ?? '';
-            $newCrmentity->label = $validatedData['name'];
-            $newCrmentity->save();
-    
-            // Set the new crmid as the equipment ID
-            $validatedData['id'] = $newCrmentity->crmid;
-    
-            // Create the equipment entry
+            $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Equipments', $validatedData['name']);
+
+        // Create the customer with the crmid
+        $validatedData['id'] = $crmid; // Add crmid to customer data
             $equipment = Equipments::create($validatedData);
-    
+            
             DB::commit();
     
-            return response()->json(['message' => 'Equipment created successfully', 'equipment' => $equipment], 201);
+            return response()->json([
+                'message' => 'Equipment created successfully',
+                'equipment' => $equipment,
+               // 'crmentity' => Crmentity::where('crmid', $crmid)->first(),
+            ], 201);
     
         } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error('Validation failed while creating equipment: ' . $e->getMessage());
+            Log::error('Validation failed while creating equipment and Crmentity: ' . $e->getMessage());
             return response()->json(['error' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Failed to create equipment: ' . $e->getMessage());
-            Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
-            return response()->json(['error' => 'Failed to create equipment: ' . $e->getMessage()], 500);
+            Log::error('Failed to create equipment and Crmentity: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return response()->json(['error' => 'Failed to create equipment and Crmentity'], 500);
         }
     }
     
 
-    
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try {
-            // Retrieve the equipment by ID
             $equipment = Equipments::findOrFail($id);
-
-            // Optionally decode JSON fields like location, tags, etc.
             $equipment->location = json_decode($equipment->location, true);
             $equipment->tags = json_decode($equipment->tags, true);
-            // Add more fields as needed
-
             return response()->json([
                 'status' => 200,
                 'equipment' => $equipment,
             ], 200);
-
         } catch (\Exception $e) {
-            // Log the error
             Log::error('Failed to fetch equipment: ' . $e->getMessage());
 
             return response()->json([
@@ -180,82 +140,84 @@ class EquipmentsController extends Controller
             ], 404);
         }
     }
-
-    
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
-{
-    try {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'name' => 'required|string',
-            'type' => 'nullable|string',
-            'manufactured_year' => 'nullable|integer',
-            'sn' => 'nullable|string',
-            'max_share_period' => 'nullable|integer',
-            'initial_cost' => 'nullable|integer',
-            'currency' => 'nullable|string',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:jo_tags,id',
-            'auto_approve' => 'boolean|nullable',
-        ]);
-
-        // Find the existing equipment
-        $equipment = Equipments::findOrFail($id);
-
-        // Handle image upload if an image is provided
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('images'), $imageName); // Move the file to public/images directory
-            $validatedData['image'] = 'images/' . $imageName; // Store relative path
-        }
-
-        // // Handle tags
-        // if (isset($validatedData['tags'])) {
-        //     $tags = [];
-        //     foreach ($validatedData['tags'] as $id) {
-        //         $tag = Tags::find($id);
-        //         if ($tag) {
-        //             $tags[] = [
-        //                 'tags_name' => $tag->tags_name,
-        //                 'tag_color' => $tag->tag_color,
-        //             ];
-        //         } else {
-        //             throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
-        //         }
-        //     }
-        //     $validatedData['tags'] = json_encode($tags);
-        // }
-
-        // Update the equipment entry
-        $equipment->update($validatedData);
-        return response()->json($equipment, 200);
-
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['error' => 'Equipment not found'], 404);
-    } catch (ValidationException $e) {
-        return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (Exception $e) {
-        Log::error('Failed to update equipment: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to update equipment'], 500);
-    }
-}
-
+    {
+        DB::beginTransaction();
     
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+        try {
+            // Validate the request data
+            $validatedData = $request->validate([
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+                'name' => 'required|string',
+                'type' => 'nullable|string',
+                'manufactured_year' => 'nullable|integer',
+                'sn' => 'nullable|string',
+                'max_share_period' => 'nullable|integer',
+                'initial_cost' => 'nullable|integer',
+                'currency' => 'nullable|string',
+                'tags' => 'nullable|array',
+                'tags.*' => 'exists:jo_tags,id',
+                'auto_approve' => 'nullable|boolean',
+            ]);
+    
+            // Find and update the Equipment record
+            $equipment = Equipments::findOrFail($id);
+    
+            // Handle image upload if present
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('images'), $imageName);
+                $validatedData['image'] = 'images/' . $imageName;
+            }
+    
+            $equipment->update($validatedData);
+    
+            // Find or create the Crmentity record
+            $crmentity = Crmentity::where('crmid', $id)->where('setype', 'Equipments')->first();
+    
+            if ($crmentity) {
+                // Update existing Crmentity record
+                $crmentity->update([
+                    'label' => $validatedData['name'],
+                    'modifiedtime' => now(),
+                    'status' => $validatedData['status'] ?? $crmentity->status, // Update status if provided
+                    // Update other fields if necessary
+                ]);
+            } else {
+                // Create a new Crmentity record if not found
+                Crmentity::create([
+                    'crmid' => $id,
+                    'setype' => 'Equipments',
+                    'label' => $validatedData['name'],
+                    'createdtime' => now(),
+                    'modifiedtime' => now(),
+                    'status' => $validatedData['status'] ?? 'Active', // Default status
+                    'createdby' => auth()->id(), // Assuming you have authentication setup
+                    'modifiedby' => auth()->id(),
+                ]);
+            }
+    
+            DB::commit();
+    
+            return response()->json([
+                'message' => 'Equipment and Crmentity updated successfully',
+                'equipment' => $equipment,
+                //'crmentity' => $crmentity,
+            ], 200);
+    
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Equipment not found'], 404);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update equipment and Crmentity: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to update equipment and Crmentity'], 500);
+        }
+    }
     public function destroy($id)
     {
         try {
@@ -280,14 +242,10 @@ class EquipmentsController extends Controller
                 'initial_cost' => 'nullable|integer',
                 'currency' => 'nullable|string',
                 'tags' => 'nullable|array',
-                'tags.*' => 'exists:jo_tags,id', // Validate each tag ID exists in the tags table
-                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+                'tags.*' => 'exists:jo_tags,id',
+                'per_page' => 'nullable|integer|min:1',
             ]);
-    
-            // Initialize the query builder
             $query = Equipments::query();
-    
-            // Apply search filters
             foreach ($validatedData as $key => $value) {
                 if ($value !== null && in_array($key, ['name', 'type', 'sn', 'currency'])) {
                     $query->where($key, 'like', '%' . $value . '%');
@@ -317,20 +275,12 @@ class EquipmentsController extends Controller
                     }
                 }
             }
-    
-            // Paginate the search results
-            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $perPage = $validatedData['per_page'] ?? 10; 
             $equipments = $query->paginate($perPage);
-    
-            // Optionally decode JSON fields like location, tags, etc.
             foreach ($equipments as $equipment) {
-                // Assuming 'location', 'tags', and other JSON fields need decoding
                 $equipment->location = json_decode($equipment->location, true);
                 $equipment->tags = json_decode($equipment->tags, true);
-                // Add more fields as needed
             }
-    
-            // Check if any equipments found
             if ($equipments->isEmpty()) {
                 return response()->json([
                     'status' => 404,

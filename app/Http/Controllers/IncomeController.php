@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Income;
 use App\Models\Crmentity;
+use App\Models\Tags;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -62,8 +63,17 @@ class IncomeController extends Controller
         try {
             // Validate the incoming request data
             $validatedData = Validator::make($request->all(), [
-                'Employees that generate income' => 'required|integer',  // Employee ID
-                'Contact' => 'required|integer',  // Contact ID
+                'Employees that generate income' => 'required|exists:jo_manage_employees,id',  // Employee ID
+                'Contact' => ['required', 'integer', function ($attribute, $value, $fail) {
+                    // Check if the contact ID exists in any of the specified tables
+                    $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                    $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                    $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+    
+                    if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                        $fail("The selected contact ID does not exist in any of the specified tables.");
+                    }
+                }],// Contact ID  // Contact ID
                 'pick_date' => 'nullable|date',
                 'currency' => 'nullable|string',
                 'amount' => 'required|integer',
@@ -73,64 +83,26 @@ class IncomeController extends Controller
                 'description' => 'nullable|string',
             ])->validate();
     
-            // Ensure 'tags' is stored as JSON
-            if (isset($validatedData['tags'])) {
-                $tags = [];
-                foreach ($validatedData['tags'] as $id) {
-                    $tag = Tags::find($id);
-                    if ($tag) {
-                        $tags[] = [
-                            'tags_name' => $tag->tags_name,
-                            'tag_color' => $tag->tag_color,
-                        ];
-                    } else {
-                        throw new \Exception("Tag with ID '$id' not found");
-                    }
-                }
-                $validatedData['tags'] = json_encode($tags);
-            }
-    
-            // Retrieve default values from an existing Crmentity record for Incomes
-            $defaultCrmentity = Crmentity::where('setype', 'Incomes')->first();
-    
-            // Check if defaultCrmentity exists
-            if (!$defaultCrmentity) {
-                throw new \Exception('Default Crmentity not found');
-            }
-    
-            // Create a new Crmentity record with a new crmid
-            $newCrmentity = new Crmentity();
-            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
-            $newCrmentity->smownerid = $defaultCrmentity->smownerid;
-            $newCrmentity->setype = 'Incomes';
-            $newCrmentity->description = $defaultCrmentity->description ?? '';
-            $newCrmentity->createdtime = now();
-            $newCrmentity->modifiedtime = now();
-            $newCrmentity->viewedtime = now();
-            $newCrmentity->status = $defaultCrmentity->status ?? '';
-            $newCrmentity->version = $defaultCrmentity->version ?? 0;
-            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-            $newCrmentity->source = $defaultCrmentity->source ?? '';
-            $newCrmentity->label = 'Income Record'; // Set a label for the income record
-            $newCrmentity->save();
-    
-            // Set the new crmid for the income
+            // Prepare the income data for insertion
             $incomeData = [
-                'crmid' => $newCrmentity->crmid,
-                'employee_id' => $validatedData['Employees that generate income'],
-                'contact_id' => $validatedData['Contact'],
-                'pick_date' => $validatedData['pick_date'],
-                'currency' => $validatedData['currency'],
+                'Employees that generate income' => $validatedData['Employees that generate income'],
+                'Contact' => $validatedData['Contact'],
+                'pick_date' => $validatedData['pick_date'] ?? null,
+                'currency' => $validatedData['currency'] ?? null,
                 'amount' => $validatedData['amount'],
-                'tags' => $validatedData['tags'],
-                'choose' => $validatedData['choose'],
-                'description' => $validatedData['description'],
+                'tags' => isset($validatedData['tags']) ? json_encode($validatedData['tags']) : null,  // Handle optional tags field
+                'choose' => $validatedData['choose'] ?? null,
+                'description' => $validatedData['description'] ?? null,
             ];
     
-            // Create a new income record
+            // Create Crmentity record via CrmentityController
+            $crmentityController = new CrmentityController();
+            $crmid = $crmentityController->createCrmentity('Incomes', $validatedData['Employees that generate income']);
+    
+            // Set crmid in the income data
+            $incomeData['id'] = $crmid;
+    
+            // Create the income record with the crmid
             $income = Income::create($incomeData);
     
             DB::commit();
@@ -152,6 +124,7 @@ class IncomeController extends Controller
         }
     }
     
+    
     /**
      * Display the specified resource.
      */
@@ -169,94 +142,81 @@ class IncomeController extends Controller
      * Update the specified resource in storage for clients.
      */
     public function update(Request $request, $id)
-    {
-        try {
-            $validatedData = $request->validate([
-                'Employees that generate income' => 'required|integer',  // Employee ID
-                'Contact' => 'required|integer',  // Contact ID
-                'pick_date' => 'nullable|date',
-                'currency' => 'nullable|string',
-                'amount' => 'required|integer',
-                'tags.*' => 'exists:jo_tags,id', // Ensure tags exist in jo_tags table
-                'choose' => 'nullable|in:Bonus',
-                'description' => 'nullable|string',
-            ]);
+{
+    DB::beginTransaction();
 
-            // Handle updating income details
-            $response = $this->handleUpdate($validatedData, $id);
+    try {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'Employees that generate income' => 'nullable|integer|exists:jo_manage_employees,id',  // Employee ID
+            'Contact' => ['required', 'integer', function ($attribute, $value, $fail) {
+                // Check if the contact ID exists in any of the specified tables
+                $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
 
-            return response()->json($response['response'], $response['status']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            // Log the error
-            Log::error('Failed to update income: ' . $e->getMessage());
+                if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                    $fail("The selected contact ID does not exist in any of the specified tables.");
+                }
+            }],
+            'pick_date' => 'nullable|date',
+            'currency' => 'nullable|string',
+            'amount' => 'nullable|integer',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id', // Ensure tags exist in jo_tags table
+            'choose' => 'nullable|in:Bonus',
+            'description' => 'nullable|string',
+        ]);
 
-            return response()->json(['message' => 'Failed to update income', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Handle updating an income record.
-     */
-    private function handleUpdate(array $validatedData, $id)
-    {
-        // Determine the table based on the Contact ID provided
-        $contactId = $validatedData['Contact'];
-        $tableName = $this->getTableNameByContactId($contactId);
-
-        if (!$tableName) {
-            return [
-                'status' => 400,
-                'response' => ['message' => 'Invalid contact ID'],
-            ];
-        }
-
-        // Fetch the contact name based on the contact ID
-        $contactName = $this->getContactNameById($contactId, $tableName);
-        if (!$contactName) {
-            return [
-                'status' => 400,
-                'response' => ['message' => 'The selected contact ID is invalid.'],
-            ];
-        }
-
-        $validatedData['Contact'] = $contactName;  // Store the contact name in the 'Contact' field
-
-        // Fetch and store first_name in 'Employees that generate income'
-        $employeeFirstName = $this->getEmployeeFirstNameById($validatedData['Employees that generate income']);
-        if (!$employeeFirstName) {
-            return [
-                'status' => 400,
-                'response' => ['message' => 'The selected employee ID is invalid.'],
-            ];
-        }
-        $validatedData['Employees that generate income'] = $employeeFirstName;
-
-        // Fetch tags names from jo_tags table based on provided IDs
-        $tagsIds = $validatedData['tags'] ?? [];
-        $tagsNames = DB::table('jo_tags')
-            ->whereIn('id', $tagsIds)
-            ->pluck('tags_names')
-            ->toArray();
-
-        // Assign tags names to the 'tags' field
-        $validatedData['tags'] = json_encode($tagsNames);
-
-        // Update the income record
+        // Fetch the existing Income record
         $income = Income::findOrFail($id);
-        $income->fill($validatedData);
-        $income->save();
 
-        return [
-            'status' => 200,
-            'response' => ['message' => 'Income updated successfully', 'data' => $income],
-        ];
+        // Update the Income record
+        $income->update([
+            'Employees that generate income' => $validatedData['Employees that generate income'] ?? null,
+            'Contact' => $validatedData['Contact'] ?? null,
+            'pick_date' => $validatedData['pick_date'] ?? $income->pick_date,
+            'currency' => $validatedData['currency'] ?? $income->currency,
+            'amount' => $validatedData['amount'] ?? $income->amount,
+            'tags' => json_encode($validatedData['tags'] ?? $income->tags),
+            'choose' => $validatedData['choose'] ?? $income->choose,
+            'description' => $validatedData['description'] ?? $income->description,
+        ]);
+
+        // Fetch the corresponding Crmentity record
+        $crmentity = Crmentity::where('crmid', $id)->where('setype', 'Incomes')->first();
+
+        if ($crmentity) {
+            // Update the Crmentity record
+            $crmentity->update([
+                'label' => $validatedData['description'] ?? $crmentity->label, // Update the label or use an appropriate field
+                'modifiedtime' => now(),
+            ]);
+        } else {
+            // Handle case where Crmentity record does not exist
+            throw new \Exception('Crmentity record not found.');
+        }
+
+        DB::commit();
+
+        // Decode tags back to array for response
+        $income->tags = json_decode($income->tags);
+
+        return response()->json([
+            'message' => 'Income and Crmentity updated successfully',
+            'income' => $income,
+            'crmentity' => $crmentity,
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to update income: ' . $e->getMessage());
+        return response()->json(['message' => 'Failed to update income', 'error' => $e->getMessage()], 500);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+}
     public function destroy($id)
     {
         try {

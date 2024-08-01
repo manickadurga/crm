@@ -72,9 +72,6 @@ class MerchantsController extends Controller
             'description' => 'nullable|string',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:jo_tags,id',
-            // 'tags' => 'nullable|array',
-            // 'tags.*.tags_name' => 'exists:jo_tags,tags_name',
-            // 'tags.*.tag_color' => 'exists:jo_tags,tag_color',
             'is_active' => 'boolean',
             'location' => 'nullable|array',
             'warehouses' => 'nullable|exists:jo_warehouses,id',
@@ -98,10 +95,6 @@ class MerchantsController extends Controller
             return response()->json(['error' => 'Failed to create merchant'], 500);
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         try {
@@ -114,10 +107,6 @@ class MerchantsController extends Controller
             return response()->json(['error' => 'Failed to fetch merchant: ' . $e->getMessage()], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -159,10 +148,6 @@ class MerchantsController extends Controller
             return response()->json(['error' => 'Failed to update merchant'], 500);
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
@@ -198,11 +183,7 @@ class MerchantsController extends Controller
                 'warehouses' => 'nullable|string|exists:jo_warehouses,id',
                 'per_page' => 'nullable|integer|min:1', // Add validation for per_page
             ]);
-
-            // Initialize the query builder
             $query = Merchants::query();
-
-            // Apply search filters
             foreach ($validatedData as $key => $value) {
                 if ($value !== null && in_array($key, [
                     'image', 'name', 'code', 'email', 'phone', 'currency',
@@ -218,12 +199,8 @@ class MerchantsController extends Controller
                     }
                 }
             }
-
-            // Paginate the search results
-            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $perPage = $validatedData['per_page'] ?? 10;
             $merchants = $query->paginate($perPage);
-
-            // Check if any merchants found
             if ($merchants->isEmpty()) {
                 return response()->json([
                     'status' => 404,

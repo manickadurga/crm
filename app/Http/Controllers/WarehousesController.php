@@ -8,13 +8,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Exception;
-use App\Models\Tags;
+
 
 class WarehousesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         try {
@@ -54,15 +51,13 @@ class WarehousesController extends Controller
             ], 500);
         }
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+ 
     public function store(Request $request)
     {
         try {
             // Validate the request data
             $validator = Validator::make($request->all(), [
-                'image' => 'nullable|string|max:255',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'name' => 'required|string|max:255',
                 'tags' => 'nullable|array',
                 'tags.*' => 'exists:jo_tags,id', // Ensure each tag ID exists in jo_tags table
@@ -72,28 +67,17 @@ class WarehousesController extends Controller
                 'description' => 'nullable|string',
                 'location' => 'nullable|array',
             ]);
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $imageName);
+                $validatedData['image'] = $imageName; // Save $imageName to database
+            }
 
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-
-            // Get validated data
             $data = $validator->validated();
-
-            // Handle tags
-            // if (isset($data['tags'])) {
-            //     $tags = Tags::whereIn('id', $data['tags'])->get(); // Retrieve tags by IDs
-            //     $tagData = $tags->map(function ($tag) {
-            //         return [
-            //             'tags_name' => $tag->tags_name,
-            //             'tag_color' => $tag->tag_color,
-            //         ];
-            //     });
-
-            //     $data['tags'] = $tagData->toJson(); // Convert to JSON format for storage
-            // }
-
-            // Create the warehouse entry
             $warehouse = Warehouses::create($data);
 
             return response()->json(['message' => 'Warehouse created successfully', 'warehouse' => $warehouse], 201);
@@ -105,10 +89,6 @@ class WarehousesController extends Controller
             return response()->json(['error' => 'Failed to create warehouse'], 500);
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         try {
@@ -128,7 +108,7 @@ class WarehousesController extends Controller
         try {
             // Validate the request data
             $validator = Validator::make($request->all(), [
-                'image' => 'nullable|string|max:255',
+                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'name' => 'nullable|string|max:255',
                 'tags' => 'nullable|array',
                 'tags.*' => 'exists:jo_tags,id', // Ensure each tag ID exists in jo_tags table
@@ -138,6 +118,12 @@ class WarehousesController extends Controller
                 'description' => 'nullable|string',
                 'location' => 'nullable|array',
             ]);
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $imageName);
+                $validatedData['image'] = $imageName; // Save $imageName to database
+            }
 
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
@@ -146,18 +132,6 @@ class WarehousesController extends Controller
             // Get validated data
             $data = $validator->validated();
 
-            // Handle tags
-            // if (isset($data['tags'])) {
-            //     $tags = Tags::whereIn('id', $data['tags'])->get(); // Retrieve tags by IDs
-            //     $tagData = $tags->map(function ($tag) {
-            //         return [
-            //             'tags_name' => $tag->tags_name,
-            //             'tag_color' => $tag->tag_color,
-            //         ];
-            //     });
-
-            //     $data['tags'] = $tagData->toJson(); // Convert to JSON format for storage
-            // }
 
             // Update the warehouse entry
             $warehouse = Warehouses::findOrFail($id);

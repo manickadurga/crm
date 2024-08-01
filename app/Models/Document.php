@@ -10,7 +10,8 @@ class Document extends Model
     use HasFactory;
     protected $table='jo_documents';
     protected $fillable = [
+        'id',
         'document_name',
-        'document_url',
+        'documemt_url',
     ];
 }

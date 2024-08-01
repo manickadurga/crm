@@ -23,7 +23,12 @@ return new class extends Migration
                 $table->json('projects')->nullable();
                 $table->string('contact_type')->nullable();
                 $table->json('tags')->nullable();
-                $table->json('location')->nullable();
+                $table->string('country')->nullable();
+                $table->string('city')->nullable();
+                $table->string('post_code')->nullable();
+                $table->string('address')->nullable();
+                $table->string('latitude')->nullable();
+                $table->string('longitude')->nullable();
                 $table->string('type')->nullable();
                 $table->integer('type_suffix')->nullable();
                 $table->timestamps();

@@ -26,7 +26,7 @@ class MenuController extends Controller
                         'label' => 'Estimates',
                     ],
                     [
-                        'path' => '/estimates Received',
+                        'path' => '/estimates-received',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Estimates Received',
                     ],
@@ -36,12 +36,12 @@ class MenuController extends Controller
                         'label' => 'Invoices',
                     ],
                     [
-                        'path' => '/invoices Received',
+                        'path' => '/invoices-received',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Invoices Received',
                     ],
                     [
-                        'path' => '/income',
+                        'path' => '/incomes',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Income',
                     ],
@@ -51,7 +51,7 @@ class MenuController extends Controller
                         'label' => 'Expenses',
                     ],
                     [
-                        'path' => '/recurring Expenses',
+                        'path' => '/recurring-expenses',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Recurring Expenses',
                     ],
@@ -78,7 +78,7 @@ class MenuController extends Controller
                         'label' => 'Sales',
                     ],
                     [
-                        'path' => '/estimates Received',
+                        'path' => '/estimates-received',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Estimates Received',
                     ],
@@ -105,12 +105,12 @@ class MenuController extends Controller
                 'label' => 'Tasks',
                 'children' => [
                     [
-                        'path' => '/tasks',
+                        'path' => '/dashboard',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Dashboard',
                     ],
                     [
-                        'path' => '/tasks/teams',
+                        'path' => '/teamtasks',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Teams Tasks',
                     ],
@@ -127,7 +127,7 @@ class MenuController extends Controller
                         'label' => 'Employees',
                     ],
                     [
-                        'path' => '/proposal template',
+                        'path' => '/proposal-template',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Proposal Template',
                     ],
@@ -164,7 +164,7 @@ class MenuController extends Controller
                         'label' => 'Approvals',
                     ],
                     [
-                        'path'=>'/employee Level',
+                        'path'=>'/employee-level',
                         'icon'=>'shoppingCarOutlined',
                         'label'=>'Employee Level'
                     ],
@@ -175,12 +175,12 @@ class MenuController extends Controller
                     ],
                     
                     [
-                        'path' => '/Time-off',
+                        'path' => '/time-off',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Time Off',
                     ],
                     [
-                        'path' => '/recurring expenses',
+                        'path' => '/recurring-expenses',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Recurring Expenses',
                     ],
@@ -202,17 +202,17 @@ class MenuController extends Controller
                         'label' => 'Manage',
                     ],
                     [
-                        'path' => '/equipment',
+                        'path' => '/equipments',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Equipment',
                     ],
                     [
-                        'path' => '/Inventory',
+                        'path' => '/inventory',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Inventory',
                     ],
                     [
-                        'path' => '/Tags',
+                        'path' => '/tags',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Tags',
                     ],
@@ -242,17 +242,17 @@ class MenuController extends Controller
                         'label' => 'Documents',
                     ],
                     [
-                        'path' => '/employment Types',
+                        'path' => '/employment-types',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Employment Types',
                     ],
                     [
-                        'path' => '/recurring expenses',
+                        'path' => '/expense-recurring',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Recurring Expenses',
                     ],
                     [
-                        'path' => '/help center',
+                        'path' => '/help-center',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Help Center',
                     ],
@@ -308,12 +308,12 @@ class MenuController extends Controller
                 'label' => 'Reports',
                 'children' => [
                     [
-                        'path' => '/all Reports',
+                        'path' => '/all',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'All Reports',
                     ],
                     [
-                        'path' => '/time Activity',
+                        'path' => '/time-activity',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Time & Activity',
                     ],
@@ -323,37 +323,37 @@ class MenuController extends Controller
                         'label' => 'Weekly',
                     ],
                     [
-                        'path' => '/apps URLS',
+                        'path' => '/apps-urls',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Apps & URLs',
                     ],
                     [
-                        'path' => '/manual time edits',
+                        'path' => '/manual-time-edits',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Manual Time Edits',
                     ],
                     [
-                        'path' => '/amounts owed',
+                        'path' => '/amounts-owed',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Amounts Owed',
                     ],
                     [
-                        'path' => '/weekly limits',
+                        'path' => '/weekly-limits',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Weekly Limits',
                     ],
                     [
-                        'path' => '/daily limits',
+                        'path' => '/daily-limits',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Daily Limits',
                     ],
                     [
-                        'path' => '/project budgets',
+                        'path' => '/project-budgets',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Project Budgets',
                     ],
                     [
-                        'path' => '/client budgets',
+                        'path' => '/client-budgets',
                         'icon' => 'ShoppingCartOutlined',
                         'label' => 'Client Budgets',
                     ],

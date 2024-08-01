@@ -13,5 +13,19 @@ class Payments extends Model
     protected $casts=[
         'tags'=>'array',
     ];
+    public function customer()
+    {
+        return $this->belongsTo(Customers::class, 'contacts');
+    }
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'projects');
+    }
+    public function invoice()
+    {
+        return $this->belongsTo(Invoices::class, 'invoice_number', 'id');
+    }
+
+
 
 }

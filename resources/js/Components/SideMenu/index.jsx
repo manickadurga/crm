@@ -15,86 +15,19 @@ const items = [
       { path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales'}
     ] 
   },
-  
-  { icon: <AppstoreOutlined />, label: 'Invoices',
-    children: [
-      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
-      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
-    ]
-  },
-  { icon: <AppstoreOutlined />, label: 'Task',
-    children: [
-      { path: '/task', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
-      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
-    ]
-  },
-  { icon: <AppstoreOutlined />, label: 'Teamtask',
-    children: [
-      { path: '/tasks/teams', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
-      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
-    ]
-  },
   { icon: <UserOutlined />, label: 'Contacts',
     children: [
       { path:'/customers', icon:<ShoppingCartOutlined />, label: 'Customers' },
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
-  
   { icon: <FlagOutlined />, label: 'Goals',
     children: [
       { path:'/goals', icon:<ShoppingCartOutlined />, label: 'Manage' },
       { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
     ] 
   },
-<<<<<<< HEAD
-  { icon: <AppstoreOutlined />, label: 'Invoices',
-    children: [
-      { path: '/invoices', icon: <ShoppingCartOutlined />, label: 'View Invoices' },
-      { path: '/sales', icon: <ShoppingCartOutlined />, label: 'Sales' }
-    ]
-  }
-=======
-  // { icon: <UserOutlined />, label: 'Tasks',
-  //   children: [
-  //     { path:'/tasks/createform', icon:<ShoppingCartOutlined />, label: 'customers' },
-  //     { path:'/manage', icon:<ShoppingCartOutlined />, label: 'manage'}
-  //   ] 
-  // },
-  { icon: <UserOutlined />, label: 'Team Tasks',
-  children: [
-    { path:'/tasks/teams', icon:<ShoppingCartOutlined />, label: 'View Team Tasks' },
-    { path:'/manage', icon:<ShoppingCartOutlined />, label: 'manage'}
-  ] 
-},
-  // { icon: <UserOutlined />, label: 'Invoices',
-  //   children: [
-  //     { path:'/Invoices', icon:<ShoppingCartOutlined />, label: 'customers' },
-  //     { path:'/Contact', icon:<ShoppingCartOutlined />, label: 'contact'}
-  //   ] 
-  // },
->>>>>>> 68e4740 (Issue -#35)
 ];
-// const items = [
-//   { key: '1', path: '/', icon: <AppstoreOutlined />, label: 'Dashboard' },
-//   { key: 'sub1', path: '/inventory', icon: <ShopOutlined />, label: 'Inventory',
-//     children: [
-//       { key:'2', path:'/inventory', icon:<ShoppingCartOutlined />, label: 'Purchase' },
-//       { key:'sub2', path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales',
-//         children: [
-//           { key:'3', path:'/inventory', icon:<ShoppingCartOutlined />, label: 'Purchase' },
-//           { key:'4', path:'/inventory', icon:<ShoppingCartOutlined />, label: 'Purchase' },
-//         ]
-//       }
-//     ] 
-//   },
-//   { key: 'sub3', path: '/inventory', icon: <ShopOutlined />, label: 'Inventory',
-//     children: [
-//       { key:'5', path:'/inventory', icon:<ShoppingCartOutlined />, label: 'Purchase' },
-//       { key:'6', path:'/sales', icon:<ShoppingCartOutlined />, label: 'Sales', }
-//     ]
-//   }
-// ];
 
 const addKeys = (items) => {
   let keyCounter = 1;
@@ -163,4 +96,3 @@ function SideMenu() {
 }
 
 export default SideMenu;
-

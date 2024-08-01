@@ -11,16 +11,10 @@ use Exception;
 
 class EquipmentsSharingPolicyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         try {
-            // Retrieve paginated policies
-            $policies = EquipmentsSharingPolicy::paginate(10); // Adjust 10 to the number of policies per page you want
-
-            // Check if any policies found
+            $policies = EquipmentsSharingPolicy::paginate(10);
             if ($policies->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -52,10 +46,6 @@ class EquipmentsSharingPolicyController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -75,10 +65,6 @@ class EquipmentsSharingPolicyController extends Controller
             return response()->json(['error' => 'Failed to create equipment sharing policy'], 500);
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         try {
@@ -89,10 +75,6 @@ class EquipmentsSharingPolicyController extends Controller
             return response()->json(['error' => 'Failed to fetch equipment sharing policy'], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -113,10 +95,6 @@ class EquipmentsSharingPolicyController extends Controller
             return response()->json(['error' => 'Failed to update equipment sharing policy'], 500);
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
@@ -135,31 +113,22 @@ class EquipmentsSharingPolicyController extends Controller
             $validatedData = $request->validate([
                 'name' => 'nullable|string',
                 'description' => 'nullable|string',
-                'per_page' => 'nullable|integer|min:1', // Add validation for per_page
+                'per_page' => 'nullable|integer|min:1',
             ]);
-
-            // Initialize the query builder
             $query = EquipmentsSharingPolicy::query();
-
-            // Apply search filters
             foreach ($validatedData as $key => $value) {
                 if ($value !== null && in_array($key, ['name', 'description'])) {
                     $query->where($key, 'like', '%' . $value . '%');
                 }
             }
-
-            // Paginate the search results
-            $perPage = $validatedData['per_page'] ?? 10; // default per_page value
+            $perPage = $validatedData['per_page'] ?? 10;
             $policies = $query->paginate($perPage);
-
-            // Check if any policies found
             if ($policies->isEmpty()) {
                 return response()->json([
                     'status' => 404,
                     'message' => 'No matching records found',
                 ], 404);
             }
-
             return response()->json([
                 'status' => 200,
                 'policies' => $policies->items(),
@@ -180,6 +149,4 @@ class EquipmentsSharingPolicyController extends Controller
             return response()->json(['error' => 'Failed to search equipment sharing policies: ' . $e->getMessage()], 500);
         }
     }
-
-
 }

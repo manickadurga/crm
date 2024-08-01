@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->integer('estimatenumber');
             $table->unsignedBigInteger('contacts')->nullable(false);
-            $table->foreign('contacts')->references('crmid')->on('jo_crmentity')->onDelete('set null');
             $table->date('estimatedate');
             $table->date('duedate');
             $table->string('discount')->default('20')->nullable();

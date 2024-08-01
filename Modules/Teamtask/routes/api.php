@@ -32,16 +32,15 @@ Route::get('/formfields', [FormFieldController::class, 'getFormFields']);
 
 Route::get('/incomes', [IncomeController::class, 'index']);
 Route::post('/incomes', [IncomeController::class, 'store']);
-Route::get('/incomes/search', [IncomeController::class, 'search']);
 Route::delete('/incomes/{id}', [IncomeController::class, 'destroy']);
 Route::get('/incomes/{id}', [IncomeController::class, 'show']);
 Route::put('/incomes/{id}', [IncomeController::class, 'updateincome']);
 Route::get('/incomes', [IncomeController::class, 'index']);
-
+Route::get('/income/search', [IncomeController::class, 'search']);
 
 Route::post('/income/clients', [IncomeController::class, 'storeClients']);
-Route::post('/leads', [IncomeController::class, 'storeLeads']);
-Route::post('/customers', [IncomeController::class, 'storeCustomers']);
+//Route::post('/leads', [IncomeController::class, 'storeLeads']);
+//Route::post('/customers', [IncomeController::class, 'storeCustomers']);
 Route::post('/manageemployees', [IncomeController::class, 'storeManageEmployees']);
 
 Route::get('/clients', [ClientsController::class,'index']);

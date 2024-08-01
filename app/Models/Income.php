@@ -10,17 +10,18 @@ class Income extends Model
     use HasFactory;
     protected $table = 'jo_incomes';
 
-    protected $fillable = [
-        'Employees that generate income',
-        'Contact',
-        'pick_date',
-        'currency',
-        'amount',
-        'tags',
-        'choose',
-        'description',
-        
-    ];
+    // protected $fillable = [
+    //     'Employees that generate income',
+    //     'Contact',
+    //     'pick_date',
+    //     'currency',
+    //     'amount',
+    //     'tags',
+    //     'choose',
+    //     'description',
+
+    // ];
+    protected $guarded=[];
     public function client()
     {
         return $this->belongsTo(Clients::class, 'contact');

@@ -91,160 +91,80 @@ class InvoicesController extends Controller
         }
     }
     public function store(Request $request)
-    {
-        DB::beginTransaction();
-    
-        try {
-            // Validate the incoming request data
-            $validatedData = $request->validate([
-                'invoicenumber' => 'required|numeric',
-                'contacts' => 'required|exists:jo_crmentity,crmid',
-                'invoicedate' => 'required|date',
-                'duedate' => 'required|date',
-                'discount' => 'required|string',
-                'discount_suffix' => 'nullable|string|in:%,"flat"',
-                'currency' => 'required|string',
-                'terms' => 'nullable|string',
-                'tags' => 'nullable|array',
-                'tags.*' => 'exists:jo_tags,id',
-                'tax1' => 'nullable|numeric',
-                'tax1_suffix' => 'nullable|string',
-                'tax2' => 'nullable|numeric',
-                'tax2_suffix' => 'nullable|string',
-                'applydiscount' => 'boolean',
-                'taxtype' => 'nullable|string',
-                'subtotal' => 'nullable|numeric',
-                'total' => 'nullable|numeric',
-                'tax_percent' => 'nullable|numeric',
-                'discount_percent' => 'nullable|numeric',
-                'tax_amount' => 'nullable|numeric',
-                'invoice_status' => 'required|string',
-                'organization_name' => 'required|numeric|exists:jo_organizations,id',
-            ]);
-    
-            // Fetch organization details
-            // $organization = Organization::find($validatedData['organization_name']);
-            // if (!$organization) {
-            //     throw new \Exception('Organization not found');
-            // }
-    
-            // // Fetch contact details from the possible tables
-            // $contactName = null;
-    
-            // // Check if it's a client
-            // $client = DB::table('jo_clients')->where('id', $validatedData['contacts'])->first(['name']);
-            // if ($client) {
-            //     $contactName = $client->name;
-            // }
-    
-            // // Check if it's a customer
-            // if (!$contactName) {
-            //     $customer = DB::table('jo_customers')->where('id', $validatedData['contacts'])->first(['name']);
-            //     if ($customer) {
-            //         $contactName = $customer->name;
-            //     }
-            // }
-    
-            // // Check if it's a lead
-            // if (!$contactName) {
-            //     $lead = DB::table('jo_leads')->where('id', $validatedData['contacts'])->first(['name']);
-            //     if ($lead) {
-            //         $contactName = $lead->name;
-            //     }
-            // }
-    
-            // // If no contact found, throw validation error
-            // if (!$contactName) {
-            //     throw ValidationException::withMessages(['contacts' => "Contact with ID '{$validatedData['contacts']}' not found"]);
-            // }
-    
-            // // Handle tags processing
-            // if (isset($validatedData['tags'])) {
-            //     $tags = [];
-            //     foreach ($validatedData['tags'] as $id) {
-            //         $tag = Tags::find($id);
-            //         if ($tag) {
-            //             $tags[] = [
-            //                 'tags_name' => $tag->tags_name,
-            //                 'tag_color' => $tag->tag_color,
-            //             ];
-            //         } else {
-            //             throw new \Exception("Tag with ID '$id' not found");
-            //         }
-            //     }
-            //     $validatedData['tags'] = json_encode($tags);
-            // }
-    
-            // // Set organization name in the validated data
-            // $validatedData['organization_name'] = $organization->organization_name;
-    
-            // Create a new Invoices record
-            $invoice = Invoices::create($validatedData);
-    
-            // Create a new Crmentity record for the invoice
-            $crmentity = new Crmentity();
-            $crmentity->crmid = $invoice->id; // Assuming 'id' as the primary key for Invoices
-            $crmentity->smcreatorid = 0; // Adjust as per your business logic
-            $crmentity->smownerid = $validatedData['contacts']; // Set the owner ID as the contact ID
-            $crmentity->setype = 'Invoices';
-            $crmentity->description = $invoice->invoicenumber; // Adjust as per your business logic
-            $crmentity->createdtime = now();
-            $crmentity->modifiedtime = now();
-            $crmentity->viewedtime = now();
-            $crmentity->status = 'Active'; // Adjust default status as per your business logic
-            $crmentity->version = 1; // Default version
-            $crmentity->presence = 1; // Default presence
-            $crmentity->deleted = 0; // Not deleted
-            $crmentity->smgroupid = 0; // Default group ID
-            $crmentity->source = ''; // Default source
-            $crmentity->label = $invoice->invoicenumber; // Adjust as per your business logic
-            $crmentity->save();
-    
-            DB::commit();
-    
-            // Return success response
-            return response()->json([
-                'status' => 200,
-                'message' => 'Invoice added successfully',
-                'invoice' => [
-                    'id' => $invoice->id,
-                    'invoicenumber' => $invoice->invoicenumber,
-                    'organization_name' => $invoice->organization_name,
-                    'contacts' => $invoice->contacts, // Return the contact name
-                    'invoicedate' => $invoice->invoicedate,
-                    'duedate' => $invoice->duedate,
-                    'discount' => $invoice->discount,
-                    'discount_suffix' => $invoice->discount_suffix,
-                    'currency' => $invoice->currency,
-                    'terms' => $invoice->terms,
-                    'tags' => $invoice->tags,
-                    'tax1' => $invoice->tax1,
-                    'tax1_suffix' => $invoice->tax1_suffix,
-                    'tax2' => $invoice->tax2,
-                    'tax2_suffix' => $invoice->tax2_suffix,
-                    'applydiscount' => $invoice->applydiscount,
-                    'taxtype' => $invoice->taxtype,
-                    'subtotal' => $invoice->subtotal,
-                    'total' => $invoice->total,
-                    'tax_percent' => $invoice->tax_percent,
-                    'discount_percent' => $invoice->discount_percent,
-                    'tax_amount' => $invoice->tax_amount,
-                    'invoice_status' => $invoice->invoice_status,
-                    // Add other fields as needed
-                ],
-            ], 200);
-    
-        } catch (\Exception $e) {
-            DB::rollBack();
-    
-            // Return error response if something goes wrong
-            return response()->json([
-                'status' => 500,
-                'message' => 'Invoice addition failed',
-                'error' => $e->getMessage(),
-            ], 500);
+{
+    DB::beginTransaction();
+
+    try {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'invoicenumber' => 'required|numeric',
+            'contacts' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                // Check if the contact ID exists in any of the specified tables
+                $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+
+                if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                    $fail("The selected contact ID does not exist in any of the specified tables.");
+                }
+            }],
+            'invoicedate' => 'required|date',
+            'duedate' => 'required|date',
+            'discount' => 'required|string',
+            'discount_suffix' => 'nullable|string|in:%,"flat"',
+            'currency' => 'required|string',
+            'terms' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            'tax1' => 'nullable|numeric',
+            'tax1_suffix' => 'nullable|string',
+            'tax2' => 'nullable|numeric',
+            'tax2_suffix' => 'nullable|string',
+            'applydiscount' => 'boolean',
+            'taxtype' => 'nullable|string',
+            'subtotal' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
+            'tax_percent' => 'nullable|numeric',
+            'discount_percent' => 'nullable|numeric',
+            'tax_amount' => 'nullable|numeric',
+            'invoice_status' => 'required|string',
+            'organization_name' => 'required|numeric|exists:jo_organizations,id',
+        ]);
+
+        // Create Crmentity record via CrmentityController
+        $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Invoices', $validatedData['invoicenumber']);
+
+        // Prepare invoice data including crmid
+        $invoiceData = $validatedData;
+        $invoiceData['id'] = $crmid;
+        // Convert tags to JSON if they exist
+        if (isset($invoiceData['tags'])) {
+            $invoiceData['tags'] = json_encode($invoiceData['tags']);
         }
+
+        // Create the invoice with the crmid
+        $invoice = Invoices::create($invoiceData);
+
+        DB::commit();
+
+        // Return success response
+        return response()->json([
+            'status' => 200,
+            'message' => 'Invoice added successfully',
+            'invoice' => $invoice,
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => 'Invoice addition failed',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
     public function show($id)
 {
     try {
@@ -256,139 +176,94 @@ class InvoicesController extends Controller
         return response()->json(['message' => 'Server Error'], 500);
     }
 }
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
-    // Find the invoice by ID
-    $invoice = Invoices::find($id);
+    try {
+        // Begin a database transaction
+        DB::beginTransaction();
 
-    // If the invoice doesn't exist, return a 404 error response
-    if (!$invoice) {
+        // Find the invoice by ID or fail
+        $invoice = Invoices::findOrFail($id);
+
+        // Validate the request data
+        $validatedData = $request->validate([
+            'invoicenumber' => 'nullable|numeric',
+            'contacts' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                // Check if the contact ID exists in any of the specified tables
+                $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+
+                if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                    $fail("The selected contact ID does not exist in any of the specified tables.");
+                }
+            }],
+            'invoicedate' => 'nullable|date',
+            'duedate' => 'nullable|date',
+            'discount' => 'nullable|string',
+            'discount_suffix' => 'nullable|string|in:%,"flat"',
+            'currency' => 'nullable|string',
+            'terms' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            'tax1' => 'nullable|numeric',
+            'tax2' => 'nullable|numeric',
+            'applydiscount' => 'boolean',
+            'taxtype' => 'nullable|string',
+            'subtotal' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
+            'tax_percent' => 'nullable|numeric',
+            'discount_percent' => 'nullable|numeric',
+            'tax_amount' => 'nullable|numeric',
+            'invoice_status' => 'nullable|string',
+            'organization_name' => 'nullable|exists:jo_organizations,id',
+        ]);
+
+        
+
+        // Update invoice data
+        $invoice->update($validatedData);
+
+        // Find the related Crmentity record
+        $crmentity = Crmentity::where('crmid', $invoice->id)->where('setype', 'Invoices')->first();
+
+        if ($crmentity) {
+            // Update the Crmentity record
+            $crmentity->update([
+                'label' => $validatedData['invoicenumber'] ?? $crmentity->label,
+                //'status' => $validatedData['invoice_status'] ?? $crmentity->status,
+            ]);
+        } else {
+            throw new Exception('Crmentity record not found.');
+        }
+
+        // Commit the transaction
+        DB::commit();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Invoice and Crmentity updated successfully',
+            'invoice' => $invoice,
+            'crmentity' => $crmentity,
+        ], 200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        DB::rollBack();
         return response()->json([
             'status' => 404,
             'message' => 'Invoice not found'
         ], 404);
-    }
-
-    // Validation rules
-    $validators = Validator::make($request->all(), [
-        'invoicenumber' => 'nullable|numeric',
-        'contacts' => 'nullable|exists:jo_crmentity,crmid',
-        'invoicedate' => 'nullable|date',
-        'duedate' => 'nullable|date',
-        'discount' => 'nullable|string',
-        'discount_suffix' => 'nullable|string|in:%,"flat"',
-        'currency' => 'nullable|string',
-        'terms' => 'nullable|string',
-        'tags' => 'nullable|array',
-        'tags.*' => 'exists:jo_tags,id',
-        'tax1' => 'nullable|numeric',
-        'tax2' => 'nullable|numeric',
-        'applydiscount' => 'boolean',
-        'taxtype' => 'nullable|string',
-        'subtotal' => 'nullable|numeric',
-        'total' => 'nullable|numeric',
-        'tax_percent' => 'nullable|numeric',
-        'discount_percent' => 'nullable|numeric',
-        'tax_amount' => 'nullable|numeric',
-        'invoice_status' => 'nullable|string',
-        'organization_name' => 'nullable|exists:jo_organizations,id', // Add organization_id validation
-    ]);
-
-    // If validation fails, return errors
-    if ($validators->fails()) {
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
         return response()->json([
-            'status' => 400,
+            'status' => 422,
             'message' => 'Validation error',
-            'errors' => $validators->errors()
-        ], 400);
-    }
-
-    // Retrieve validated data
-    $validatedData = $validators->validated();
-
-    try {
-        // Fetch the organization name using the organization_id
-        $organization = Organization::find($validatedData['organization_name']);
-        if (!$organization) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Organization not found'
-            ], 404);
-        }
-
-        // // Add organization_name to the validated data
-        // $validatedData['organization_name'] = $organization->organization_name;
-
-        // // Fetch contact details based on the contacts field
-        // $contactName = null;
-
-        // // Check in jo_customers table
-        // $customer = Customers::find($validatedData['contacts']);
-        // if ($customer) {
-        //     $contactName = $customer->name;
-        // }
-
-        // // Check in jo_leads table if not found in jo_customers
-        // if (!$contactName) {
-        //     $lead = Leads::find($validatedData['contacts']);
-        //     if ($lead) {
-        //         $contactName = $lead->name;
-        //     }
-        // }
-
-        // // Check in jo_clients table if not found in jo_customers and jo_leads
-        // if (!$contactName) {
-        //     $client = Clients::find($validatedData['contacts']);
-        //     if ($client) {
-        //         $contactName = $client->name;
-        //     }
-        // }
-
-        // // If contact not found in any table, return a 404 error response
-        // if (!$contactName) {
-        //     return response()->json([
-        //         'status' => 404,
-        //         'message' => 'Contact not found'
-        //     ], 404);
-        // }
-
-        // // Add contact name to the validated data
-        // $validatedData['contacts'] = $contactName;
-
-        // // Handle tags processing
-        // if (isset($validatedData['tags'])) {
-        //     $tags = [];
-        //     foreach ($validatedData['tags'] as $id) {
-        //         $tag = Tags::find($id);
-        //         if ($tag) {
-        //             $tags[] = [
-        //                 'tags_name' => $tag->tags_name,
-        //                 'tag_color' => $tag->tag_color,
-        //             ];
-        //         } else {
-        //             throw ValidationException::withMessages(['tags' => "Tag with ID '$id' not found"]);
-        //         }
-        //     }
-        //     $validatedData['tags'] = json_encode($tags);
-        // }
-
-        // Prepare data for update
-        $data = $validatedData;
-
-        // Handle checkbox, true if checked, false if unchecked
-        $data['applydiscount'] = $request->has('applydiscount');
-
-        // Update invoice data
-        $invoice->update($data);
-
-        // Return success response
-        return response()->json([
-            'status' => 200,
-            'message' => 'Invoice updated successfully',
-            'invoice' => $invoice,
-        ], 200);
+            'errors' => $e->errors()
+        ], 422);
     } catch (\Exception $e) {
-        // Return error response if something goes wrong
+        DB::rollBack();
+        // Log the error
+        Log::error('Failed to update invoice: ' . $e->getMessage());
+
         return response()->json([
             'status' => 500,
             'message' => 'Invoice update failed',
@@ -397,11 +272,6 @@ class InvoicesController extends Controller
     }
 }
 
-
-    
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
@@ -412,6 +282,70 @@ class InvoicesController extends Controller
             return response()->json(['error' => 'Failed to delete invoice', 'error' => $e->getMessage()], 500);
         }
     }
+    public function search(Request $request)
+{
+    try {
+        $searchTerm = $request->input('q', '');
+        $perPage = $request->input('per_page', 10);
+        $query = Invoices::query();
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('invoicenumber', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('contacts', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('invoicedate', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('duedate', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('discount', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('total', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('invoice_status', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Paginate the results
+        $invoices = $query->paginate($perPage);
+
+        // Prepare array to hold formatted invoices
+        $formattedInvoices = [];
+        foreach ($invoices as $invoice) {
+            $formattedInvoices[] = [
+                'id' => $invoice->id,
+                'invoicenumber' => $invoice->invoicenumber,
+                'invoicedate' => $invoice->invoicedate,
+                'duedate' => $invoice->duedate,
+                'contacts' => $invoice->contacts,
+                'discount' => $invoice->discount,
+                'total' => $invoice->total,
+                'tax1' => $invoice->tax1,
+                'tax2' => $invoice->tax2,
+                'invoice_status' => $invoice->invoice_status,
+            ];
+        }
+
+        // Return JSON response with formatted data and pagination information
+        return response()->json([
+            'status' => 200,
+            'invoices' => $formattedInvoices,
+            'pagination' => [
+                'total' => $invoices->total(),
+                'per_page' => $invoices->perPage(),
+                'current_page' => $invoices->currentPage(),
+                'last_page' => $invoices->lastPage(),
+                'from' => $invoices->firstItem(),
+                'to' => $invoices->lastItem(),
+            ],
+        ], 200);
+    } catch (Exception $e) {
+        // Log the error
+        Log::error('Failed to search invoices: ' . $e->getMessage());
+
+        // Return error response
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to search invoices',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 
 public function fetchData(Request $request) 
 {
@@ -1228,141 +1162,173 @@ public function getExpenses($id)
         ]);
     }
 }
-
 public function downloadInvoice($id)
 {
-    // Retrieve the invoice
-    $invoice = Invoices::findOrFail($id);
+    try {
+        // Retrieve the invoice
+        $invoice = Invoices::find($id);
+        if (!$invoice) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Invoice not found'
+            ], 404);
+        }
+        
+        // Retrieve the organization name from jo_organizations using the invoice's organization_id
+        $organization = DB::table('jo_organizations')->where('id', $invoice->organization_name)->first();
+        if (!$organization) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Organization not found'
+            ], 404);
+        }
 
-    // Retrieve the contact name from jo_customers, jo_clients, or jo_leads
-    $contactName = $invoice->contacts; // Assuming contacts field contains the contact name
+        // Retrieve the contact name using the contact_id stored in the invoice
+        $contactId = $invoice->contacts;
+        $contactName = null;
 
-    // Try to find the contact in jo_customers, jo_leads, or jo_clients
-    $contact = DB::table('jo_customers')->select('name')->where('name', $contactName)->first();
-    if (!$contact) {
-        $contact = DB::table('jo_leads')->select('name')->where('name', $contactName)->first();
-    }
-    if (!$contact) {
-        $contact = DB::table('jo_clients')->select('name')->where('name', $contactName)->first();
-    }
+        // Check jo_customers for contact name
+        $customer = DB::table('jo_customers')->where('id', $contactId)->first();
+        if ($customer) {
+            $contactName = $customer->name;
+        } else {
+            // Check jo_leads for contact name if not found in jo_customers
+            $lead = DB::table('jo_leads')->where('id', $contactId)->first();
+            if ($lead) {
+                $contactName = $lead->name;
+            } else {
+                // Check jo_clients for contact name if not found in jo_leads
+                $client = DB::table('jo_clients')->where('id', $contactId)->first();
+                if ($client) {
+                    $contactName = $client->name;
+                } else {
+                    // If contact not found in any table, return a 404 error response
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Contact not found'
+                    ], 404);
+                }
+            }
+        }
 
-    // If contact not found in any table, return a 404 error response
-    if (!$contact) {
-        return response()->json([
-            'status' => 404,
-            'message' => 'Contact not found'
-        ], 404);
-    }
+        // Retrieve the associated items and their details based on invoice ID
+        $items = DB::table('jo_inventoryproductrel')
+            ->leftJoin('jo_projects', 'jo_inventoryproductrel.product_id', '=', 'jo_projects.id')
+            ->leftJoin('jo_tasks', 'jo_inventoryproductrel.product_id', '=', 'jo_tasks.id')
+            ->leftJoin('jo_products', 'jo_inventoryproductrel.product_id', '=', 'jo_products.id')
+            ->leftJoin('jo_employees', 'jo_inventoryproductrel.product_id', '=', 'jo_employees.id')
+            ->leftJoin('jo_expenses', 'jo_inventoryproductrel.product_id', '=', 'jo_expenses.id')
+            ->where('jo_inventoryproductrel.id', $id) // Match the invoice ID
+            ->select(
+                'jo_inventoryproductrel.list_price',
+                'jo_inventoryproductrel.quantity',
+                'jo_inventoryproductrel.description',
+                'jo_projects.project_name as project_name',
+                'jo_tasks.title as task_title',
+                'jo_products.name as product_name',
+                'jo_employees.first_name as employee_firstname',
+                'jo_expenses.amount as expense_amount'
+            )
+            ->get();
 
-    // Retrieve the associated items and their details based on invoice ID
-    $items = DB::table('jo_inventoryproductrel')
-        ->leftJoin('jo_projects', 'jo_inventoryproductrel.product_id', '=', 'jo_projects.id')
-        ->leftJoin('jo_tasks', 'jo_inventoryproductrel.product_id', '=', 'jo_tasks.id')
-        ->leftJoin('jo_products', 'jo_inventoryproductrel.product_id', '=', 'jo_products.id')
-        ->leftJoin('jo_employees', 'jo_inventoryproductrel.product_id', '=', 'jo_employees.id')
-        ->leftJoin('jo_expenses', 'jo_inventoryproductrel.product_id', '=', 'jo_expenses.id')
-        ->where('jo_inventoryproductrel.id', $id) // Match the invoice ID
-        ->select(
-            'jo_inventoryproductrel.list_price',
-            'jo_inventoryproductrel.quantity',
-            'jo_inventoryproductrel.description',
-            'jo_projects.project_name as project_name',
-            'jo_tasks.title as task_title',
-            'jo_products.name as product_name',
-            'jo_employees.first_name as employee_firstname',
-            'jo_expenses.amount as expense_amount'
-        )
-        ->get();
-
-    // Build the HTML content
-    $htmlContent = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Invoice</title>
-        <style>
-            body { font-family: Arial, sans-serif; }
-            .container { display: flex; justify-content: space-between; }
-            .left { text-align: left; }
-            .right { text-align: right; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='left'>
-                <p><b>FROM:</b></p>
-                <p>{$invoice->organization_name}</p>
+        // Build the HTML content for the invoice
+        $htmlContent = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Invoice</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .container { display: flex; justify-content: space-between; }
+                .left { text-align: left; }
+                .right { text-align: right; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='left'>
+                    <p><b>FROM:</b></p>
+                    <p>{$organization->organization_name}</p> <!-- Use organization_name -->
+                </div>
+                <div class='right'>
+                    <h3>Invoice Number: {$invoice->invoicenumber}</h3>
+                    <p>Invoice Date: {$invoice->invoicedate}</p>
+                    <p>Due Date: {$invoice->duedate}</p>
+                    <p>Currency: {$invoice->currency}</p>
+                </div>
             </div>
-            <div class='right'>
-                <h3>Invoice Number: {$invoice->invoicenumber}</h3>
-                <p>Invoice Date: {$invoice->invoicedate}</p>
-                <p>Due Date: {$invoice->duedate}</p>
-                <p>Currency: {$invoice->currency}</p>
-            </div>
-        </div>
-        <p><b>TO:</b></p>
-        <p>{$contact->name}</p>
-        <table>
-            <tr>
-                <th>Item Details</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>List Price</th>
-                <th>Total Value</th>
-            </tr>";
+            <p><b>TO:</b></p>
+            <p>{$contactName}</p> <!-- Display contact name -->
+            <table>
+                <tr>
+                    <th>Item Details</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>List Price</th>
+                    <th>Total Value</th>
+                </tr>";
 
-    // Initialize total value for the invoice
-    $totalValue = 0;
+        // Initialize total value for the invoice
+        $totalValue = 0;
 
-    // Append item data to the HTML content
-    foreach ($items as $item) {
-        $total = $item->quantity * $item->list_price;
-        $totalValue += $total; // Add to the invoice total value
+        // Append item data to the HTML content
+        foreach ($items as $item) {
+            $total = $item->quantity * $item->list_price;
+            $totalValue += $total; // Add to the invoice total value
 
-        // Determine the item details prioritizing projects and falling back to other item types
-        $itemDetails = "";
-        if (!is_null($item->project_name)) {
-            $itemDetails = "Project: {$item->project_name}";
-        } elseif (!is_null($item->task_title)) {
-            $itemDetails = "Task: {$item->task_title}";
-        } elseif (!is_null($item->product_name)) {
-            $itemDetails = "Product: {$item->product_name}";
-        } elseif (!is_null($item->employee_firstname)) {
-            $itemDetails = "Employee: {$item->employee_firstname}";
-        } elseif (!is_null($item->expense_amount)) {
-            $itemDetails = "Expense: {$item->expense_amount}";
+            // Determine the item details prioritizing projects and falling back to other item types
+            $itemDetails = "";
+            if (!is_null($item->project_name)) {
+                $itemDetails = "Project: {$item->project_name}";
+            } elseif (!is_null($item->task_title)) {
+                $itemDetails = "Task: {$item->task_title}";
+            } elseif (!is_null($item->product_name)) {
+                $itemDetails = "Product: {$item->product_name}";
+            } elseif (!is_null($item->employee_firstname)) {
+                $itemDetails = "Employee: {$item->employee_firstname}";
+            } elseif (!is_null($item->expense_amount)) {
+                $itemDetails = "Expense: {$item->expense_amount}";
+            }
+
+            $htmlContent .= "
+                <tr>
+                    <td>{$itemDetails}</td>
+                    <td>" . ($item->description ?? '') . "</td>
+                    <td>{$item->quantity}</td>
+                    <td>{$item->list_price}</td>
+                    <td>{$total}</td>
+                </tr>";
         }
 
         $htmlContent .= "
-            <tr>
-                <td>{$itemDetails}</td>
-                <td>" . ($item->description ?? '') . "</td>
-                <td>{$item->quantity}</td>
-                <td>{$item->list_price}</td>
-                <td>{$total}</td>
-            </tr>";
+            </table>
+            <div class='right'>
+                <p><b>Tax Value:</b> {$invoice->tax1}</p>
+                <p><b>Tax Value 2:</b> {$invoice->tax2}</p>
+                <p><b>Discount Value:</b> {$invoice->discount}</p>
+                <p><b>Total Value:</b> {$totalValue}</p>
+            </div>
+        </body>
+        </html>";
+
+        // Generate and download the PDF
+        $pdf = PDF::loadHTML($htmlContent);
+        return $pdf->download('invoice_' . $invoice->id . '.pdf');
+    } catch (\Exception $e) {
+        // Log the error message
+        Log::error('Failed to generate invoice PDF', ['error' => $e->getMessage()]);
+
+        // Return error response if something goes wrong
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to generate invoice PDF',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
-    $htmlContent .= "
-        </table>
-        <div class='right'>
-            <p><b>Tax Value:</b> {$invoice->tax1}</p>
-            <p><b>Tax Value 2:</b> {$invoice->tax2}</p>
-            <p><b>Discount Value:</b> {$invoice->discount}</p>
-            <p><b>Total Value:</b> {$totalValue}</p>
-        </div>
-    </body>
-    </html>";
-
-    // Generate and download the PDF
-    $pdf = PDF::loadHTML($htmlContent);
-    return $pdf->download('invoice_' . $invoice->id . '.pdf');
 }
-
-
 
 }
 

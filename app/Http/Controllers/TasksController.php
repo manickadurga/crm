@@ -7,57 +7,138 @@ use App\Models\Tasks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\Crmentity;
 use League\Config\Exception\ValidationException;
-
+use App\Models\Crmentity;
 
 class TasksController extends Controller
 {
     //
     public function index()
     {
-        
-        $tasks = Tasks::all();
-
-        if($tasks->count() > 0){
-
+        $tasks = Tasks::select('id', 'title', 'tags', 'projects', 'created_at', 'choose', 'duedate', 'status')->get();
+    
+        if ($tasks->count() > 0) {
             return response()->json([
-
                 'status' => 200,
                 'tasks' => $tasks 
             ], 200);
-        }else{
+        } else {
             return response()->json([
-
                 'status' => 404,
                 'message' => 'No Data Found'
             ], 404);
-
         }
     }
+    
     public function store(Request $request)
 {
-    DB::beginTransaction();
+    DB::beginTransaction(); // Start a transaction to ensure atomic operations
 
     try {
         // Validate the request data
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'tasksnumber' => 'nullable|integer',
-            'projects' => 'nullable|string',
+            'projects' => 'nullable|array|max:5000',
+            'projects.*' => 'exists:jo_projects,id',
             'status' => 'nullable|string',
             'choose' => 'in:employees,teams',
-            'addorremoveemployee' => 'nullable|string',
+            'addorremoveemployee' => 'nullable|array|max:5000',
+            'addorremoveemployee.*' => 'exists:jo_manage_employees,id',
             'title' => 'required|string',
             'priority' => 'nullable|string',
             'size' => 'nullable|string',
-            'tags' => 'nullable|array',
+            'tags' => 'nullable|array|max:5000',
+            'tags.*' => 'exists:jo_tags,id',
             'duedate' => 'nullable|date',
             'estimate' => 'nullable|array',
             'estimate.days' => 'nullable|integer',
             'estimate.hours' => 'nullable|integer',
             'estimate.minutes' => 'nullable|integer',
             'description' => 'nullable|string',
-            // 'orgid' => 'integer',
+        ]);
+
+        // Handle estimate: convert estimate array to JSON
+        $validatedData['estimate'] = json_encode([
+            'days' => $validatedData['estimate']['days'] ?? 0,
+            'hours' => $validatedData['estimate']['hours'] ?? 0,
+            'minutes' => $validatedData['estimate']['minutes'] ?? 0,
+        ]);
+
+        // Create Crmentity record via CrmentityController
+        $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Tasks', $validatedData['title']);
+
+        if (!$crmid) {
+            throw new \Exception('Failed to create Crmentity');
+        }
+
+        // Add crmid to validated data
+        $validatedData['id'] = $crmid;
+
+        // Create the Task record with crmid
+        $task = Tasks::create($validatedData);
+
+        DB::commit(); // Commit the transaction
+
+        return response()->json(['message' => 'Task created successfully', 'task' => $task], 201);
+
+    } catch (ValidationException $e) {
+        DB::rollBack(); // Rollback the transaction on validation error
+        return response()->json([
+            'status' => 422,
+            'message' => 'Validation failed',
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack(); // Rollback the transaction on general error
+        Log::error('Failed to create task: ' . $e->getMessage());
+        Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
+        return response()->json(['error' => 'Failed to create task: ' . $e->getMessage()], 500);
+    }
+}
+
+public function show($id)
+{
+    try {
+        // Find the task by ID
+        $task = Tasks::findOrFail($id);
+
+        // Return the task as JSON response
+        return response()->json(['status' => 200, 'task' => $task], 200);
+
+    } catch (\Exception $e) {
+        // Handle any errors or not found exceptions
+        return response()->json(['status' => 404, 'message' => 'Task not found'], 404);
+    }
+}
+
+public function update(Request $request, $id)
+{
+    DB::beginTransaction();
+
+    try {
+        // Find the task by ID
+        $task = Tasks::findOrFail($id);
+
+        // Validate the request data
+        $validated = $request->validate([
+            'tasksnumber' => 'nullable|integer',
+            'projects' => 'nullable|array|max:5000',
+            'projects.*' => 'exists:jo_projects,id',
+            'status' => 'nullable|string',
+            'choose' => 'in:employees,teams',
+            'addorremoveemployee' => 'nullable|array|max:5000',
+            'addorremoveemployee.*' => 'exists:jo_employees,id',
+            'title' => 'required|string',
+            'priority' => 'nullable|string',
+            'size' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            'duedate' => 'nullable|date',
+            'estimate' => 'nullable|array',
+            'estimate.days' => 'nullable|integer',
+            'estimate.hours' => 'nullable|integer',
+            'estimate.minutes' => 'nullable|integer',
+            'description' => 'nullable|string',
         ]);
 
         // Handle estimate
@@ -67,60 +148,68 @@ class TasksController extends Controller
             'minutes' => $validated['estimate']['minutes'] ?? 0,
         ];
 
-        // Retrieve or create a new Crmentity record
-        $defaultCrmentity = Crmentity::where('setype', 'Estimates')->first();
+        // Update the task
+        $task->update($validated);
 
-        if (!$defaultCrmentity) {
-            // Log an error if default Crmentity not found
-            Log::error('Default Crmentity for Tasks not found');
-            throw new \Exception('Default Crmentity not found');
+        // Prepare Crmentity update data
+        $crmentityData = [
+            'label' => $validated['title'],
+            //'description' => $validated['description'] ?? '',
+            // You can include other fields if needed
+        ];
+
+        // Update the corresponding Crmentity record
+        $crmentity = Crmentity::where('crmid', $id)->first();
+
+        if ($crmentity) {
+            // Update existing Crmentity record
+            $crmentity->update($crmentityData);
+        } else {
+            // Optionally create a new Crmentity record if it does not exist
+            $crmentity = new Crmentity();
+            $crmentity->crmid = $id; // Or use an appropriate unique identifier
+            $crmentity->label = $validated['title'];
+            //$crmentity->description = $validated['description'] ?? '';
+            $crmentity->save();
         }
 
-        // Create a new Crmentity record with a new crmid
-        $newCrmentity = new Crmentity();
-        $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-        $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid ?? 0; // Replace with appropriate default
-        $newCrmentity->smownerid = $defaultCrmentity->smownerid ?? 0; // Replace with appropriate default
-        $newCrmentity->setype = 'Tasks';
-        $newCrmentity->description = $defaultCrmentity->description ?? '';
-        $newCrmentity->createdtime = now();
-        $newCrmentity->modifiedtime = now();
-        $newCrmentity->viewedtime = now();
-        $newCrmentity->status = $defaultCrmentity->status ?? '';
-        $newCrmentity->version = $defaultCrmentity->version ?? 0;
-        $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-        $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-        $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-        $newCrmentity->source = $defaultCrmentity->source ?? '';
-        $newCrmentity->label = $validated['title'];
-        $newCrmentity->save();
-
-        // Set the new crmid as the task ID
-        $validated['id'] = $newCrmentity->crmid;
-
-        // Create the task entry
-        $task = Tasks::create($validated);
-
+        // Commit transaction
         DB::commit();
 
-        return response()->json(['message' => 'Task created successfully', 'task' => $task], 201);
+        return response()->json([
+            'message' => 'Task and Crmentity updated successfully',
+            'task' => $task,
+            'crmentity' => $crmentity,
+        ], 200);
 
     } catch (ValidationException $e) {
         DB::rollBack();
         return response()->json([
-            'status' => 500,
-            'message' => 'Estimate addition failed',
-            'error' => $e->getMessage(),
-        ], 500);
+            'status' => 422,
+            'message' => 'Validation failed',
+            
+        ], 422);
     } catch (\Exception $e) {
         DB::rollBack();
-        Log::error('Failed to create task: ' . $e->getMessage());
+        Log::error('Failed to update task and Crmentity: ' . $e->getMessage());
         Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
-        return response()->json(['error' => 'Failed to create task: ' . $e->getMessage()], 500);
+        return response()->json([
+            'error' => 'Failed to update task and Crmentity',
+            'message' => $e->getMessage(),
+        ], 500);
     }
 }
 
-     
+public function destroy($id)
+{
+    try {
+        $task = Tasks::findOrFail($id);
+        $task->delete();
+        return response()->json(['message' => 'Task deleted successfully'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 500, 'message' => 'Failed to delete task', 'error' => $e->getMessage()], 500);
+    }
+}   
     }
 
 

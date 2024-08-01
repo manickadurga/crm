@@ -13,7 +13,8 @@ class Tags extends Model
     
     // Other model properties and methods
     protected $fillable = [
-        'tags_names',
+        'id',
+        'tags_name',
         'tag_color',
         'tenant_level',
         'description'

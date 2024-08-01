@@ -11,8 +11,9 @@ class Clients extends Model
 
     protected $table='jo_clients';
 
-
+    //public $incrementing = false;
     protected $fillable = [
+        'id',
         'image',
         'name',
         'primary_email',

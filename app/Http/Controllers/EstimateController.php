@@ -23,21 +23,6 @@ use Illuminate\Support\Facades\Validator;
 
 class EstimateController extends Controller
 {
-    /**
-     * Display a listing of estimates.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // public function index()
-    // {
-    //     try {
-    //         $estimates = Estimate::all();
-    //         return response()->json($estimates);
-    //     } catch (\Exception $e) {
-    //         Log::error('Failed to retrieve estimates: ' . $e->getMessage());
-    //         return response()->json(['error' => 'Failed to retrieve estimates'], 500);
-    //     }
-    // }
 
     public function index(Request $request)
     {
@@ -99,23 +84,21 @@ class EstimateController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a newly created estimate in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request)
     {
-        // Begin transaction to ensure data integrity
-        DB::beginTransaction();
-    
         try {
-            // Validate the incoming request data
             $validatedData = Validator::make($request->all(), [
                 'estimatenumber' => 'required|numeric',
-                'contacts' => 'required|exists:jo_crmentity,crmid',  // Ensure contacts is a valid customer ID
+                'contacts' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                    // Check if the contact ID exists in any of the specified tables
+                    $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                    $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                    $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+    
+                    if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                        $fail("The selected contact ID does not exist in any of the specified tables.");
+                    }
+                }],// Contact ID
                 'estimatedate' => 'required|date',
                 'duedate' => 'required|date',
                 'discount' => 'required|string',
@@ -136,38 +119,15 @@ class EstimateController extends Controller
                 'estimate_status' => 'nullable|string',
                 'organization_name' => 'required|numeric|exists:jo_organizations,id', // Ensure organization exists
             ])->validate();
-    
-            // Convert tags array to JSON string
             if (isset($validatedData['tags'])) {
                 $validatedData['tags'] = json_encode($validatedData['tags']);
             }
-    
-            // Create a new Estimate record
+            $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Estimates', $validatedData['estimatenumber']);
+
+        // Create the customer with the crmid
+        $validatedData['id'] = $crmid; 
             $estimate = Estimate::create($validatedData);
-    
-            // Create a new Crmentity record for the estimate
-            $crmentity = new Crmentity();
-            $crmentity->crmid = $estimate->id; // Assuming 'id' as the primary key for Estimates
-            $crmentity->smcreatorid = 0; // Set as needed
-            $crmentity->smownerid = 0; // Set the owner ID as the customer ID
-            $crmentity->setype = 'Estimates';
-            $crmentity->description = $estimate->estimatenumber; // Adjust as per your business logic
-            $crmentity->createdtime = now();
-            $crmentity->modifiedtime = now();
-            $crmentity->viewedtime = now();
-            $crmentity->status = 'Active'; // Adjust default status as per your business logic
-            $crmentity->version = 1; // Default version
-            $crmentity->presence = 1; // Default presence
-            $crmentity->deleted = 0; // Not deleted
-            $crmentity->smgroupid = 0; // Default group ID
-            $crmentity->source = ''; // Default source
-            $crmentity->label = $estimate->estimatenumber; // Adjust as per your business logic
-            $crmentity->save();
-    
-            // Commit transaction if all operations succeed
-            DB::commit();
-    
-            // Decode tags back to array for response
             $estimate->tags = json_decode($estimate->tags);
     
             // Return success response
@@ -189,13 +149,6 @@ class EstimateController extends Controller
             ], 500);
         }
     }
-    
-    /**
-     * Display the specified estimate.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id)
     {
         try {
@@ -209,14 +162,22 @@ class EstimateController extends Controller
     }
     public function update(Request $request, int $id)
     {
-        // Begin transaction to ensure data integrity
         DB::beginTransaction();
     
         try {
             // Validate the request data
             $validatedData = Validator::make($request->all(), [
                 'estimatenumber' => 'nullable|numeric',
-                'contacts' => 'nullable|exists:jo_crmentity,crmid',  // Ensure contacts is a valid customer ID
+                'contacts' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                    // Check if the contact ID exists in any of the specified tables
+                    $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                    $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                    $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+    
+                    if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                        $fail("The selected contact ID does not exist in any of the specified tables.");
+                    }
+                }], // Contact ID  // Ensure contacts is a valid customer ID
                 'estimatedate' => 'nullable|date',
                 'duedate' => 'nullable|date',
                 'discount' => 'nullable|string',
@@ -227,7 +188,7 @@ class EstimateController extends Controller
                 'tags.*' => 'exists:jo_tags,id',
                 'tax1' => 'nullable|numeric',
                 'tax2' => 'nullable|numeric',
-                'applydiscount' => 'boolean',
+                'applydiscount' => 'nullable|boolean',
                 'taxtype' => 'nullable|string',
                 'subtotal' => 'nullable|numeric',
                 'total' => 'nullable|numeric',
@@ -235,10 +196,10 @@ class EstimateController extends Controller
                 'discount_percent' => 'nullable|numeric',
                 'tax_amount' => 'nullable|numeric',
                 'estimate_status' => 'nullable|string',
-                'organization_name' => 'nullable|numeric|exists:jo_organizations,id', // Ensure organization exists
+                'organization_name' => 'nullable|exists:jo_organizations,id', // Ensure organization exists
             ])->validate();
     
-            // Find the estimate by ID, or fail with 404
+            // Find the estimate by ID
             $estimate = Estimate::findOrFail($id);
     
             // Convert tags array to JSON string
@@ -248,17 +209,37 @@ class EstimateController extends Controller
     
             // Update the estimate fields based on the request data
             $estimate->fill($validatedData);
-    
-            // Save the updated estimate
             $estimate->save();
     
-            // Commit transaction if all operations succeed
+            // Find or create the corresponding Crmentity record
+            $crmentity = Crmentity::where('crmid', $id)->where('setype', 'Estimates')->first();
+    
+            if ($crmentity) {
+                // Update existing Crmentity record
+                $crmentity->update([
+                    'label' => $validatedData['estimatenumber'], // Use the appropriate field for the label
+                    'modifiedtime' => now(),
+                    'status' => $validatedData['estimate_status'] ?? $crmentity->status, // Update status if provided
+                ]);
+            } else {
+                // Create a new Crmentity record if not found
+                Crmentity::create([
+                    'crmid' => $id,
+                    'setype' => 'Estimates',
+                    'label' => $validatedData['estimatenumber'], // Use the appropriate field for the label
+                    'createdtime' => now(),
+                    'modifiedtime' => now(),
+                    'status' => $validatedData['estimate_status'] ?? 'Pending', // Default status
+                    'createdby' => auth()->id(), // Assuming you have authentication setup
+                    'modifiedby' => auth()->id(),
+                ]);
+            }
+    
             DB::commit();
     
             // Decode tags back to array for response
             $estimate->tags = json_decode($estimate->tags);
     
-            // Return a JSON response indicating successful update
             return response()->json([
                 'status' => 200,
                 'message' => 'Estimate updated successfully',
@@ -270,10 +251,19 @@ class EstimateController extends Controller
             return response()->json([
                 'status' => 404,
                 'message' => 'Estimate not found'
-            ], 404);    
+            ], 404);
+    
+        } catch (ValidationException $ex) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation failed',
+                'errors' => $ex->errors()
+            ], 422);
     
         } catch (\Exception $ex) {
             DB::rollBack();
+            Log::error('Failed to update estimate and Crmentity: ' . $ex->getMessage());
             return response()->json([
                 'status' => 500,
                 'message' => 'An error occurred while updating the estimate',
@@ -281,7 +271,6 @@ class EstimateController extends Controller
             ], 500);
         }
     }
-    
     
 
     /**
@@ -302,6 +291,77 @@ class EstimateController extends Controller
             return response()->json(['error' => 'Failed to delete estimate', 'message' => $e->getMessage()], 500);
         }
     }
+    public function search(Request $request)
+{
+    try {
+        // Get search parameters from the request
+        $searchTerm = $request->input('q', '');
+        $perPage = $request->input('per_page', 10);
+
+        // Build the query
+        $query = Estimate::query();
+
+        // Apply filters based on search terms
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('estimatenumber', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('contacts', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('estimatedate', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('duedate', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('discount', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('total', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('status', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Paginate the results
+        $estimates = $query->paginate($perPage);
+
+        // Prepare array to hold formatted estimates
+        $formattedEstimates = [];
+
+        // Iterate through each estimate to format data
+        foreach ($estimates as $estimate) {
+            $formattedEstimates[] = [
+                'id' => $estimate->id,
+                'estimatenumber' => $estimate->estimatenumber,
+                'estimatedate' => $estimate->estimatedate,
+                'duedate' => $estimate->duedate,
+                'contacts' => $estimate->contacts,
+                'discount' => $estimate->discount,
+                'total' => $estimate->total,
+                'tax1' => $estimate->tax1,
+                'tax2' => $estimate->tax2,
+                'estimate_status' => $estimate->status,
+            ];
+        }
+
+        // Return JSON response with formatted data and pagination information
+        return response()->json([
+            'status' => 200,
+            'estimates' => $formattedEstimates,
+            'pagination' => [
+                'total' => $estimates->total(),
+                'per_page' => $estimates->perPage(),
+                'current_page' => $estimates->currentPage(),
+                'last_page' => $estimates->lastPage(),
+                'from' => $estimates->firstItem(),
+                'to' => $estimates->lastItem(),
+            ],
+        ], 200);
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Failed to search estimates: ' . $e->getMessage());
+
+        // Return error response
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to search estimates',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     public function fetchData(Request $request) {
         try {
     
@@ -314,14 +374,7 @@ class EstimateController extends Controller
                 ['value' => 'products', 'label' => 'Products'],
                 ['value' => 'expenses', 'label' => 'Expenses'],
             ];
-            
-            // $label = '';
-            // foreach ($options as $option) {
-            //     if ($option['value'] === $value) {
-            //         $label = $option['label'];
-            //         break;
-            //     }
-            // }
+
             $value = 'employees';
     
             if ($value === 'tasks') {
@@ -1153,125 +1206,174 @@ public function getExpenses($id)
 
 public function downloadEstimate($id)
 {
-    // Retrieve the estimate
-    $estimate = Estimate::findOrFail($id);
+    try {
+        // Retrieve the estimate
+        $estimate = Estimate::findOrFail($id);
 
-    // Retrieve the associated items and their details based on estimate ID
-    $items = DB::table('jo_inventoryproductrel')
-        ->leftJoin('jo_products', 'jo_inventoryproductrel.product_id', '=', 'jo_products.id')
-        ->leftJoin('jo_tasks', 'jo_inventoryproductrel.product_id', '=', 'jo_tasks.id')
-        ->leftJoin('jo_projects', 'jo_inventoryproductrel.product_id', '=', 'jo_projects.id')
-        ->leftJoin('jo_employees', 'jo_inventoryproductrel.product_id', '=', 'jo_employees.id')
-        ->leftJoin('jo_expenses', 'jo_inventoryproductrel.product_id', '=', 'jo_expenses.id')
-        ->where('jo_inventoryproductrel.id', $id) // Match the estimate ID
-        ->select(
-            'jo_inventoryproductrel.list_price',
-            'jo_inventoryproductrel.quantity',
-            'jo_inventoryproductrel.product_id',
-            'jo_inventoryproductrel.description',
-            'jo_products.name as product_name',
-            'jo_tasks.title as task_title',
-            'jo_projects.project_name as project_name',
-            'jo_employees.first_name as employee_firstname',
-            'jo_expenses.amount as expense_amount'
-        )
-        ->get();
+        // Retrieve the organization name from jo_organizations using the estimate's organization_id
+        $organization = DB::table('jo_organizations')->where('id', $estimate->organization_name)->first();
+        if (!$organization) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Organization not found'
+            ], 404);
+        }
 
-    // Build the HTML content
-    $htmlContent = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Estimate</title>
-        <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .container {
-                display: flex;
-                justify-content: space-between;
+        // Retrieve the contact name using the contacts_id stored in the estimate
+        $contactId = $estimate->contacts;
+        $contactName = null;
+
+        // Check jo_customers for contact name
+        $customer = DB::table('jo_customers')->where('id', $contactId)->first();
+        if ($customer) {
+            $contactName = $customer->name;
+        } else {
+            // Check jo_leads for contact name if not found in jo_customers
+            $lead = DB::table('jo_leads')->where('id', $contactId)->first();
+            if ($lead) {
+                $contactName = $lead->name;
+            } else {
+                // Check jo_clients for contact name if not found in jo_leads
+                $client = DB::table('jo_clients')->where('id', $contactId)->first();
+                if ($client) {
+                    $contactName = $client->name;
+                } else {
+                    // If contact not found in any table, return a 404 error response
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Contact not found'
+                    ], 404);
+                }
             }
-            .left {
-                text-align: left;
-            }
-            .right {
-                text-align: right;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='left'>
-                <p><b>FROM:</b></p>
-                <p>{$estimate->organization_name}</p>
+        }
+
+        // Retrieve the associated items and their details based on estimate ID
+        $items = DB::table('jo_inventoryproductrel')
+            ->leftJoin('jo_products', 'jo_inventoryproductrel.product_id', '=', 'jo_products.id')
+            ->leftJoin('jo_tasks', 'jo_inventoryproductrel.product_id', '=', 'jo_tasks.id')
+            ->leftJoin('jo_projects', 'jo_inventoryproductrel.product_id', '=', 'jo_projects.id')
+            ->leftJoin('jo_employees', 'jo_inventoryproductrel.product_id', '=', 'jo_employees.id')
+            ->leftJoin('jo_expenses', 'jo_inventoryproductrel.product_id', '=', 'jo_expenses.id')
+            ->where('jo_inventoryproductrel.id', $id) // Match the estimate ID
+            ->select(
+                'jo_inventoryproductrel.list_price',
+                'jo_inventoryproductrel.quantity',
+                'jo_inventoryproductrel.product_id',
+                'jo_inventoryproductrel.description',
+                'jo_products.name as product_name',
+                'jo_tasks.title as task_title',
+                'jo_projects.project_name as project_name',
+                'jo_employees.first_name as employee_firstname',
+                'jo_expenses.amount as expense_amount'
+            )
+            ->get();
+
+        // Build the HTML content
+        $htmlContent = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Estimate</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .container {
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .left {
+                    text-align: left;
+                }
+                .right {
+                    text-align: right;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='left'>
+                    <p><b>FROM:</b></p>
+                    <p>{$organization->organization_name}</p> <!-- Use organization_name -->
+                </div>
+                <div class='right'>
+                    <h3>Estimate Number: {$estimate->estimatenumber}</h3>
+                    <p>Estimate Date: {$estimate->estimatedate}</p>
+                    <p>Due Date: {$estimate->duedate}</p>
+                    <p>Currency: {$estimate->currency}</p>
+                </div>
             </div>
-            <div class='right'>
-                <h3>Estimate Number: {$estimate->estimatenumber}</h3>
-                <p>Estimate Date: {$estimate->estimatedate}</p>
-                <p>Due Date: {$estimate->duedate}</p>
-                <p>Currency: {$estimate->currency}</p>
-            </div>
-        </div>
-        <p><b>TO:</b></p>
-        <p>{$estimate->contacts}</p>
-        <table>
-            <tr>
-                <th>Item</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>";
+            <p><b>TO:</b></p>
+            <p>{$contactName}</p> <!-- Display contact name -->
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>";
 
-    // Initialize total value for the estimate
-    $totalValue = 0;
+        // Initialize total value for the estimate
+        $totalValue = 0;
 
-    // Append item data to the HTML content
-    foreach ($items as $item) {
-        $total = $item->quantity * $item->list_price;
-        $totalValue += $total; // Add to the estimate total value
+        // Append item data to the HTML content
+        foreach ($items as $item) {
+            $total = $item->quantity * $item->list_price;
+            $totalValue += $total; // Add to the estimate total value
 
-        // Determine the item type and details
-        $itemDetails = '';
-        if (!is_null($item->product_name)) {
-            $itemDetails = "Product: {$item->product_name}";
-        } elseif (!is_null($item->task_title)) {
-            $itemDetails = "Task: {$item->task_title}";
-        } elseif (!is_null($item->project_name)) {
-            $itemDetails = "Project: {$item->project_name}";
-        } elseif (!is_null($item->employee_firstname)) {
-            $itemDetails = "Employee: {$item->employee_firstname}";
-        } elseif (!is_null($item->expense_amount)) {
-            $itemDetails = "Expense: {$item->expense_amount}";
+            // Determine the item type and details
+            $itemDetails = '';
+            if (!is_null($item->product_name)) {
+                $itemDetails = "Product: {$item->product_name}";
+            } elseif (!is_null($item->task_title)) {
+                $itemDetails = "Task: {$item->task_title}";
+            } elseif (!is_null($item->project_name)) {
+                $itemDetails = "Project: {$item->project_name}";
+            } elseif (!is_null($item->employee_firstname)) {
+                $itemDetails = "Employee: {$item->employee_firstname}";
+            } elseif (!is_null($item->expense_amount)) {
+                $itemDetails = "Expense: {$item->expense_amount}";
+            }
+
+            $htmlContent .= "
+                <tr>
+                    <td>{$itemDetails}</td>
+                    <td>" . ($item->description ?? '') . "</td>
+                    <td>{$item->quantity}</td>
+                    <td>{$item->list_price}</td>
+                    <td>{$total}</td>
+                </tr>";
         }
 
         $htmlContent .= "
-            <tr>
-                <td>{$itemDetails}</td>
-                <td>" . ($item->description ?? '') . "</td>
-                <td>{$item->quantity}</td>
-                <td>{$item->list_price}</td>
-                <td>{$total}</td>
-            </tr>";
+            </table>
+            <div class='right'>
+                <p><b>Tax Value:</b> {$estimate->tax1}</p>
+                <p><b>Tax Value 2:</b> {$estimate->tax2}</p>
+                <p><b>Discount Value:</b> {$estimate->discount}</p>
+                <p><b>Total Value:</b> {$totalValue}</p>
+            </div>
+            <p><b>Terms:</b></p>
+            <p>{$estimate->terms}</p>
+        </body>
+        </html>";
+
+        // Generate and download the PDF
+        $pdf = Pdf::loadHTML($htmlContent);
+        return $pdf->download('estimate_' . $estimate->id . '.pdf');
+    } catch (\Exception $e) {
+        // Log the error message
+        Log::error('Failed to generate estimate PDF', ['error' => $e->getMessage()]);
+
+        // Return error response if something goes wrong
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to generate estimate PDF',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
-    $htmlContent .= "
-        </table>
-        <div class='right'>
-            <p><b>Tax Value:</b> {$estimate->tax1}</p>
-            <p><b>Tax Value 2:</b> {$estimate->tax2}</p>
-            <p><b>Discount Value:</b> {$estimate->discount}</p>
-            <p><b>Total Value:</b> {$totalValue}</p>
-        </div>
-        <p><b>Terms:</b></p>
-        <p>{$estimate->terms}</p>
-    </body>
-    </html>";
-
-    // Generate and download the PDF
-    $pdf = Pdf::loadHTML($htmlContent);
-    return $pdf->download('estimate_' . $estimate->id . '.pdf');
 }
 
 

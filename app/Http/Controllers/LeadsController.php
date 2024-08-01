@@ -31,13 +31,13 @@ class LeadsController extends Controller
         $perPage = $request->input('per_page', 10);
 
         // Get paginated leads with specific fields including 'id', 'name', 'primary_phone', 'primary_email', 'projects', 'location'
-        $leads = leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+        $leads = Leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
             ->paginate($perPage);
 
         // Prepare array to hold formatted leads
-        $formattedleads = [];
+        $formattedLeads = [];
 
-        // Iterate through each lead to format data
+        // Iterate through each customer to format data
         foreach ($leads as $lead) {
             // Initialize arrays
             $projects = [];
@@ -49,7 +49,7 @@ class LeadsController extends Controller
                 $projectIds = is_string($lead->projects) ? json_decode($lead->projects) : $lead->projects;
 
                 // Fetch project names using project IDs
-                $projectNames = Project::whereIn('id', $projectIds)
+                $projectNames = Projects::whereIn('id', $projectIds)
                     ->pluck('project_name')
                     ->toArray();
 
@@ -65,7 +65,7 @@ class LeadsController extends Controller
                 }
             }
 
-            // Build formatted lead array and embed 'id'
+            // Build formatted customer array and embed 'id'
             $formattedleads[] = [
                 'id' => $lead->id,
                 'name' => $lead->name,
@@ -110,148 +110,89 @@ class LeadsController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        DB::beginTransaction();
-    
-        try {
-            // Validate the incoming request data
-            $validatedData = Validator::make($request->all(), [
-                'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-                'name' => 'required|string',
-                'primary_email' => 'nullable|email',
-                'primary_phone' => 'nullable|string',
-                'website' => 'nullable|url',
-                'fax' => 'nullable|string',
-                'fiscal_information' => 'nullable|string',
-                'projects' => 'nullable|array|max:5000',
-                'projects.*' => 'exists:jo_projects,id',
-                'contact_type' => 'nullable|string|max:5000',
-                'tags' => 'nullable|array',
-                'tags.*' => 'exists:jo_tags,id',
-                'location' => 'nullable|array|max:5000',
-                'location.country' => 'nullable|string',
-                'location.city' => 'nullable|string',
-                'location.address' => 'nullable|string',
-                'location.postal_code' => 'nullable|string',
-                'location.longitude' => 'nullable|numeric',
-                'location.latitude' => 'nullable|numeric',
-                'type' => 'nullable|integer',
-                'type_suffix' => 'nullable|in:cost,hours',
-            ])->validate();
-    
-            // Process image if provided
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('images'), $imageName);
-                $validatedData['image'] = $imageName; // Save $imageName to database
-            }
-    
-            // Ensure 'location' is stored as JSON
-            if (isset($validatedData['location'])) {
-                $validatedData['location'] = json_encode($validatedData['location']);
-            }
-    
-            // Ensure 'projects' is stored as JSON
-            // if (isset($validatedData['projects'])) {
-            //     $projects = [];
-            //     foreach ($validatedData['projects'] as $id) {
-            //         $project = Project::find($id);
-            //         if ($project) {
-            //             $projects[] = $project->project_name;
-            //         } else {
-            //             throw new \Exception("Project with ID '$id' not found");
-            //         }
-            //     }
-            //     $validatedData['projects'] = json_encode($projects);
-            // }
-    
-            // // Ensure 'tags' is stored as JSON
-            // if (isset($validatedData['tags'])) {
-            //     $tags = [];
-            //     foreach ($validatedData['tags'] as $id) {
-            //         $tag = Tags::find($id);
-            //         if ($tag) {
-            //             $tags[] = [
-            //                 'tags_name' => $tag->tags_name,
-            //                 'tag_color' => $tag->tag_color,
-            //             ];
-            //         } else {
-            //             throw new \Exception("Tag with ID '$id' not found");
-            //         }
-            //     }
-            //     $validatedData['tags'] = json_encode($tags);
-            // }
-    
-            // Retrieve default values from an existing Crmentity record
-            $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
-    
-            // Check if defaultCrmentity exists
-            if (!$defaultCrmentity) {
-                throw new \Exception('Default Crmentity not found');
-            }
-    
-            // Create a new Crmentity record with a new crmid
-            $newCrmentity = new Crmentity();
-            $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-            $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
-            $newCrmentity->smownerid = $defaultCrmentity->smownerid;
-            $newCrmentity->setype = 'Leads';
-            $newCrmentity->description = $defaultCrmentity->description ?? '';
-            $newCrmentity->createdtime = now();
-            $newCrmentity->modifiedtime = now();
-            $newCrmentity->viewedtime = now();
-            $newCrmentity->status = $defaultCrmentity->status ?? '';
-            $newCrmentity->version = $defaultCrmentity->version ?? 0;
-            $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-            $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-            $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-            $newCrmentity->source = $defaultCrmentity->source ?? '';
-            $newCrmentity->label = $validatedData['name'];
-            $newCrmentity->save();
-    
-            // Set the new crmid as the lead ID
-            $validatedData['id'] = $newCrmentity->crmid;
-    
-            // Create a new lead record with the crmid
-            $lead = Leads::create($validatedData);
-    
-            DB::commit();
-    
-            // Return success response
-            return response()->json([
-                'message' => 'Lead created successfully',
-                'lead' => $lead,
-            ], 201);
-    
-        } catch (ValidationException $e) {
-            DB::rollBack();
-    
-            // Return validation error response
-            return response()->json(['error' => $e->validator->errors()], 422);
-    
-        } catch (\Exception $e) {
-            DB::rollBack();
-    
-            // Handle any exceptions or errors
-            return response()->json([
-                'error' => 'Failed to create lead',
-                'message' => $e->getMessage(),
-            ], 500);
+{
+    DB::beginTransaction();
+
+    try {
+        // Validate the incoming request data
+        $validatedData = Validator::make($request->all(), [
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string',
+            'primary_email' => 'nullable|email',
+            'primary_phone' => 'nullable|string',
+            'website' => 'nullable|url',
+            'fax' => 'nullable|string',
+            'fiscal_information' => 'nullable|string',
+            'projects' => 'nullable|array|max:5000',
+            'projects.*' => 'exists:jo_projects,id',
+            'contact_type' => 'nullable|string|max:5000',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:jo_tags,id',
+            //'location' => 'nullable|array|max:5000',
+            'country' => 'nullable|string',
+            'city' => 'nullable|string',
+            'address' => 'nullable|string',
+            'post_code' => 'nullable|string',
+            'longitude' => 'nullable|numeric',
+            'latitude' => 'nullable|numeric',
+            'type' => 'nullable|integer',
+            'type_suffix' => 'nullable|in:cost,hours',
+        ])->validate();
+
+        Log::info('Validated data:', $validatedData);
+
+        // Process image if provided
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $validatedData['image'] = $imageName; // Save $imageName to database
         }
+
+        // Ensure 'location' is stored as JSON
+        if (isset($validatedData['location'])) {
+            $validatedData['location'] = json_encode($validatedData['location']);
+        }
+
+        $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Leads', $validatedData['name']);
+        
+        // Log the crmid
+        Log::info('Created Crmentity ID:', ['crmid' => $crmid]);
+
+        if (!$crmid) {
+            throw new Exception('Failed to create Crmentity entry.');
+        }
+
+        // Create the lead with the crmid
+        $validatedData['id'] = $crmid;
+        $lead = Leads::create($validatedData);
+
+        // Commit the transaction
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Lead created successfully',
+            'lead' => $lead,
+        ], 201);
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        Log::error('Validation error:', $e->validator->errors());
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to create lead: ' . $e->getMessage());
+        return response()->json([
+            'error' => 'Failed to create lead',
+            'message' => $e->getMessage(),
+        ], 500);
     }
-    /**
-     * Display the specified resource.
-     */
+}
+
     public function show(string $id)
     {
         try {
-            // Check if the user has permission to read leads data
-            //$this->checkAccessPermissions('leads', 'Read');
-
             $lead = Leads::findOrFail($id);
-
-            // Decode JSON fields if they are stored as JSON strings
             $lead->location = is_string($lead->location) ? json_decode($lead->location, true) : [];
             $lead->tags = is_string($lead->tags) ? json_decode($lead->tags, true) : [];
             $lead->projects = is_string($lead->projects) ? json_decode($lead->projects, true) : [];
@@ -265,81 +206,90 @@ class LeadsController extends Controller
             return response()->json(['status' => 500, 'message' => 'Failed to retrieve lead details'], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
-    {
-        try {
-            // Check if the user has permission to write leads data
-            //$this->checkAccessPermissions('leads', 'Write');
+{
+    try {
+        // Begin a database transaction
+        DB::beginTransaction();
 
-            $lead = Leads::findOrFail($id);
+        // Find the lead by ID or fail
+        $lead = Leads::findOrFail($id);
 
-            // Log incoming request data
-            Log::info('Request data:', $request->all());
+        // Log the incoming request data
+        Log::info('Request data:', $request->all());
 
-            // Validate the incoming request data
-            $validatedData = $request->validate([
-                'image' => 'nullable|string', // Expecting a base64 string
-                'name' => 'nullable|string',
-                'primary_email' => 'nullable|email',
-                'primary_phone' => 'nullable|string',
-                'website' => 'nullable|url',
-                'fax' => 'nullable|string',
-                'fiscal_information' => 'nullable|string',
-                'projects' => 'nullable|array|max:5000',
-                'projects.*' => 'exists:projects,id',
-                'contact_type' => 'nullable|string|max:5000',
-                'tags' => 'nullable|array',
-                'tags.*' => 'exists:tags,id',
-                'location' => 'nullable|array|max:5000',
-                'location.country' => 'nullable|string',
-                'location.city' => 'nullable|string',
-                'location.address' => 'nullable|string',
-                'location.postal_code' => 'nullable|string',
-                'location.longitude' => 'nullable|numeric',
-                'location.latitude' => 'nullable|numeric',
-                'type' => 'nullable|integer',
-                'type_suffix' => 'nullable|in:cost,hours',
-            ]);
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'nullable|string',
+            'primary_email' => 'nullable|email',
+            'primary_phone' => 'nullable|string',
+            'website' => 'nullable|url',
+            'fax' => 'nullable|string',
+            'fiscal_information' => 'nullable|string',
+            'projects' => 'nullable|array|max:5000',
+            'projects.*' => 'exists:projects,id',
+            'contact_type' => 'nullable|string|max:5000',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'country' => 'nullable|string',
+            'city' => 'nullable|string',
+            'address' => 'nullable|string',
+            'post_code' => 'nullable|string',
+            'longitude' => 'nullable|numeric',
+            'latitude' => 'nullable|numeric',
+            'type' => 'nullable|integer',
+            'type_suffix' => 'nullable|in:cost,hours',
+        ]);
 
-            // Process image if provided
-            if ($request->has('image')) {
-                // Save or update the image in the database or storage
-            }
-
-            // Update lead fields based on validated data
-            $lead->fill($validatedData);
-            $lead->save();
-
-            // Return success response
-            return response()->json(['message' => 'Lead updated successfully'], 200);
-
-        } catch (ValidationException $e) {
-            return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Lead not found'], 404);
-        } catch (Exception $e) {
-            Log::error('Failed to update lead: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to update lead: ' . $e->getMessage()], 500);
+        // Handle image upload if present
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $validatedData['image'] = $imageName; // Save the image name to the database
         }
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+        // Update the lead with validated data
+        $lead->fill($validatedData);
+        $lead->save();
+
+        // Update the related Crmentity record
+        $crmentity = Crmentity::where('crmid', $lead->id)->where('setype', 'Leads')->first();
+        
+        if ($crmentity) {
+            // Update the Crmentity record with new data
+            $crmentity->update([
+                'label' => $validatedData['name'] ?? $crmentity->label,
+                //'status' => 'Updated', // or use any specific status logic
+            ]);
+        } else {
+            throw new Exception('Crmentity record not found.');
+        }
+
+        // Commit the transaction
+        DB::commit();
+
+        return response()->json(['message' => 'Lead and Crmentity updated successfully'], 200);
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (ModelNotFoundException $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Lead not found'], 404);
+    } catch (Exception $e) {
+        DB::rollBack();
+        Log::error('Failed to update lead: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to update lead: ' . $e->getMessage()], 500);
+    }
+}
+
     public function destroy(string $id)
     {
         try {
-            // Check if the user has permission to delete leads data
-            //$this->checkAccessPermissions('leads', 'Write');
 
             $lead = Leads::findOrFail($id);
             $lead->delete();
-
-            // Return success response
             return response()->json(['message' => 'Lead deleted successfully'], 200);
 
         } catch (ModelNotFoundException $e) {
@@ -349,9 +299,88 @@ class LeadsController extends Controller
             return response()->json(['error' => 'Failed to delete lead: ' . $e->getMessage()], 500);
         }
     }
+    public function search(Request $request)
+{
+    try {
+        $perPage = $request->input('per_page', 10);
+        
+        // Get all query parameters
+        $queryParams = $request->all();
 
-    /**
-     * Check access permissions for the specified module and required permission.
-     */
-   
+        // Log incoming query parameters
+        Log::info('Query parameters:', $queryParams);
+
+        $query = Leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location', 'website', 'fax', 'fiscal_information', 'contact_type', 'type', 'type_suffix');
+        foreach ($queryParams as $key => $value) {
+            if (in_array($key, ['name', 'primary_phone', 'primary_email', 'projects', 'location', 'website', 'fax', 'fiscal_information', 'contact_type', 'type', 'type_suffix'])) {
+                $query->where($key, 'LIKE', "%{$value}%");
+            }
+        }
+
+        $leads = $query->paginate($perPage);
+
+        // Log retrieved leads
+        Log::info('Retrieved leads:', $leads->toArray());
+
+        $formattedLeads = [];
+        foreach ($leads as $lead) {
+            $projects = [];
+            $location = [];
+
+            if (!empty($lead->projects)) {
+                $projectIds = is_string($lead->projects) ? json_decode($lead->projects) : $lead->projects;
+                $projectNames = Projects::whereIn('id', $projectIds)
+                    ->pluck('project_name')
+                    ->toArray();
+                $projects = implode(',', $projectNames);
+            }
+
+            if (!empty($lead->location)) {
+                $location = json_decode($lead->location, true);
+                if (!is_array($location)) {
+                    throw new \RuntimeException('Invalid JSON format for location');
+                }
+            }
+
+            $formattedLeads[] = [
+                'id' => $lead->id,
+                'name' => $lead->name,
+                'primary_phone' => $lead->primary_phone,
+                'primary_email' => $lead->primary_email,
+                'projects' => $projects,
+                'country' => $location['country'] ?? null,
+                'city' => $location['city'] ?? null,
+                'website' => $lead->website,
+                'fax' => $lead->fax,
+                'fiscal_information' => $lead->fiscal_information,
+                'contact_type' => $lead->contact_type,
+                'type' => $lead->type,
+                'type_suffix' => $lead->type_suffix,
+            ];
+        }
+
+        return response()->json([
+            'status' => 200,
+            'leads' => $formattedLeads,
+            'pagination' => [
+                'total' => $leads->total(),
+                'per_page' => $leads->perPage(),
+                'current_page' => $leads->currentPage(),
+                'last_page' => $leads->lastPage(),
+                'from' => $leads->firstItem(),
+                'to' => $leads->lastItem(),
+            ],
+        ], 200);
+
+    } catch (\Exception $e) {
+        Log::error('Failed to search leads: ' . $e->getMessage());
+        return response()->json([
+            'status' => 500,
+            'message' => 'Failed to search leads',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }

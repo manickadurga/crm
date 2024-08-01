@@ -11,7 +11,7 @@ class Estimate extends Model
     use HasFactory;
 
     protected $table = 'jo_estimates';
-    protected $primaryKey = 'id';
+    //protected $primaryKey = 'id';
     protected $guarded = [];
 
     public function tasks()

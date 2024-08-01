@@ -15,7 +15,10 @@ use App\Http\Controllers\RolesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\CustomersInviteController;
+use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\EmploymentTypesController;
 use App\Http\Controllers\EquipmentsController;
 use App\Http\Controllers\EquipmentsSharingController;
 use App\Http\Controllers\PaymentsController;
@@ -34,15 +37,20 @@ use App\Http\Controllers\Group2RsController;
 use App\Http\Controllers\GroupRoleController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\GrouptoGroupRelController;
+use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\Profile2GlobalPermissionsController;
 use App\Http\Controllers\Profile2StandardPermissionsController;
 use App\Http\Controllers\ProfilesController;
+use App\Http\Controllers\ProposalsController;
+use App\Http\Controllers\ProposalTemplatesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\SharingAccessController;
 //use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\TeamTaskController;
+
 
 
 /*
@@ -61,12 +69,12 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
 });
 
 
-//Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
+Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 // Route::get('/form-fields', [FormFieldsController::class, 'getFormField']);
 
 
-Route::get('customer',[CustomersController::class,'index']);
-Route::post('customer',[CustomersController::class,'store']);
+Route::get('/customer',[CustomersController::class,'index']);
+Route::post('/customer',[CustomersController::class,'store']);
 
 
 Route::get('tasks',[TasksController::class,'index']);
@@ -76,12 +84,12 @@ Route::get('employees',[EmployeesController::class,'index']);
 Route::post('employees',[EmployeesController::class,'store']);
 
 
-Route::get('projects',[ProjectController::class,'index']);
-Route::post('projects',[ProjectController::class,'store']);
+Route::get('projects',[ProjectsController::class,'index']);
+Route::post('projects',[ProjectsController::class,'store']);
 
 
-Route::get('expenses',[ExpenseController::class,'index']);
-Route::post('expenses',[ExpenseController::class,'store']);
+Route::get('expenses',[ExpensesController::class,'index']);
+Route::post('expenses',[ExpensesController::class,'store']);
 
 Route::get('product',[ProductsController::class,'index']);
 Route::post('product',[ProductsController::class,'store']);
@@ -98,32 +106,34 @@ Route::put('leads/{id}',[LeadsController::class,'update']);
 Route::get('leads/{id}',[LeadsController::class,'show']);
 Route::delete('leads/{id}',[LeadsController::class,'destroy']);
 
-
-
-Route::post('invoice',[InvoicesController::class,'store']);
-Route::get('invoice',[InvoicesController::class,'index']);
-Route::put('invoice/{id}',[InvoicesController::class,'update']);
-Route::get('invoice/{id}',[InvoicesController::class,'show']);
-Route::delete('invoice/{id}',[InvoicesController::class,'destroy']);
-
-
 //download PDF
-Route::get('invoice/{id}/download', [InvoicesController::class, 'downloadInvoice']);
+//Route::get('invoice/{id}/download', [InvoicesController::class, 'downloadInvoice']);
 
+// CRUD routes for invoices
+Route::post('invoice', [InvoicesController::class, 'store']);
+Route::get('invoice', [InvoicesController::class, 'index']);
+Route::get('/invoices/search', [InvoicesController::class, 'search']);
+Route::put('invoice/{id}', [InvoicesController::class, 'update']);
+Route::get('invoice/{id}', [InvoicesController::class, 'show']);
+Route::delete('invoice/{id}', [InvoicesController::class, 'destroy']);
+
+// Download PDF for specific invoice
+Route::get('invoice/{id}/download', [InvoicesController::class, 'downloadInvoice'])->name('invoice.download');
+
+// Additional routes for fetching data
 Route::get('invoices', [InvoicesController::class, 'fetchData']);
 Route::get('invoices/{type}/{value}', [InvoicesController::class, 'getDetails']);
 
-//post function modules Invoices
-Route::post('invoices/{invoiceid}/tasks',[InvoicesController::class,'addTasks']);
+// Post function modules for invoices
+Route::post('invoices/{invoiceid}/tasks', [InvoicesController::class, 'addTasks']);
 Route::post('invoices/{invoiceId}/product', [InvoicesController::class, 'addProducts']);
-Route::post('invoices/{invoiceId}/employee',[InvoicesController::class, 'addEmpProducts']);
-Route::post('invoices/{invoiceid}/projects',[InvoicesController::class,'addProjects']);
-Route::post('invoices/{invoiceid}/expenses',[InvoicesController::class,'addExpenses']);
+Route::post('invoices/{invoiceId}/employee', [InvoicesController::class, 'addEmpProducts']);
+Route::post('invoices/{invoiceid}/projects', [InvoicesController::class, 'addProjects']);
+Route::post('invoices/{invoiceid}/expenses', [InvoicesController::class, 'addExpenses']);
 
-
-//get function modules in Invoices
+// Get function modules for invoices
 Route::get('tasks/{id}', [InvoicesController::class, 'getTasks']);
-Route::get('invoices/{id}', [InvoicesController::class, 'getProductDetails']); //Products
+Route::get('invoices/{id}', [InvoicesController::class, 'getProductDetails']); // Products
 Route::get('employees/{id}', [InvoicesController::class, 'getEmpProducts']);
 Route::get('projects/{id}', [InvoicesController::class, 'getProjects']);
 Route::get('expenses/{id}', [InvoicesController::class, 'getExpenses']);
@@ -136,7 +146,7 @@ Route::post('organizations',[OrganizationController::class,'store']);
 
 Route::post('estimates',[EstimateController::class,'store']);
 Route::get('estimates',[EstimateController::class,'index']);
-
+Route::post('/estimates/search', [EstimateController::class, 'search']);
 Route::put('estimates/{id}',[EstimateController::class,'update']);
 Route::get('estimates/{id}',[EstimateController::class,'show']);
 Route::delete('estimates/{id}',[EstimateController::class,'destroy']);
@@ -309,6 +319,7 @@ Route::delete('/clients/{id}',[ClientsController::class,'destroy']);
 
 //Leads Routes
 Route::get('/leads',[LeadsController::class,'index']);
+Route::post('/leads/search',[LeadsController::class,'search']);
 Route::post('/leads',[LeadsController::class,'store']);
 Route::get('/leads/{id}',[LeadsController::class,'show']);
 Route::put('/leads/{id}',[LeadsController::class,'update']);
@@ -442,3 +453,71 @@ Route::delete('/profile2globalpermissions/{id}',[Profile2GlobalPermissionsContro
    //Route::post('/sharing-access/{sharingAccessId}/update-customers', [SharingAccessController::class, 'updateCustomersData']);
    Route::post('/sharing-access/{sharingAccessId}/update-customers',[SharingAccessController::class,'updateCustomersData']);
 
+//Tasks Routes
+Route::get('/tasks',[TasksController::class,'index']);
+Route::post('tasks',[TasksController::class,'store']);
+Route::get('/tasks/{id}',[TasksController::class,'show']);
+Route::put('tasks/{id}',[TasksController::class,'update']);
+Route::delete('tasks/{id}',[TasksController::class,'destroy']);
+
+//Employment Types Routes
+Route::get('/employment-types',[EmploymentTypesController::class,'index']);
+Route::post('/employment-types',[EmploymentTypesController::class,'store']);
+Route::get('/employment-types/{id}',[EmploymentTypesController::class,'show']);
+Route::put('/employment-types/{id}',[EmploymentTypesController::class,'update']);
+Route::delete('/employment-types/{id}',[EmploymentTypesController::class,'destroy']);
+
+//Proposal Templates Routes
+Route::get('/proposal-templates',[ProposalTemplatesController::class,'index']);
+Route::post('/proposal-templates',[ProposalTemplatesController::class,'store']);
+Route::get('/proposal-templates/{id}',[ProposalTemplatesController::class,'show']);
+Route::put('/proposal-templates/{id}',[ProposalTemplatesController::class,'update']);
+Route::delete('/proposal-templates/{id}',[ProposalTemplatesController::class,'destroy']);
+
+//Proposals Routes
+Route::get('/proposals',[ProposalsController::class,'index']);
+Route::get('/proposals/search', [ProposalsController::class, 'search']);
+Route::post('/proposals',[ProposalsController::class,'store']);
+Route::get('/proposals/{id}',[ProposalsController::class,'show']);
+Route::put('/proposals/{id}',[ProposalsController::class,'update']);
+Route::delete('/proposals/{id}',[ProposalsController::class,'destroy']);
+
+//Departments Routes
+Route::get('/departments',[DepartmentsController::class,'index']);
+Route::get('/departments/search',[DepartmentsController::class,'search']);
+Route::post('/departments',[DepartmentsController::class,'store']);
+Route::get('/departments/{id}',[DepartmentsController::class,'show']);
+Route::put('/departments/{id}',[DepartmentsController::class,'update']);
+Route::delete('/departments/{id}',[DepartmentsController::class,'destroy']);
+
+//Documents Routes 
+Route::get('/documents',[DocumentController::class,'index']);
+Route::get('/documents/search',[DocumentController::class,'search']);
+Route::post('/documents',[DocumentController::class,'store']);
+Route::get('/documents/{id}',[DocumentController::class,'show']);
+Route::put('/documents/{id}',[DocumentController::class,'update']);
+Route::delete('/documents/{id}',[DocumentController::class,'destroy']);
+
+//Incomes Routes
+Route::get('/incomes',[IncomeController::class,'index']);
+Route::get('/incomes/search',[IncomeController::class,'search']);
+Route::post('/incomes',[IncomeController::class,'store']);
+Route::get('/incomes/{id}',[IncomeController::class,'show']);
+Route::put('/incomes/{id}',[IncomeController::class,'update']);
+Route::delete('/incomes/{id}',[IncomeController::class,'destroy']);
+
+//Organization Routes
+Route::get('/organization',[OrganizationController::class,'index']);
+Route::get('/organization/search',[OrganizationController::class,'search']);
+Route::post('/organization',[OrganizationController::class,'store']);
+Route::get('/organization/{id}',[OrganizationController::class,'show']);
+Route::put('/organization/{id}',[OrganizationController::class,'update']);
+Route::delete('/organization/{id}',[OrganizationController::class,'destroy']);
+
+//TeamTask Routes
+Route::get('/teamtasks', [TeamTaskController::class, 'index']);
+Route::post('/teamtasks', [TeamTaskController::class, 'store']);
+Route::get('/teamtasks/search', [TeamTaskController::class, 'search']);
+Route::put('/teamtasks/{id}', [TeamTaskController::class, 'update']);
+Route::get('/teamtasks/{id}', [TeamTaskController::class, 'show']);
+Route::delete('/teamtasks/{id}', [TeamTaskController::class, 'destroy']);

@@ -10,11 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use Exception;
 use App\Models\Customers;
 use App\Models\Projects;
-use App\Models\Tags;
-use App\Models\Crmentity;
-use JsonException;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 
 class CustomersController extends Controller
 {
@@ -29,7 +24,7 @@ class CustomersController extends Controller
         $perPage = $request->input('per_page', 10);
 
         // Get paginated customers with specific fields including 'id', 'name', 'primary_phone', 'primary_email', 'projects', 'location'
-        $customers = Customers::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+        $customers = Customers::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'country','city')
             ->paginate($perPage);
 
         // Prepare array to hold formatted customers
@@ -39,7 +34,7 @@ class CustomersController extends Controller
         foreach ($customers as $customer) {
             // Initialize arrays
             $projects = [];
-            $location = [];
+            //$location = [];
 
             // Handle projects field
             if (!empty($customer->projects)) {
@@ -56,12 +51,12 @@ class CustomersController extends Controller
             }
 
             // Decode location field if it's a string
-            if (!empty($customer->location)) {
-                $location = json_decode($customer->location, true);
-                if (!is_array($location)) {
-                    throw new \RuntimeException('Invalid JSON format for location');
-                }
-            }
+            // if (!empty($customer->location)) {
+            //     $location = json_decode($customer->location, true);
+            //     if (!is_array($location)) {
+            //         throw new \RuntimeException('Invalid JSON format for location');
+            //     }
+            // }
 
             // Build formatted customer array and embed 'id'
             $formattedCustomers[] = [
@@ -70,8 +65,8 @@ class CustomersController extends Controller
                 'primary_phone' => $customer->primary_phone,
                 'primary_email' => $customer->primary_email,
                 'projects' => $projects,
-                'country' => $location['country'] ?? null,
-                'city' => $location['city'] ?? null,
+                'country' => $customer->country,
+                'city' => $customer->city,
             ];
         }
 
@@ -101,95 +96,57 @@ class CustomersController extends Controller
         ], 500);
     }
 }
-
 public function store(Request $request)
 {
-    DB::beginTransaction();
-
     try {
         // Validate the incoming request data
         $validatedData = Validator::make($request->all(), [
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'name' => 'required|string',
-            'primary_email' => 'nullable|email',
-            'primary_phone' => 'nullable|string',
-            'website' => 'nullable|url',
-            'fax' => 'nullable|string',
+            'name' => 'required|string|max:255',
+            'primary_email' => 'nullable|string|email|max:255',
+            'primary_phone' => 'nullable|string|max:20',
+            'website' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:20',
             'fiscal_information' => 'nullable|string',
-            'projects' => 'nullable|array|max:5000',
-            'projects.*' => 'exists:jo_projects,id',
-            'contact_type' => 'nullable|string|max:5000',
+            'projects' => 'nullable|array',
+            'projects.*'=>'exists:jo_projects,id',
+            'contact_type' => 'nullable|string|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:jo_tags,id',
-            'location' => 'nullable|array|max:5000',
-            'location.country' => 'nullable|string',
-            'location.city' => 'nullable|string',
-            'location.address' => 'nullable|string',
-            'location.postal_code' => 'nullable|string',
-            'location.longitude' => 'nullable|numeric',
-            'location.latitude' => 'nullable|numeric',
+            'country' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'post_code' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'type' => 'nullable|integer',
             'type_suffix' => 'nullable|in:cost,hours',
         ])->validate();
-        //dd($validatedData);
 
-        // Process image if provided
+        // Handle image upload if present
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
-            $validatedData['image'] = $imageName; // Save $imageName to database
+            $validatedData['image'] = $imageName;
         }
 
-        // Ensure 'location' is stored as JSON
-        if (isset($validatedData['location'])) {
-            $validatedData['location'] = json_encode($validatedData['location']);
-        }
-        // Retrieve default values from an existing Crmentity record
-        $defaultCrmentity = Crmentity::where('setype', 'Customers')->first();
+        // Create Crmentity record via CrmentityController
+        $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Customers', $validatedData['name']);
 
-        // Check if defaultCrmentity exists
-        if (!$defaultCrmentity) {
-            throw new \Exception('Default Crmentity not found');
-        }
-
-        // Create a new Crmentity record with a new crmid
-        $newCrmentity = new Crmentity();
-        $newCrmentity->crmid = Crmentity::max('crmid') + 1;
-        $newCrmentity->smcreatorid = $defaultCrmentity->smcreatorid;
-        $newCrmentity->smownerid = $defaultCrmentity->smownerid;
-        $newCrmentity->setype = 'Customers';
-        $newCrmentity->description = $defaultCrmentity->description ?? '';
-        $newCrmentity->createdtime = now();
-        $newCrmentity->modifiedtime = now();
-        $newCrmentity->viewedtime = now();
-        $newCrmentity->status = $defaultCrmentity->status ?? '';
-        $newCrmentity->version = $defaultCrmentity->version ?? 0;
-        $newCrmentity->presence = $defaultCrmentity->presence ?? 0;
-        $newCrmentity->deleted = $defaultCrmentity->deleted ?? 0;
-        $newCrmentity->smgroupid = $defaultCrmentity->smgroupid ?? 0;
-        $newCrmentity->source = $defaultCrmentity->source ?? '';
-        $newCrmentity->label = $validatedData['name'];
-        $newCrmentity->save();
-
-        // Set the new crmid as the customer ID
-        $validatedData['id'] = $newCrmentity->crmid;
-
-        // Create a new customer record with the crmid
+        // Create the customer with the crmid
+        $validatedData['id'] = $crmid; // Add crmid to customer data
         $customer = Customers::create($validatedData);
 
-        DB::commit();
-
-        // Return success response
         return response()->json([
             'message' => 'Customer created successfully',
             'customer' => $customer,
         ], 201);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        // Handle any exceptions or errors
+    } catch (ValidationException $e) {
+        return response()->json(['error' => $e->validator->errors()], 422);
+    } catch (Exception $e) {
         return response()->json([
             'error' => 'Failed to create customer',
             'message' => $e->getMessage(),
@@ -216,83 +173,78 @@ public function show(string $id)
     }
 }
 
-public function update(Request $request, string $id)
+
+public function update(Request $request, $id)
 {
     try {
-        $customer = Customers::findOrFail($id);
-
-        // Log incoming request data
-        Log::info('Request data:', $request->all());
-
         // Validate the incoming request data
-        $validatedData = $request->validate([
-            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Expecting an image file
-            'name' => 'nullable|string',
-            'primary_email' => 'nullable|email',
-            'primary_phone' => 'nullable|string',
-            'website' => 'nullable|url',
-            'fax' => 'nullable|string',
+        $validatedData = Validator::make($request->all(), [
+            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string|max:255',
+            'primary_email' => 'nullable|string|email|max:255',
+            'primary_phone' => 'nullable|string|max:20',
+            'website' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:20',
             'fiscal_information' => 'nullable|string',
-            'projects' => 'nullable|array|max:5000',
-            'projects.*' => 'exists:jo_projects,id',
-            'contact_type' => 'nullable|string|max:5000',
+            'projects' => 'nullable|json',
+            'contact_type' => 'nullable|string|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:jo_tags,id',
-            'location' => 'nullable|array|max:5000',
-            'location.country' => 'nullable|string',
-            'location.city' => 'nullable|string',
-            'location.address' => 'nullable|string',
-            'location.postal_code' => 'nullable|string',
-            'location.longitude' => 'nullable|numeric',
-            'location.latitude' => 'nullable|numeric',
+            'country' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'post_code' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'type' => 'nullable|integer',
             'type_suffix' => 'nullable|in:cost,hours',
-        ]);
+        ])->validate();
 
-        // Process image if provided
+        // Handle image upload if present
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-
-            // Delete old image if it exists
-            if ($customer->image) {
-                $oldImagePath = public_path('images/' . $customer->image);
-                if (File::exists($oldImagePath)) {
-                    File::delete($oldImagePath);
-                }
-            }
-
-            // Move the new image to the public/images directory
             $image->move(public_path('images'), $imageName);
-            $validatedData['image'] = $imageName; // Save $imageName to database
+            $validatedData['image'] = $imageName;
         }
 
-        if (isset($validatedData['location'])) {
-            $validatedData['location'] = json_encode($validatedData['location']);
-        }
-
-        // Log validated data
-        Log::info('Validated data before update:', $validatedData);
-
-        // Update customer data
+        // Find and update the customer record
+        $customer = Customers::findOrFail($id);
         $customer->update($validatedData);
 
-        // Log after update
-        Log::info('Customer updated successfully:', $customer->toArray());
+        // Log customer information and crmid
+        Log::info("Updating Crmentity for customer ID {$id} with crmid: {$customer->crmid}");
 
-        // Return success response
-        return response()->json(['message' => 'Customer updated successfully']);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => 'Customer not found'], 404);
+        // Create an instance of CrmentityController
+        $crmentityController = new CrmentityController();
+        $crmid = $customer->id;
+
+        // Update the corresponding Crmentity record
+        $updated = $crmentityController->updateCrmentity($crmid, [
+            'label' => $validatedData['name'],
+            //'description' => $validatedData['fiscal_information'] ?? ''
+        ]);
+
+        if (!$updated) {
+            throw new Exception('Failed to update Crmentity');
+        }
+
+        return response()->json([
+            'message' => 'Customer updated successfully',
+            'customer' => $customer,
+        ], 200);
+
     } catch (ValidationException $e) {
-        // Log validation errors
-        Log::error('Validation errors:', $e->validator->errors()->toArray());
         return response()->json(['error' => $e->validator->errors()], 422);
     } catch (Exception $e) {
-        Log::error('Failed to update customer: ' . $e->getMessage());
-        return response()->json(['message' => 'An unexpected error occurred while processing your request. Please try again later.'], 500);
+        Log::error("Failed to update customer: " . $e->getMessage());
+        return response()->json([
+            'error' => 'Failed to update customer',
+            'message' => $e->getMessage(),
+        ], 500);
     }
 }
+
 
     public function destroy(string $id)
     {
@@ -402,5 +354,11 @@ public function update(Request $request, string $id)
         return response()->json(['error' => 'Failed to search customers: ' . $e->getMessage()], 500);
     }
 }
+public function showImported()
+{
+    $customers = Customers::all();  // Assuming you want to display all customers including the imported ones
+    return view('customers.show_imported', compact('customers'));
+}
+
 }
 

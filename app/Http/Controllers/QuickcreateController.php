@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Log;
 use App\Models\Income;
 use App\Models\TeamTask;
 use App\Models\Proposals;
@@ -27,7 +27,9 @@ use App\Models\Clients;
 use App\Models\Vendors;
 use App\Models\Tags;
 use App\Models\Employment_Types;
+use App\Models\EmploymentTypes;
 use App\Models\Leads;
+use App\Models\Product;
 use App\Models\Projects;
 class QuickcreateController extends Controller
 {
@@ -47,7 +49,7 @@ class QuickcreateController extends Controller
                 ->update(['quickcreate' => 0]);
         }
     }
-    
+
     public function quickCreateIncome(Request $request)
     {
         // Fetch the tabid dynamically for Incomes
@@ -170,39 +172,39 @@ class QuickcreateController extends Controller
             $tabid = (int) DB::table('jo_tabs')
                 ->where('name', 'Documents')
                 ->value('tabid');
-    
+
             if (!$tabid) {
                 return response()->json(['error' => 'Module not found'], 404);
             }
-    
+
             // Define the specific mandatory fields for quick create
             $mandatoryFields = [
                 'document_name' => 'required|string',
                         ];
-    
+
             // Update quickcreate column for mandatory fields (if needed)
             $this->updateQuickCreateColumn($tabid, $mandatoryFields);
-    
+
             // Validate incoming request data
             $validator = Validator::make($request->all(), $mandatoryFields);
-    
+
             // If validation fails, return error response
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 400);
             }
-    
+
             // Create a new instance of Document model
             $document = new Document();
             $document->document_name = $request->input('document_name');
                 $document->save();
-    
+
             // Return success response
             return response()->json(['message' => 'Document created successfully', 'data' => $document], 201);
-    
+
         } catch (\Exception $e) {
             // Log the error with detailed message
             Log::error('Error creating document: ' . $e->getMessage());
-    
+
             // Return internal server error response with specific error message
             return response()->json(['error' => 'Internal Server Error: Failed to create document. ' . $e->getMessage()], 500);
         }
@@ -748,7 +750,7 @@ public function quickCreateTasks(Request $request)
             return response()->json(['error' => 'Internal Server Error: ' . $e->getMessage()], 500);
         }
     }
-    
+
     public function quickCreateProducts(Request $request)
 {
     try {
@@ -982,7 +984,7 @@ public function quickCreateProposalTemplate(Request $request)
     public function quickCreateClient(Request $request)
     {
         // Add a debug statement
-        \Log::info('Entering quickCreateClient method.');
+        Log::info('Entering quickCreateClient method.');
 
         // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
         $tabid = (int) DB::table('jo_tabs')
@@ -1004,7 +1006,7 @@ public function quickCreateProposalTemplate(Request $request)
         // Update quickcreate column for mandatory fields
         $this->updateQuickCreateColumn($tabid, $mandatoryFields);
 
-       
+
         $validator = Validator::make($request->all(), $mandatoryFields);
 
         // If validation fails, return error response
@@ -1027,7 +1029,7 @@ public function quickCreateProposalTemplate(Request $request)
     public function quickCreateVendor(Request $request)
     {
         // Log the method entry
-        \Log::info('Entering quickCreateVendor method.');
+        Log::info('Entering quickCreateVendor method.');
 
         // Fetch the tabid dynamically for Vendors
         $tabid = (int) DB::table('jo_tabs')
@@ -1060,37 +1062,20 @@ public function quickCreateProposalTemplate(Request $request)
                 $optionalFields[$field->columnname] = 'nullable';
             }
         }
-
-        // Combine mandatory and optional fields
         $validationRules = array_merge($mandatoryFields, $optionalFields);
-
-        // Validate incoming request data
         $validator = Validator::make($request->all(), $validationRules);
-
-        // If validation fails, return error response
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
-
-        // Create a new instance of Vendor model
         $vendor = new Vendors();
-
-        // Assign validated data to the model
         $vendor->fill($request->all());
-
-        // Save the model instance
         $vendor->save();
-
-        // Optionally, return a response indicating success
         return response()->json(['message' => 'Vendor created successfully', 'data' => $vendor], 201);
     }
-
-    // Method to update quickcreate column, assumed to be defined elsewhere in your controller
-   
     public function quickCreateTags(Request $request)
     {
         // Add a debug statement
-        \Log::info('Entering quickCreateTags method.');
+        Log::info('Entering quickCreateTags method.');
 
         // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
         $tabid = (int) DB::table('jo_tabs')
@@ -1111,7 +1096,7 @@ public function quickCreateProposalTemplate(Request $request)
         // Update quickcreate column for mandatory fields
         $this->updateQuickCreateColumn($tabid, $mandatoryFields);
 
-       
+
         $validator = Validator::make($request->all(), $mandatoryFields);
 
         // If validation fails, return error response
@@ -1131,54 +1116,10 @@ public function quickCreateProposalTemplate(Request $request)
         // Optionally, return a response indicating success
         return response()->json(['message' => 'tags created successfully', 'data' => $tags], 201);
     }
-    // public function quickCreateDepartments(Request $request)
-    // {
-    //     // Add a debug statement
-    //     \Log::info('Entering quickCreateDepartments method.');
-
-    //     // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
-    //     $tabid = (int) DB::table('jo_tabs')
-    //         ->where('name', 'Departments') // Adjust according to your table name
-    //         ->value('tabid');
-
-    //     if (!$tabid) {
-    //         return response()->json(['error' => 'Module not found'], 404);
-    //     }
-
-    //     // Define the specific mandatory fields for quick create
-    //     $mandatoryFields = [
-    //         'departments' => 'required|string',
-    //         'add_or_remove_employee'=>'required|string'
-
-    //         ];
-
-    //     // Update quickcreate column for mandatory fields
-    //     $this->updateQuickCreateColumn($tabid, $mandatoryFields);
-
-       
-    //     $validator = Validator::make($request->all(), $mandatoryFields);
-
-    //     // If validation fails, return error response
-    //     if ($validator->fails()) {
-    //         return response()->json(['error' => $validator->errors()], 400);
-    //     }
-
-    //     // Create a new instance of Client model
-    //     $departmemts = new Departments();
-
-    //     // Assign validated data to the model
-    //     $departmemts->fill($request->all());
-
-    //     // Save the model instance
-    //     $departmemts->save();
-
-    //     // Optionally, return a response indicating success
-    //     return response()->json(['message' => 'Departments created successfully', 'data' => $departmemts], 201);
-    // }
     public function quickCreateEmployeeTypes(Request $request)
     {
         // Add a debug statement
-        \Log::info('Entering quickCreateEmployeeTypes method.');
+        Log::info('Entering quickCreateEmployeeTypes method.');
 
         // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
         $tabid = (int) DB::table('jo_tabs')
@@ -1192,13 +1133,13 @@ public function quickCreateProposalTemplate(Request $request)
         // Define the specific mandatory fields for quick create
         $mandatoryFields = [
         'employment_type_name' => 'required|string',
-           
+
             ];
 
         // Update quickcreate column for mandatory fields
         $this->updateQuickCreateColumn($tabid, $mandatoryFields);
 
-       
+
         $validator = Validator::make($request->all(), $mandatoryFields);
 
         // If validation fails, return error response
@@ -1207,7 +1148,7 @@ public function quickCreateProposalTemplate(Request $request)
         }
 
         // Create a new instance of Client model
-        $employementtypes = new Employment_Types();
+        $employementtypes = new EmploymentTypes();
 
         // Assign validated data to the model
         $employementtypes->fill($request->all());
@@ -1221,7 +1162,7 @@ public function quickCreateProposalTemplate(Request $request)
     public function quickCreateLeads(Request $request)
     {
         // Add a debug statement
-        \Log::info('Entering quickCreateEmployeeTypes method.');
+        Log::info('Entering quickCreateEmployeeTypes method.');
 
         // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
         $tabid = (int) DB::table('jo_tabs')
@@ -1237,13 +1178,13 @@ public function quickCreateProposalTemplate(Request $request)
         'name' => 'required|string',
         'primary_email'=>'required|string',
         "primary_phone"=>'required|string',
-        'projects'=>'required|string',          
+        'projects'=>'required|string',
         ];
 
         // Update quickcreate column for mandatory fields
         $this->updateQuickCreateColumn($tabid, $mandatoryFields);
 
-       
+
         $validator = Validator::make($request->all(), $mandatoryFields);
 
         // If validation fails, return error response
@@ -1266,7 +1207,7 @@ public function quickCreateProposalTemplate(Request $request)
     public function quickCreateprojects(Request $request)
     {
         // Add a debug statement
-        \Log::info('Entering quickCreateEmployeeTypes method.');
+        Log::info('Entering quickCreateEmployeeTypes method.');
 
         // Fetch the tabid dynamically for Clients (assuming 'jo_clients' is the table name)
         $tabid = (int) DB::table('jo_tabs')
@@ -1283,13 +1224,13 @@ public function quickCreateProposalTemplate(Request $request)
         'code'=>'required|string',
         'project_url'=> 'required|string',
         'clients'=>'required|string',
-        'currency'=>'required|string'    
+        'currency'=>'required|string'
         ];
 
         // Update quickcreate column for mandatory fields
         $this->updateQuickCreateColumn($tabid, $mandatoryFields);
 
-       
+
         $validator = Validator::make($request->all(), $mandatoryFields);
 
         // If validation fails, return error response
@@ -1309,7 +1250,7 @@ public function quickCreateProposalTemplate(Request $request)
         // Optionally, return a response indicating success
         return response()->json(['message' => 'Projects created successfully', 'data' => $projects], 201);
     }
-    
+
 
 }
 
@@ -1317,7 +1258,7 @@ public function quickCreateProposalTemplate(Request $request)
 
 
 
-    
+
 
 
 

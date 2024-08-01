@@ -13,16 +13,10 @@ use App\Models\Tags;
 
 class ManageCategoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         try {
-            // Retrieve paginated categories
-            $categories = ManageCategories::paginate(10); // Adjust 10 to the number of categories per page you want
-
-            // Check if any categories found
+            $categories = ManageCategories::paginate(10); 
             if ($categories->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -44,7 +38,6 @@ class ManageCategoriesController extends Controller
             ], 200);
 
         } catch (Exception $e) {
-            // Log the error
             Log::error('Failed to retrieve categories: ' . $e->getMessage());
 
             return response()->json([
@@ -54,10 +47,6 @@ class ManageCategoriesController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         try {
@@ -72,11 +61,7 @@ class ManageCategoriesController extends Controller
             }
 
             $data = $validator->validated();
-
-            
-
             $category = ManageCategories::create($data);
-
             return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()], 422);
@@ -85,10 +70,6 @@ class ManageCategoriesController extends Controller
             return response()->json(['error' => 'Failed to create category: ' . $e->getMessage()], 500);
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         try {
@@ -101,10 +82,6 @@ class ManageCategoriesController extends Controller
             return response()->json(['error' => 'Failed to retrieve category: ' . $e->getMessage()], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -132,10 +109,6 @@ class ManageCategoriesController extends Controller
             return response()->json(['error' => 'Failed to update category: ' . $e->getMessage()], 500);
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {

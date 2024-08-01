@@ -8,10 +8,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Models\Crmentity;
 
-class TeamtaskController extends Controller
+class TeamTaskController extends Controller
 {
-   
+
 public function index(Request $request): JsonResponse
 {
     try {
@@ -26,6 +28,7 @@ public function index(Request $request): JsonResponse
             'tasks' => $tasks->items(),
             'pagination' => [
                 'total' => $tasks->total(),
+                'title' => 'TeamTasks',
                 'per_page' => $tasks->perPage(),
                 'current_page' => $tasks->currentPage(),
                 'last_page' => $tasks->lastPage(),
@@ -46,12 +49,16 @@ public function index(Request $request): JsonResponse
         ], 500);
     }
 }
+
 public function store(Request $request): JsonResponse
 {
+    DB::beginTransaction(); // Start a transaction to ensure atomic operations
+
     try {
         $validatedData = $request->validate([
             'tasknumber' => 'nullable|numeric',
-            'projects' => 'nullable|string', // Accept as string of comma-separated IDs
+            'projects' => 'nullable|string',
+            'projects.*' => 'exists:jo_projects,id',
             'status' => 'nullable|string',
             'teams' => 'nullable|array', // Ensure teams are an array
             'teams.*' => 'exists:jo_teams,id', // Ensure teams exist in jo_teams table
@@ -68,45 +75,46 @@ public function store(Request $request): JsonResponse
             'description' => 'nullable|string',
         ]);
 
+        // Calculate estimate in minutes
         $estimateInMinutes = ($validatedData['estimate']['days'] ?? 0) * 24 * 60
             + ($validatedData['estimate']['hours'] ?? 0) * 60
             + ($validatedData['estimate']['minutes'] ?? 0);
 
-        // Fetch project names if provided as IDs
-        $projects = $validatedData['projects'] ?? '';
-        $projectsNames = DB::table('jo_projects')
-            ->whereIn('id', explode(',', $projects)) // Convert to array of IDs
-            ->pluck('name') // Assuming the column name is 'name'
-            ->implode(', '); // Convert array to comma-separated string
-
-        // Fetch names for teams and tags if IDs are provided
-        $teams = $validatedData['teams'] ?? [];
-        $tags = $validatedData['tags'] ?? [];
-
-        $teamsNames = DB::table('jo_teams')
-            ->whereIn('id', $teams)
-            ->pluck('team_name') // Assuming the column name is 'team_name'
-            ->toArray();
-
-        $tagsNames = DB::table('jo_tags')
-            ->whereIn('id', $tags)
-            ->pluck('tags_names') // Assuming the column name is 'tags_names'
-            ->toArray();
-
+        // Add estimate to validated data
         $validatedData['estimate'] = $estimateInMinutes;
-        $validatedData['projects'] = $projectsNames;
-        $validatedData['teams'] = json_encode($teamsNames);
-        $validatedData['tags'] = json_encode($tagsNames);
 
+        // Create Crmentity record
+        $crmentityController = new CrmentityController();
+        $crmid = $crmentityController->createCrmentity('Teamtask', $validatedData['title']);
+
+        if (!$crmid) {
+            throw new \Exception('Failed to create Crmentity');
+        }
+
+        // Add crmid to validated data
+        $validatedData['id'] = $crmid;
+
+        // Create the TeamTask record with crmid
         $teamTask = TeamTask::create($validatedData);
 
+        DB::commit(); // Commit the transaction
+
         return response()->json($teamTask, 201);
+
     } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        DB::rollBack(); // Rollback the transaction on validation error
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors' => $e->errors(), // Use the errors() method directly
+        ], 422);
     } catch (\Exception $e) {
+        DB::rollBack(); // Rollback the transaction on general error
+        Log::error('Failed to create task: ' . $e->getMessage());
+        Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
         return response()->json(['message' => 'Failed to create task', 'error' => $e->getMessage()], 500);
     }
 }
+
     public function show($id): JsonResponse
     {
         try {
@@ -120,74 +128,102 @@ public function store(Request $request): JsonResponse
     }
     public function update(Request $request, $id): JsonResponse
     {
+        DB::beginTransaction();
+    
         try {
+            // Log the ID for debugging
+            Log::info('Attempting to update TeamTask with ID: ' . $id);
+    
+            // Find the team task by ID
             $teamTask = TeamTask::findOrFail($id);
     
+            // Validate request data
             $validatedData = $request->validate([
                 'tasknumber' => 'nullable|numeric',
-                'projects' => 'nullable|string', // Accept as string of comma-separated IDs
+                'projects' => 'nullable|array',
+                'projects.*' => 'exists:jo_projects,id',
                 'status' => 'nullable|string',
-                'teams' => 'nullable|array', // Ensure teams are an array
-                'teams.*' => 'exists:jo_teams,id', // Ensure teams exist in jo_teams table
-                'title' => 'required|string',
+                'teams' => 'nullable|array',
+                'teams.*' => 'exists:jo_teams,id',
+                'title' => 'nullable|string',
                 'priority' => 'nullable|string',
                 'size' => 'nullable|string',
-                'tags' => 'nullable|array', // Ensure tags are an array
-                'tags.*' => 'exists:jo_tags,id', // Ensure tags exist in jo_tags table
+                'tags' => 'nullable|array',
+                'tags.*' => 'exists:jo_tags,id',
                 'duedate' => 'nullable|date',
-                'estimate' => 'nullable|array', // Ensure estimate is an array
+                'estimate' => 'nullable|array',
                 'estimate.days' => 'nullable|numeric',
                 'estimate.hours' => 'nullable|numeric',
                 'estimate.minutes' => 'nullable|numeric',
                 'description' => 'nullable|string',
             ]);
     
+            // Calculate estimate in minutes
             $estimateInMinutes = ($validatedData['estimate']['days'] ?? 0) * 24 * 60
                 + ($validatedData['estimate']['hours'] ?? 0) * 60
                 + ($validatedData['estimate']['minutes'] ?? 0);
     
-            $projects = $validatedData['projects'] ?? '';
-            $teams = $validatedData['teams'] ?? [];
-            $tags = $validatedData['tags'] ?? [];
-    
-            $projectsNames = DB::table('jo_projects')
-                ->whereIn('id', explode(',', $projects)) // Convert to array of IDs
-                ->pluck('name')
-                ->implode(', '); // Convert array to comma-separated string
-    
-            $teamsNames = [];
-            if (!empty($teams)) {
-                $teamsNames = DB::table('jo_teams')
-                    ->whereIn('id', $teams)
-                    ->pluck('team_name')
-                    ->toArray();
-            }
-    
-            $tagsNames = [];
-            if (!empty($tags)) {
-                $tagsNames = DB::table('jo_tags')
-                    ->whereIn('id', $tags)
-                    ->pluck('tags_names')
-                    ->toArray();
-            }
-    
             $validatedData['estimate'] = $estimateInMinutes;
-            $validatedData['projects'] = $projectsNames;
-            $validatedData['teams'] = json_encode($teamsNames);
-            $validatedData['tags'] = json_encode($tagsNames);
     
+            // Update the team task
             $teamTask->update($validatedData);
     
-            return response()->json($teamTask, 200);
+            // Prepare Crmentity update data
+            $crmentityData = [
+                'label' => $validatedData['title'] ?? null,
+                // 'description' => $validatedData['description'] ?? '',
+                // 'status' => $validatedData['status'] ?? '',
+            ];
+    
+            // Update or create Crmentity record
+            $crmentity = Crmentity::where('crmid', $id)->first();
+    
+            if ($crmentity) {
+                // Update existing Crmentity record
+                $crmentity->update($crmentityData);
+            } else {
+                // Create a new Crmentity record if it does not exist
+                $crmentity = new Crmentity();
+                $crmentity->crmid = $id; // Use a unique identifier
+                $crmentity->label = $validatedData['title'] ?? null;
+                // $crmentity->description = $validatedData['description'] ?? '';
+                // $crmentity->status = $validatedData['status'] ?? '';
+                $crmentity->save();
+            }
+    
+            // Commit transaction
+            DB::commit();
+    
+            return response()->json([
+                'message' => 'TeamTask and Crmentity updated successfully',
+                'teamTask' => $teamTask,
+                'crmentity' => $crmentity,
+            ], 200);
+    
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            Log::error('TeamTask not found with ID: ' . $id);
             return response()->json(['message' => 'TeamTask not found'], 404);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to update task', 'error' => $e->getMessage()], 500);
+            DB::rollBack();
+            Log::error('Failed to update TeamTask and Crmentity: ' . $e->getMessage());
+            Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
+            return response()->json([
+                'message' => 'Failed to update TeamTask and Crmentity',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
     
+
+
     public function destroy($id): JsonResponse
     {
         try {
@@ -200,7 +236,7 @@ public function store(Request $request): JsonResponse
             return response()->json(['message' => 'Failed to delete task', 'error' => $e->getMessage()], 500);
         }
     }
-   
+
 public function search(Request $request): JsonResponse
 {
     try {
