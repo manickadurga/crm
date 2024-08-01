@@ -8,11 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Tasks extends Model
 {
     use HasFactory;
+    protected $table='jo_tasks';
     protected $guarded = [];
-    protected $table="jo_tasks";
+    
         protected $casts=[
             'tags'=>'array',
-            'estimate'=>'array'
+            'estimate'=>'array',
+            'projects'=>'array',
+            'addorremoveemployee'=>'array'
             
         ];
+
+    public function projects()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

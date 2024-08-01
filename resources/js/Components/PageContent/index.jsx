@@ -1,17 +1,15 @@
+
 import AppRoutes from "../AppRoutes";
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { getMenu } from "../../API";
 import { Layout, Menu, theme, Select } from 'antd';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { useContext } from "react";
-import { DataContext } from "../../Context/Context";
+
 const { Header, Content } = Layout;
 const { SubMenu } = Menu;
 
 const FallbackIcon = lazy(() => import('@ant-design/icons').then(module => ({ default: module.AppstoreOutlined })));
-
-
 
 const dynamicImportIcon = (iconName) => {
   return lazy(() =>
@@ -22,8 +20,7 @@ const dynamicImportIcon = (iconName) => {
 };
 
 const PageContent = () => {
-const { menuItem, setMenuItem } = useContext(DataContext);
-
+  const [menuItem, setMenuItem] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -158,3 +155,4 @@ const { menuItem, setMenuItem } = useContext(DataContext);
 };
 
 export default PageContent;
+

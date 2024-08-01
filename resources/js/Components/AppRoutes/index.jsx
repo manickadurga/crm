@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import routes from "./routes";
-import MenuItem from "antd/es/menu/MenuItem";
 
 function AppRoutes() {
   return (
@@ -18,3 +17,4 @@ function AppRoutes() {
   );
 }
 export default AppRoutes;
+

@@ -240,7 +240,7 @@ import {
                      
                       <CKEditor
                       editor={ClassicEditor}
-                      data="Hello from CKEditor 5!"
+                      data="<p>Hello from CKEditor 5!</p>"
                       onChange={(event, editor) => handleEditorChange(event, editor, field.name)}
                       onFocus={() => handleEditorFocus(field.name)}
                       style={{ border: 'none' }}
@@ -276,8 +276,9 @@ import {
               ))}
             </div>
           </Card>
-          
-            <Form.Item style={{display:'flex', justifyContent:'right'}}>
+           
+
+          <Form.Item style={{display:'flex', justifyContent:'right'}}>
             <Button type="primary" htmlType="submit">
               Create
             </Button>

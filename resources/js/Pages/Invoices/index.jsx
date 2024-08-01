@@ -8,7 +8,7 @@ import { getInvoices } from "../../API/invoicesApi";
 import axios from "axios";
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Tooltip } from 'antd';
-import { deleteItem } from "../../API";
+
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -125,19 +125,25 @@ function Invoices() {
     setIsModalOpen(false);
   };
   
-const handleDelete = () => {
-  deleteItem('invoice', selectedInvoice.id)
-    .then(() => {
-      message.success(`Invoices deleted successfully!`);
-      fetchInvoices(currentPage); // Refresh the customers list
-      setIsModalVisible(false);
-      setSelectedInvoice(null);
-    })
-    .catch((error) => {
-      console.error('Failed to delete customer:', error);
-    });
+const deleteInvoice = async () => {
+  try {
+    if (!invoiceIdToDelete) {
+      console.error('Invoice ID is undefined');
+      return;
+    }
+    await axios.delete(`http://127.0.0.1:8000/invoice/${invoiceIdToDelete}`);
+    console.log('Invoice deleted');
+    setDataSource(dataSource.filter(invoice => invoice.id !== invoiceIdToDelete)); // Update state
+    
+    message.success('Invoice Deleted Successfully')
+    
+    setIsModalVisible(false);
+    fetchInvoices(currentPage);
+    navigate('/invoices'); // Redirect to the invoices page after deletion if needed
+  } catch (error) {
+    console.error('There was an error deleting the invoice:', error);
+  }
 };
-
 
 const handleButtonClick = (e) => {
   message.info('Click on left button.');
@@ -404,23 +410,23 @@ const handleMenuClick = (e) => {
       >
         {viewMode === 'table' ? (
  <Table
-   className="datatable invoices-table"
-   loading={loading}
-   columns={renderColumns()}
-   dataSource={filteredData}
-   pagination={{
+ className="datatable invoices-table"
+ loading={loading}
+ columns={renderColumns()}
+ dataSource={filteredData}
+ pagination={{
    current: currentPage,
    pageSize: 10,
    total: totalRecords,
    onChange: handlePageChange,
  }}
-  onRow={(record) => ({
-   onClick: () => handleRowClick(record),
-   style: {
-     cursor: 'pointer',
-     backgroundColor: selectedInvoice && selectedInvoice.id === record.id ? '#f0f0f0' : 'white',
-   }, 
- })}
+ onRow={(record) => ({
+  onClick: () => handleRowClick(record),
+  style: {
+    cursor: 'pointer',
+    backgroundColor: selectedInvoice && selectedInvoice.id === record.id ? '#f0f0f0' : 'white',
+  },
+})}
 />
         ) : (
           renderCardsComponent()
@@ -434,7 +440,7 @@ const handleMenuClick = (e) => {
 <Modal
   title="Confirm Deletion"
   visible={isModalVisible}
-  onOk={handleDelete} // Call deleteInvoice on modal confirmation
+  onOk={deleteInvoice} // Call deleteInvoice on modal confirmation
   onCancel={handleCancel}
 >
   <p>Are you sure you want to delete this invoice?</p>

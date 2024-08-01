@@ -59,66 +59,30 @@
 
 // // createRoot(document.getElementById("root")).render(<App />);
 
+
 import React from "react";
+
 import ReactDOM from "react-dom/client";
+
 import { BrowserRouter } from "react-router-dom";
 import PageContent from "./Components/PageContent";
-import { DataProvider } from "./Context/Context";  // Ensure correct path to DataProvider
-import AppRoutes from "./Components/AppRoutes";
 
 import "../css/common.css";
 import "./App.css";
-// import AppRoutes from "./Components/AppRoutes";
 
 function App() {
   return (
     <div className="App">
-      <DataProvider>
-        {/* <AppRoutes/> */}
-        <PageContent />
-      </DataProvider>
+      <PageContent/>
     </div>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  // <React.StrictMode>
+  <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  // </React.StrictMode>
+  </React.StrictMode>
 );
-
-
-// import React from "react";
-
-// import ReactDOM from "react-dom/client";
-
-// import { BrowserRouter } from "react-router-dom";
-// import PageContent from "./Components/PageContent";
-// import { DataContext } from "./Context/Context";
-
-// import "../css/common.css";
-// import "./App.css";
-
-// function App() {
-//   return (
-//     <div className="App">
-//     <DataContext>
-
-//       <PageContent/>
-//     </DataContext>
-
-//     </div>
-//   );
-// }
-
-// const root = ReactDOM.createRoot(document.getElementById("root"));
-// root.render(
-//   <React.StrictMode>
-//     <BrowserRouter>
-//       <App />
-//     </BrowserRouter>
-//   </React.StrictMode>
-// );

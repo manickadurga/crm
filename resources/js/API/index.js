@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const getMenu = async (page) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8001/menuitems`);
+    const response = await axios.get(`http://127.0.0.1:8000/menuitems`);
     console.log("Fetched menu:", response.data);
     return response.data;
   } catch (error) {
@@ -29,7 +29,7 @@ export const getInventory = () => {
 // http://127.0.0.1:8000/form-fields
 
 export const getFormfields = (form) => {
-  return axios.get(`http://127.0.0.1:8001/formfields?name=${form}`)
+  return axios.get(`http://127.0.0.1:8000/formfields?name=${form}`)
     .then((response) => {
       console.log("Fetched formfields:", response.data);
     
@@ -44,7 +44,7 @@ export const getFormfields = (form) => {
 
 export const getDataFunction = async (pathName , page) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8001/api/${pathName}?page=${page}`);
+    const response = await axios.get(`http://127.0.0.1:8000/api/${pathName}?page=${page}`);
     console.log("Fetched data:", response.data);
     return response.data;
   } catch (error) {
@@ -69,7 +69,6 @@ export const getClient = async (page) => {
     throw error;
   }
 };
-
 export const getClientById = async (clientId) => {
   try {
     console.log("jdjdhfdhfjddfdj",clientId)
@@ -80,7 +79,6 @@ export const getClientById = async (clientId) => {
     throw error; // Re-throw the error for the caller to handle
   }
 };
-
 export const getLeadById = async (clientId) => {
   try {
     console.log("jdjdhfdhfjddfdj",clientId)
@@ -91,7 +89,6 @@ export const getLeadById = async (clientId) => {
     throw error; // Re-throw the error for the caller to handle
   }
 };
-
 export const getCustomerById = async (customerId) => {
   try {
     // console.log("jdjdhfdhfjddfdj",customerId)
@@ -102,7 +99,6 @@ export const getCustomerById = async (customerId) => {
     throw error; // Re-throw the error for the caller to handle
   }
 };
-
 export const deleteItem = async (deletepath,deleteId) => {
   try {
     const csrfTokenMetaTag = document.querySelector('meta[name="csrf-token"]');
@@ -188,24 +184,27 @@ export const getProposals = () => {
     const data = {
       "proposals": [
         {
-          "id":"1",
-          "name": "lucas",
-          "Description": "International Usability Planner",
-          "stage": "John Doe",
+          "date": "2024-06-14",
+          "jobTitle": "International Usability Planner",
+          "jobUrl": "https://www.sm.com/",
+          "contactName": "John Doe",
+          "author": "karlc",
           "status": "sent",
         },
         {
-          "id":"2",
           "date": "2024-07-11",
-          "Description": "International Planner",
-          "stage": "John Doe",
+          "jobTitle": "International Planner",
+          "jobUrl": "https://www.smackcoders.com/",
+          "contactName": "Jim Carrey",
+          "author": "karlc",
           "status": "accepted",
         },
         {
-          "id":"3",
           "date": "2024-06-14",
-          "Description": "International Usability Planner",
-          "stage": "John Doe",
+          "jobTitle": "International Usability Planner",
+          "jobUrl": "https://www.bhurjkalifa.com/",
+          "contactName": "Ash Melina",
+          "author": "galce",
           "status": "sent",
         },
       ]

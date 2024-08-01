@@ -5,9 +5,6 @@ import { SearchOutlined, EyeOutlined, UnorderedListOutlined, WindowsOutlined, De
 import { deleteItem, getDataFunction } from "../../../API";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Highlighter from "react-highlight-words";
-import { OmitProps } from "antd/es/transfer/ListBody";
-import { useContext } from "react";
-import { DataContext } from "../../../Context/Context";
 
 function Customers() {
   const [searchText, setSearchText] = useState({});
@@ -26,8 +23,64 @@ function Customers() {
     { name: 'email', label: 'Email', placeholder: 'Enter email', type: 'email' },
     { name: 'phoneNumber', label: 'Phone Number', placeholder: 'Enter phone number', type: 'tel' },
   ]);
+  // //  const [data,setData]=useState()
+  // const navigate = useNavigate();
+  //  const location= useLocation()
+  // console.log('location',location.pathname)
 
-  const { data, setData } = useContext(DataContext);
+  // useEffect(() => {
+  //   fetchCustomers(currentPage);
+  // }, [currentPage, searchText]);
+
+  // const fetchCustomers = (page) => {
+  //   setLoading(true);
+  //   getDataFunction("customers",page)
+  //     .then((res) => {
+  //       const sortedCustomers = res.customers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  //       // Filter dataSource based on searchText
+  //       const filteredCustomers = sortedCustomers.filter((customer) =>
+  //         Object.keys(searchText).every((key) => {
+  //           const customerValue = key.includes('.')
+  //             ? key.split('.').reduce((obj, k) => (obj || {})[k], customer)
+  //             : customer[key];
+
+  //           return customerValue && customerValue.toString().toLowerCase().includes(searchText[key].toLowerCase());
+  //         })
+  //       );
+
+  //       setDataSource(filteredCustomers);
+  //       setTotalRecords(res.pagination.total);
+
+  //       // Generate columns dynamically based on customer object keys
+  //       const generatedColumns = Object.keys(sortedCustomers[0] || {}).map((key) => ({
+  //         title: (
+  //           <div>
+  //             {key}
+  //             <Input
+  //               placeholder={`Search ${key}`}
+  //               value={searchText[key] || ''}
+  //               onChange={(e) => handleSearch(e.target.value, key)}
+  //               style={{ marginTop: 8, display: 'block' }}
+  //             />
+  //           </div>
+  //         ),
+  //         dataIndex: key,
+  //         key: key,
+  //         render: (text) => {
+  //           return text; // Default rendering
+  //         }
+  //       }));
+
+  //       setColumns(generatedColumns);
+  //       setLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching customers:', error);
+  //       setLoading(false);
+  //     });
+  // };
+
 
  
   const navigate = useNavigate();
@@ -37,9 +90,8 @@ function Customers() {
 
 
 
-  console.log('location', location.pathname); 
+  console.log('location', location.pathname);
 
- 
   useEffect(() => {
     fetchCustomers(currentPage);
   }, [currentPage, searchText, location.pathname]);
@@ -137,7 +189,6 @@ function Customers() {
   const handleOk = () => {
     console.log(formValues);
     setInviteModalVisible(false);
-    setFormValues('')
   };
 
   const handleDelete = () => {
@@ -183,10 +234,9 @@ function Customers() {
         return text; // Default rendering for other columns
       },
     }));
-
   };
 
-  const renderCards = () => {
+   const renderCards = () => {
     if (!dataSource || dataSource.length === 0) {
       return <p>No payments available.</p>;
     }
@@ -194,14 +244,13 @@ function Customers() {
     return (
       <Row gutter={16}>
         {dataSource.map((payment) => (
-          <Col key={payment.id} xs={24} sm={12} md={8} lg={6}>
+          <Col key={payment.id} span={6}>
             <Card
               title={payment.name}
               onClick={() => onRowClick(payment)}
               style={{
                 cursor: 'pointer',
-                marginTop:'2px',
-                backgroundColor: selectedCustomer && selectedCustomer.id === payment.id ? '#f0f0f0' : 'white',
+                backgroundColor: selectedPayment && selectedPayment.id === payment.id ? '#f0f0f0' : 'white',
               }}
             >
               {Object.keys(payment).map((key) => (
@@ -209,16 +258,13 @@ function Customers() {
                   <strong>{key}:</strong>{' '}
                   {key === 'tags' && Array.isArray(payment[key]) ? (
                     payment[key].map((tag, index) => (
-                      <span
-                        key={index}
-                        style={{
-                          margin: '2px',
-                          padding: '4px 8px',
-                          borderRadius: '15%',
-                          background: tag.tag_color,
-                          color: 'white',
-                        }}
-                      >
+                      <span key={index} style={{ 
+                        margin: '2px',
+                        padding: '4px 8px',
+                        borderRadius: '15%',
+                        background: tag.tag_color,
+                        color: 'white'
+                      }}>
                         {tag.tags_name}
                       </span>
                     ))
@@ -233,7 +279,51 @@ function Customers() {
       </Row>
     );
   };
-  
+
+
+  // const renderCards = () => {
+  //   if (!dataSource || dataSource.length === 0) {
+  //     return <p>No customers available.</p>;
+  //   } 
+
+  //   return (
+  //     <Row gutter={16}>
+  //       {dataSource.map((customer) => (
+  //         <Col key={customer.id} span={6}>
+  //           <Card
+  //             title={customer.name}
+  //             onClick={() => onRowClick(customer)}
+  //             style={{ cursor: 'pointer', backgroundColor: selectedCustomer && selectedCustomer.id === customer.id ? '#f0f0f0' : 'white' }}
+  //           >
+  //             {Object.keys(customer).map((key) => (
+  //               <p key={key}>
+  //                 <strong>{key}:</strong> {customer[key]}
+  //               </p>
+  //             ))}
+  //           </Card>
+  //         </Col>
+  //       ))}
+  //     </Row>
+  //   );
+  // };
+  // const renderColumns = () => {
+  //   if (!columns || columns.length === 0) {
+  //     return null;
+  //   }
+
+  //   return columns.map((column) => ({
+  //     ...column,
+  //     render: (text, record) => ({
+  //       children: text,
+  //       props: {
+  //         style: {
+  //           backgroundColor: selectedCustomer && selectedCustomer.id === record.id ? '#f0f0f0' : 'white',
+  //           cursor: 'pointer',
+  //         },
+  //       },
+  //     }),
+  //   }));
+  // };
 
 
   return (
@@ -250,7 +340,7 @@ function Customers() {
 
         <div style={{ display: 'flex', fontSize: '18px', marginLeft: '18px', gap: '5px' }}>
           {selectedCustomer && (
-            <div style={{ gap: '5px',}}>
+            <div style={{ gap: '2px' }}>
               <Link to={`/${basePath}/view/${selectedCustomer.id}`}>
                 <Button type="link" style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
                   <EyeOutlined />
@@ -261,7 +351,7 @@ function Customers() {
                   <EditOutlined />
                 </Button>
               </Link>
-              <Button type="link" onClick={showDeleteModal} style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white',color:'red'  }}>
+              <Button type="link" onClick={showDeleteModal} style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
                 <DeleteOutlined />
               </Button>
             </div>
@@ -271,9 +361,7 @@ function Customers() {
             Invite
           </Button>
           <Link to={`/${basePath}/createform`}>
-            <Button type="primary" htmlType="button" icon={<PlusOutlined />} style={{backgroundColor:'#9BEC00', borderRadius:'30%',
-            boxShadow: '2px 2px 15px rgba(0, 0, 0, 0.2)',
-              marginLeft: '10px', marginRight: '10px' }}>
+            <Button type="primary" htmlType="button" icon={<PlusOutlined />} style={{ marginLeft: '10px', marginRight: '10px' }}>
               Add
             </Button>
           </Link>
@@ -315,28 +403,28 @@ function Customers() {
           renderCards()
         )}
         <h4>Total Customers: {totalRecords}</h4>
-          <Modal
-            title="Invite Contact"
-            visible={inviteModalVisible}
-            onCancel={() => setInviteModalVisible(false)}
-            onOk={handleOk}
-            okText="Email invite"
-            cancelText="Cancel"
-          >
-            <Form layout="vertical">
-              {fields.map(field => (
-                <Form.Item key={field.name} label={field.label}>
-                  <Input
-                    name={field.name}
-                    type={field.type}
-                    value={formValues[field.name] || ''}
-                    onChange={handleInputChange}
-                    placeholder={field.placeholder}
-                  />
-                </Form.Item>
-              ))}
-            </Form>
-          </Modal>
+        <Modal
+          title="Invite Contact"
+          visible={inviteModalVisible}
+          onCancel={() => setInviteModalVisible(false)}
+          onOk={handleOk}
+          okText="Email invite"
+          cancelText="Cancel"
+        >
+          <Form layout="vertical">
+            {fields.map(field => (
+              <Form.Item key={field.name} label={field.label}>
+                <Input
+                  name={field.name}
+                  type={field.type}
+                  value={formValues[field.name] || ''}
+                  onChange={handleInputChange}
+                  placeholder={field.placeholder}
+                />
+              </Form.Item>
+            ))}
+          </Form>
+        </Modal>
         <Modal
           title="Delete Confirmation"
           open={deleteModalVisible}
@@ -353,4 +441,3 @@ function Customers() {
 }
 
 export default Customers;
-

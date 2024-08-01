@@ -104,13 +104,11 @@ const InvoicesForm = () => {
   };
 
   const steps = invoiceFromField.map((section) => (
-    <div key={section.title} 
-    >
+    <div key={section.title}>
       <h3>{section.title}</h3>
-      <div style={{ display: 'grid',
-         gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
         {section.fields.map((field, fieldIndex) => (
-          <div key={fieldIndex} style={{ width: '100%',}}>
+          <div key={fieldIndex} style={{ width: '100%' }}>
             <Form.Item
               name={field.name}
               label={field.label}

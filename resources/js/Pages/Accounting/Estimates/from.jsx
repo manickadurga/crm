@@ -31,58 +31,58 @@ const EstimatesForm = () => {
   const [current, setCurrent] = useState(0);
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [estimateData, setEstimateData] = useState(null);
-  const [estimateFromField, setEstimateFromField] = useState([]);
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [invoiceFromField, setInvoiceFromField] = useState([]);
   const [selectedDueDate, setSelectedDueDate] = useState(null);
-  const [selectedEstimateDate, setSelectedEstimateDate] = useState(null);
+  const [selectedInvoiceDate, setSelectedInvoiceDate] = useState(null);
 
   useEffect(() => {
     // Fetch form fields
     axios.get('http://127.0.0.1:8000/form-fields?name=Estimates')
       .then((res) => {
-        setEstimateFromField(res.data);
+        setInvoiceFromField(res.data);
       })
       .catch((error) => {
         console.error("Error fetching form fields:", error);
       });
   }, []);
   useEffect(() => {
-    console.log("estimateFormFields state has been set:", estimateFromField);
-  }, [estimateFromField]);
+    console.log("invoiceFormFields state has been set:", invoiceFromField);
+  }, [invoiceFromField]);
     
 
   useEffect(() => {
-    // Fetch Estimate data by ID
-    const fetchEstimate = async () => {
+    // Fetch invoice data by ID
+    const fetchInvoice = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/estimate/${id}`);
-        console.log('Estimate data fetched:', response.data);
-        setEstimateData(response.data);
+        console.log('Invoice data fetched:', response.data);
+        setInvoiceData(response.data);
       } catch (error) {
-        console.error('Error fetching Estimate:', error);
+        console.error('Error fetching invoice:', error);
         if (error.response && error.response.status === 404) {
-          console.error('Estimate not found.');
+          console.error('Invoice not found.');
         } else {
           console.error('An unexpected error occurred.');
         }
       }
     };
-    fetchEstimate();
+    fetchInvoice();
   }, [id]);
 
   useEffect(() => {
-    if (estimateData) {
-      // Format duedate and estimatedate to Day.js format
+    if (invoiceData) {
+      // Format duedate and invoicedate to Day.js format
       const formattedData = {
-        ...estimateData,
-        duedate: estimateData.duedate ? dayjs(estimateData.duedate) : null,
-        estimatedate: estimateData.estimatedate ? dayjs(estimateData.estimatedate) : null,
+        ...invoiceData,
+        duedate: invoiceData.duedate ? dayjs(invoiceData.duedate) : null,
+        invoicedate: invoiceData.invoicedate ? dayjs(invoiceData.invoicedate) : null,
       };
 
-      // Set form fields with estimateData values
+      // Set form fields with invoiceData values
       form.setFieldsValue(formattedData);
     }
-  }, [estimateData, form]);
+  }, [invoiceData, form]);
 
   const onFinish = async (values) => {
     console.log('Received values from form:', values);
@@ -91,19 +91,19 @@ const EstimatesForm = () => {
 
     try {
       const response = await axios({ method, url, data: values });
-      console.log(`${id ? 'Estimate updated:' : 'Estimate created:'}`, response.data);
-      message.success(`${id ? 'Estimate updated successfully!' : 'Estimate created successfully!'}`);
+      console.log(`${id ? 'Invoice updated:' : 'Invoice created:'}`, response.data);
+      message.success(`${id ? 'Invoice updated successfully!' : 'Invoice created successfully!'}`);
 
 
-      navigate('/Estimates'); // Navigate to Estimates list or show success message
+      navigate('/invoices'); // Navigate to invoices list or show success message
 
     } catch (error) {
-      console.error(`There was an error ${id ? 'updating' : 'creating'} the Estimate!`, error);
+      console.error(`There was an error ${id ? 'updating' : 'creating'} the invoice!`, error);
       // Handle error, show error message
     }
   };
 
-  const steps = estimateFromField.map((section) => (
+  const steps = invoiceFromField.map((section) => (
     <div key={section.title}>
       <h3>{section.title}</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
@@ -143,8 +143,8 @@ const EstimatesForm = () => {
                 id ? (  
                 <DatePicker
                   style={{ width: '100%' }}
-                  value={field.name === 'duedate' ? selectedDueDate : selectedEstimateDate}
-                  onChange={(date) => field.name === 'duedate' ? setSelectedDueDate(date) : setSelectedEstimateDate(date)}
+                  value={field.name === 'duedate' ? selectedDueDate : selectedInvoiceDate}
+                  onChange={(date) => field.name === 'duedate' ? setSelectedDueDate(date) : setSelectedInvoiceDate(date)}
                 />)
                 :(
                   <DatePicker
@@ -188,13 +188,13 @@ const EstimatesForm = () => {
 
   return (
         <>
-          <Button type="link" onClick={() => navigate("/Estimates")}>
-            <ArrowLeftOutlined /> Back to Estimates
+          <Button type="link" onClick={() => navigate("/invoices")}>
+            <ArrowLeftOutlined /> Back to Invoices
           </Button>
           <Form
             {...formItemLayout}
             form={form}
-            name="Estimatesform"
+            name="invoicesform"
             onFinish={onFinish}
             scrollToFirstError
           >
@@ -210,7 +210,7 @@ const EstimatesForm = () => {
                 </Button>
               )}
                {current < steps.length - 0 && (
-                <Link to="/Estimates">
+                <Link to="/invoices">
                   <Button type="primary" htmlType="button" style={{ marginLeft: '10px', marginRight: '10px' }}>
                     Cancel
                   </Button>

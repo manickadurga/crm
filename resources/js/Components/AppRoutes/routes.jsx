@@ -55,10 +55,6 @@ import PaymentForm from "../../Pages/Accounting/Payments/from";
 import PaymentEditForm from "../../Pages/Accounting/Payments/from";
 import { useLocation } from "react-router-dom";
 
-import Pipelines from "../../Pages/Sales/Pipelines";
-import PipelinesForm from "../../Pages/Sales/Pipelines/form";
-
-import Reports from "../../Pages/Reports";
 // import IncomeForm from "../../Pages/Accounting/Income/from";
 // import IncomeEditForm from "../../Pages/Accounting/Income/from";
   
@@ -72,19 +68,18 @@ const routes = [
   { path: '/customers/view/:id', exact: true, name: 'Customer View Form', element: <CustomerView/>},
 //  "/customers"
 
-{ path: '/client', exact: true, name: 'Clients', element:<Customers/> },
-{ path: '/client/ClientsForm', exact: true, name: 'Clients Form', element: <ClientsForm/>},
-{ path: '/client/edit/:id', exact: true, name: 'Clients Edit Form', element: <ClientsEditForm/>},  
-{ path: '/client/view/:id', exact: true, name: 'Clients View Form', element: <ClientView/>},
+{ path: '/clients', exact: true, name: 'Clients', element:<Customers/> },
+{ path: '/clients/ClientsForm', exact: true, name: 'Clients Form', element: <ClientsForm/>},
+{ path: '/clients/edit/:id', exact: true, name: 'Clients Edit Form', element: <ClientsEditForm/>},  
+{ path: '/clients/view/:id', exact: true, name: 'Clients View Form', element: <ClientView/>},
 
 {path:'/leads', name:'Leads', element:<Customers/>},
 { path: '/leads/createform', exact: true, name: 'Leads Form', element: <LeadsForm/>},
 { path: '/leads/edit/:id', exact: true, name: 'Leads Edit Form', element: <LeadsEditForm/>},
 { path: '/leads/view/:id', exact: true, name: 'Leads View Form', element: <ClientView/>},
 
-{ path: '/all Reports', exact: true, name: 'reports', element:<Reports/> },
 
-{ path: '/incomes', exact: true, name: 'Customers', element:<Customers/> },
+{ path: '/income', exact: true, name: 'Customers', element:<Income/> },
 { path: '/income/createform', name: 'Income Form', element:<IncomeForm/> },
 { path: '/income/edit/:id', exact: true, name: 'Income Edit Form', element: <IncomeEditForm/>},
 
@@ -103,18 +98,13 @@ const routes = [
   // { path: '/invoices/payment/:id', exact: true, name: 'Invoices Payment', element: <Payment/>},
 
   { path: '/estimates', name: 'Estimates', element:<Estimates/>},
-  { path: '/estimates/createForm', name: 'Estimates Form', element:<EstimatesForm/>},
+  // { path: '/estimates/createForm', name: 'Estimates Form', element:<EstimatesForm/>},
 
   // { path: '/invoices/view', name: 'Invoices Form', element:<InvoicesForm/> },
 
   { path: '/tasks', name: 'Tasks', element:<Tasks/> },
   { path: '/tasks/createform', name: 'Tasks', element:<TasksForm/> },
   { path: '/tasks/view/', name: 'Tasks', element:<TasksForm/> },
-
-  { path: '/pipelines', name: 'Pipelines', element:<Pipelines/> },
-  { path: '/pipelines/pipelinesform', name: 'Pipelines', element:<PipelinesForm/> },
-
-
 
   { path: '/tasks/teams', name: 'Tasks', element:<TeamsTasks/> },
   { path: '/tasks/teams/createform', name: 'Tasks', element:<TeamsTasksForm/> },
@@ -127,38 +117,4 @@ export default routes
 
 
 
-
-// import React from 'react';
-// import { useLocation } from "react-router-dom";
-// import Customers from "../../Pages/Contacts/Customers";
-// import CustomerForm from "../../Pages/Contacts/Customers/form";
-// import CustomerEditForm from "../../Pages/Contacts/Customers/form";
-// import CustomerView from "../../Pages/Contacts/Customers/view";
-// import { Route } from 'react-router-dom';
-
-// const generateRoutePath = (basePath, subPath) => `${basePath}/${subPath}`.replace('//', '/');
-
-// const AppRoutes = () => {
-//   const location = useLocation();
-//   const basePath = location.pathname.includes('clients') ? 'clients' : 'customers';
-
-//   const routes = [
-//     { path: '/', exact: true, name: 'Home', element: <Dashboard /> },
-//     { path: '/inventory', name: 'Dashboard', element: <Inventory /> },
-//     { path: generateRoutePath(basePath, ''), exact: true, name: 'List', element: <Customers /> },
-//     { path: generateRoutePath(basePath, 'createform'), exact: true, name: 'Form', element: <CustomerForm /> },
-//     { path: generateRoutePath(basePath, 'edit/:id'), exact: true, name: 'Edit Form', element: <CustomerEditForm /> },
-//     { path: generateRoutePath(basePath, 'view/:id'), exact: true, name: 'View Form', element: <CustomerView /> },
-//   ];
-
-//   return (
-//     <>
-//       {routes.map((route, index) => (
-//         <Route key={index} path={route.path} exact={route.exact} name={route.name} element={route.element} />
-//       ))}
-//     </>
-//   );
-// };
-
-// export default AppRoutes;
 

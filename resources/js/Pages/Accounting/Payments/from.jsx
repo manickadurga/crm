@@ -35,7 +35,7 @@ const gridStyle = {
 const gridItemStyle = {
   width: '100%',
 };
-  
+
 const PaymentForm = () => {
   const { id } = useParams();
   const [current, setCurrent] = useState(0);
@@ -205,8 +205,7 @@ const PaymentForm = () => {
                         <Select.Option key={optionIndex} value={option.value}>{option.label}</Select.Option>
                       ))}
                     </Select>
-                  }                                      
-                                           
+                  }
                   style={{ width: '100%' }}
                   defaultValue={field.value || field.defaultValue}
                 />

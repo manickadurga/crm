@@ -38,7 +38,7 @@ function Estimates() {
   const [dataSource, setDataSource] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [searchColumn, setSearchColumn] = useState("");
-  const [selectedEstimate, setSelectedEstimate] = useState(null);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   // const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [estimateIdToDelete, setEstimateIdToDelete] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -50,28 +50,28 @@ function Estimates() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [activeRowId, setActiveRowId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-    const { id } = useParams(); // Get estimateId from URL parameters
+    const { id } = useParams(); // Get invoiceId from URL parameters
     const navigate = useNavigate(); // To navigate programmatically
   
 
  
  
   useEffect(() => {
-    fetchEstimates(currentPage);
+    fetchInvoices(currentPage);
   }, [currentPage]);
 
-  const fetchEstimates = (page) => {
+  const fetchInvoices = (page) => {
     setLoading(true);
-    getEstimates(page)
+    getInvoices(page)
       .then(res => {
-        console.log("Fetched estimates:", res);
+        console.log("Fetched invoices:", res);
 
-        if (res.estimates && res.estimates.length > 0) {
-          setDataSource(res.estimates);
+        if (res.invoices && res.invoices.length > 0) {
+          setDataSource(res.invoices);
           setTotalRecords(res.pagination.total);
 
-          const firstEstimate = res.estimates[0];
-          const generatedColumns = Object.keys(firstEstimate).map(key => ({
+          const firstInvoice = res.invoices[0];
+          const generatedColumns = Object.keys(firstInvoice).map(key => ({
             title: key.charAt(0).toUpperCase() + key.slice(1),
             dataIndex: key,
             key: key,
@@ -94,7 +94,7 @@ function Estimates() {
 
           setColumns(generatedColumns);
         } else {
-          console.log("No estimates found.");
+          console.log("No invoices found.");
           setDataSource([]);
           setColumns([]);
         }
@@ -102,7 +102,7 @@ function Estimates() {
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching estimates:', error);
+        console.error('Error fetching invoices:', error);
         setLoading(false);
       });
   };
@@ -126,23 +126,23 @@ function Estimates() {
     setIsModalOpen(false);
   };
   
-const deleteEstimate = async () => {
+const deleteInvoice = async () => {
   try {
     if (!estimateIdToDelete) {
-      console.error('estimate ID is undefined');
+      console.error('Invoice ID is undefined');
       return;
     }
     await axios.delete(`http://127.0.0.1:8000/estimate/${estimateIdToDelete}`);
-    console.log('estimate deleted');
-    setDataSource(dataSource.filter(estimate => estimate.id !== estimateIdToDelete)); // Update state
+    console.log('Invoice deleted');
+    setDataSource(dataSource.filter(invoice => invoice.id !== estimateIdToDelete)); // Update state
     
-    message.success('estimate Deleted Successfully')
+    message.success('Invoice Deleted Successfully')
     
     setIsModalVisible(false);
-    fetchEstimates(currentPage);
-    navigate('/estimates'); // Redirect to the estimates page after deletion if needed
+    fetchInvoices(currentPage);
+    navigate('/invoices'); // Redirect to the invoices page after deletion if needed
   } catch (error) {
-    console.error('There was an error deleting the estimate:', error);
+    console.error('There was an error deleting the invoice:', error);
   }
 };
 
@@ -161,9 +161,9 @@ const handleMenuClick = (e) => {
  
   const renderColumns = () => {
     return columns.length > 0 ? columns : [{
-      title: 'Estimate Number',
-      dataIndex: 'estomatenumber',
-      key: 'estimatenumber',
+      title: 'Invoice Number',
+      dataIndex: 'invoicenumber',
+      key: 'invoicenumber',
     }];
   };
  
@@ -216,7 +216,7 @@ const handleMenuClick = (e) => {
     const value = record[searchColumn];
     if (!value) return false;
 
-    if (searchColumn === 'estimateDate' || searchColumn === 'dueDate') {
+    if (searchColumn === 'invoiceDate' || searchColumn === 'dueDate') {
       const [startDate, endDate] = searchText.split(' - ');
       const dateValue = new Date(value).getTime();
       const startDateValue = startDate ? new Date(startDate).getTime() : 0;
@@ -233,33 +233,33 @@ const handleMenuClick = (e) => {
 
  
   const handleRowClick = (record) => {
-    setSelectedEstimate(prevEstimate => {
-      // Toggle selection if clicking on the same estimate
-      if (prevEstimate && prevEstimate.id === record.id) {
+    setSelectedInvoice(prevInvoice => {
+      // Toggle selection if clicking on the same invoice
+      if (prevInvoice && prevInvoice.id === record.id) {
         return null; // Deselect
       } else {
-        return record; // Select the new estimate
+        return record; // Select the new invoice
       }
     });
   };
   
   const renderCardsComponent = (record) => (
     <Row gutter={16}>
-      {dataSource.map((estimate) => (
-        <Col key={estimate.id} span={8}>
+      {dataSource.map((invoice) => (
+        <Col key={invoice.id} span={8}>
           <Card
-            title={`Estimate ${estimate.id}`}
-            onClick={() => handleRowClick(estimate)}
+            title={`Invoice ${invoice.id}`}
+            onClick={() => handleRowClick(invoice)}
             style={{
               cursor: 'pointer',
               // backgroundColor:'red',
-              backgroundColor: selectedEstimate && selectedEstimate.id === estimate.id ? '#f0f0f0' : 'white'
+              backgroundColor: selectedInvoice && selectedInvoice.id === invoice.id ? '#f0f0f0' : 'white'
             }}
           >
-            {Object.keys(estimate).map((key) => (
+            {Object.keys(invoice).map((key) => (
               
               <p key={key} style={{padding:'2px',background:'red'}}>
-                <strong>{key}:</strong> {estimate[key]}
+                <strong>{key}:</strong> {invoice[key]}
               </p>
             ))}
           </Card>
@@ -278,36 +278,36 @@ const handleMenuClick = (e) => {
               <ArrowLeftOutlined />
             </Button>
           </Link>
-          <b style={{ fontSize: '18px', marginLeft: '18px' }}>estimates</b>
+          <b style={{ fontSize: '18px', marginLeft: '18px' }}>Invoices</b>
         </div>
         <div>
-          {selectedEstimate && (
+          {selectedInvoice && (
             <Space size="middle">
-             <Link to={`/estimates/view/${selectedEstimate.id}`}>
+             <Link to={`/invoices/view/${selectedInvoice.id}`}>
         <Button type="link" style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
           <EyeOutlined />
         </Button>
       </Link>
-      <Link to={`/estimates/edit/${selectedEstimate.id}`}>
+      <Link to={`/invoices/edit/${selectedInvoice.id}`}>
         <Button type="link" style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
           <EditOutlined />
         </Button>
       </Link>
-      {/* <Link to={`/estimates/edit/${selectedEstimate.id}`}> */}
+      {/* <Link to={`/invoices/edit/${selectedInvoice.id}`}> */}
         <Button
-        onClick={() => showModal(selectedEstimate.id)} 
+        onClick={() => showModal(selectedInvoice.id)} 
         type="link" style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
           Download
         </Button>
       {/* </Link> */}
-       <Link to={`/estimates/payment/${selectedEstimate.id}`}>
+       <Link to={`/invoices/payment/${selectedInvoice.id}`}>
         <Button type="link" style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
           Payment
         </Button>
       </Link>
       <Button 
         // type="danger" 
-        onClick={() => showDeleteModal(selectedEstimate.id)} 
+        onClick={() => showDeleteModal(selectedInvoice.id)} 
         style={{ marginRight: '2px', border: '1px solid #ccc', background: 'white' }}>
          <DeleteOutlined />
       </Button>
@@ -317,7 +317,7 @@ const handleMenuClick = (e) => {
 
      </Space> 
           )}
-          <Link to="/estimates/createform">
+          <Link to="/invoices/createform">
             <Button type="primary" htmlType="button" icon={<PlusOutlined />}>
               Add
             </Button>
@@ -349,7 +349,7 @@ const handleMenuClick = (e) => {
             ))}
             <RangePicker
               style={{ maxWidth: '240px' }}
-              onChange={(dates, dateStrings) => handleDateRangeSearch(dates, dateStrings, 'estimateDate')}
+              onChange={(dates, dateStrings) => handleDateRangeSearch(dates, dateStrings, 'invoiceDate')}
             />
             <RangePicker
               style={{ maxWidth: '240px' }}
@@ -411,7 +411,7 @@ const handleMenuClick = (e) => {
       >
         {viewMode === 'table' ? (
  <Table
- className="datatable estimates-table"
+ className="datatable invoices-table"
  loading={loading}
  columns={renderColumns()}
  dataSource={filteredData}
@@ -425,7 +425,7 @@ const handleMenuClick = (e) => {
   onClick: () => handleRowClick(record),
   style: {
     cursor: 'pointer',
-    backgroundColor: selectedEstimate && selectedEstimate.id === record.id ? '#f0f0f0' : 'white',
+    backgroundColor: selectedInvoice && selectedInvoice.id === record.id ? '#f0f0f0' : 'white',
   },
 })}
 />
@@ -441,10 +441,10 @@ const handleMenuClick = (e) => {
 <Modal
   title="Confirm Deletion"
   visible={isModalVisible}
-  onOk={deleteEstimate} // Call deleteEstimate on modal confirmation
+  onOk={deleteInvoice} // Call deleteInvoice on modal confirmation
   onCancel={handleCancel}
 >
-  <p>Are you sure you want to delete this estimate?</p>
+  <p>Are you sure you want to delete this invoice?</p>
 </Modal>
 
       </div>

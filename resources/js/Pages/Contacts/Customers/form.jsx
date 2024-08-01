@@ -28,13 +28,6 @@ import LeafletMap from '../../../Components/LeafletMap'
 import { getCustomerById, getFormfields } from '../../../API';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
-import { useContext } from 'react';
-import Submit from '../../../Components/SubmitComponents';
-import { DataContext } from '../../../Context/Context';
-import { getSelectedOptionIds } from '../../../Components/SubmitComponents';
-
-// import { onFinish } from '../../../Components/SubmitComponents';
 const { Option } = Select;
 
 const formItemLayout = {
@@ -61,10 +54,11 @@ const fullgridStyle = {
 const CustomerForm = () => {
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
+  const [formData, setFormData] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedTags, setSelectedTags] = useState({});
   // const [formCustomers, setFormCustomers] = useState([]);  
-  // const [FormFieldsState, setFormFieldsState] = useState([]);
+  const [customerFormFields, setCustomerFormFields] = useState([]);
   const [customer, setCustomer] = useState([])
   const [fileList, setFileList] = useState([]);
   // const [formFields, setFormFields] = useState([]);
@@ -72,35 +66,22 @@ const CustomerForm = () => {
 
   // const [imgUrl, setImgUrl] = useState(fields.imgUrl || dummyImg);
   const { id } = useParams();
-  // const [] = useState([]);
-
-
-  const { FormFieldsState, setFormFieldsState,formData, setFormData } = useContext(DataContext);
-
-
 
   const navigate = useNavigate();
- 
-  const location = useLocation();
-  const basePath = location.pathname.split('/')[1]; // Adjust based on your URL structure
-  console.log('location', location.pathname);
-
-
 
   useEffect(() => {
     getFormfields('Customers')
       .then((res) => {
-        setFormFieldsState(res);
+        setCustomerFormFields(res);
       })
       .catch((error) => {
         console.error("Error fetching form fields:", error);
       });
-  }, [])
-
+  }, []);
 
   useEffect(() => {
-    console.log("FormFieldsState state has been set:", FormFieldsState);
-  }, [FormFieldsState]);
+    console.log("customerFormFields state has been set:", customerFormFields);
+  }, [customerFormFields]);
 
   useEffect(() => {
     const fetchCustomerData = async () => {
@@ -115,7 +96,7 @@ const CustomerForm = () => {
     fetchCustomerData();
   }, [id]);
   useEffect(() => {
-    console.log("FormFieldsState state has been set:", customer);
+    console.log("customerFormFields state has been set:", customer);
   }, [customer]);
 
 
@@ -127,7 +108,7 @@ const CustomerForm = () => {
       });
       form.setFieldsValue(customerData);
     }
-  }, [customer]);
+  }, [customer, form]);
 
   
 
@@ -198,7 +179,7 @@ const CustomerForm = () => {
 
   const handleSelectChange = (value, field) => {
     const updatedFormData = { ...formData, [field.name]: value };
-    FormFieldsState.forEach(section => {
+    customerFormFields.forEach(section => {
       section.fields.forEach(f => {
         if (f.depends && f.depends === field.name) {
           updatedFormData[f.name] = null;
@@ -232,24 +213,24 @@ const CustomerForm = () => {
     form.setFieldsValue(updatedFormData);
   };
 
-// const storeCustomerData = async (data) => {
-//   try {
-//     console.log('Sending data to store:', data); // Log the data
-//     const response = await axios.post('http://127.0.0.1:8000/api/customers', data);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error storing customer data:', error);
-//     if (error.response && error.response.status === 422) {
-//       console.error('Validation errors:', error.response.data.errors);
-//     }
-//     throw error;
-//   }
-// };
+const storeCustomerData = async (data) => {
+  try {
+    console.log('Sending data to store:', data); // Log the data
+    const response = await axios.post('http://127.0.0.1:8000/api/customers', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error storing customer data:', error);
+    if (error.response && error.response.status === 422) {
+      console.error('Validation errors:', error.response.data.errors);
+    }
+    throw error;
+  }
+};
 
 const updateCustomerData = async (id, data) => {
   try {
     console.log('Sending data to update:', data); // Log the data
-    const response = await axios.put(`http://127.0.0.1:8001/api/customers/${id}`, data);
+    const response = await axios.put(`http://127.0.0.1:8000/api/customers/${id}`, data);
     return response.data;
   } catch (error) {
     console.error('Error updating customer data:', error);
@@ -260,97 +241,34 @@ const updateCustomerData = async (id, data) => {
   }
 };
 
-const onFinish = Submit({ basePath, id }); // Invoke onFinish from Submit component
-
-// const onFinish = async (values) => {
-//   console.log('Received values from form:', values);
-//   const formDataValues = { ...formData, ...values };
-
-//   // Extract selected option IDs from the form fields
-//   const selectedOptionIds = {};
-//   FormFieldsState.forEach(section => {
-//     section.fields.forEach(field => {
-//       if ((field.type === '16' || field.type === '33') && values[field.name]) {
-//         if (field.type === '16') {
-//           // For single-select fields (type '16')
-//           const selectedOption = field.options.find(option => option.label === values[field.name]);
-//           if (selectedOption) {
-//             selectedOptionIds[field.name] = selectedOption.id !== undefined ? selectedOption.id : values[field.name];
-//           }
-//         } else if (field.type === '33') {
-//           // For multi-select fields (type '33')
-//           const selectedOptions = field.options.filter(option => values[field.name].includes(option.label));
-//           const ids = selectedOptions.map(option => option.id);
-//           selectedOptionIds[field.name] = ids;
-//         }
-//       }
-//     });
-//   });
-
-//   // Prepare data to submit including selected option IDs
-//   const dataToSubmit = {
-//     ...formDataValues,
-//     ...selectedOptionIds,
-//   };
-//   console.log('Data to Submit:', dataToSubmit);
-
-//   // Determine URL and method
-//   const url = id ? `http://127.0.0.1:8000/api/${basePath}/${id}` : `http://127.0.0.1:8000/api/${basePath}`;
-//   const method = id ? 'put' : 'post';
-
-//   try {
-//     const response = await axios({ method, url, data: dataToSubmit });
-//     console.log(`${id ? 'Customer updated:' : 'Customer created:'}`, response.data);
-//     message.success(`${id ? 'Customer updated successfully!' : 'Customer created successfully!'}`);
-//     navigate(`/${basePath}`); // Navigate to customers list or show success message
-//   } catch (error) {
-//     console.error(`There was an error ${id ? 'updating' : 'creating'} the customer!`, error);
-//     message.error(`There was an error ${id ? 'updating' : 'creating'} the customer!`);
-//   }
-// };
-
-
-  // const onFinish = async (values) => {
-  //   const formDataValues = { ...formData, ...values };
-  //   if (id) {
-  //     formDataValues.id = id;
-  //   }
-  //   try {
-  //     if (id) {
-  //       await updateCustomerData(id, formDataValues);
-  //     } else {
-  //       await storeCustomerData(formDataValues);
-  //     }
-  //     message.success(id ? 'Customer Details Updated Successfully' : 'Customer Details Added Successfully');
-  //     // const customers = await getCustomers();
-  //     // setFormCustomers(customers);
-  //     navigate('/customers'); // Navigate to the customer page
-  //   } catch (error) {
-  //     console.error('Error handling form submission:', error);
-  //     if (error.response) {
-  //       message.error('Failed to handle form submission. Server responded with status');
-  //     } else {
-  //       message.error('Failed to handle form submission. Please try again later.');
-  //     }
-  //   }
-  // };
+  const onFinish = async (values) => {
+    const formDataValues = { ...formData, ...values };
+    if (id) {
+      formDataValues.id = id;
+    }
+    try {
+      if (id) {
+        await updateCustomerData(id, formDataValues);
+      } else {
+        await storeCustomerData(formDataValues);
+      }
+      message.success(id ? 'Customer Details Updated Successfully' : 'Customer Details Added Successfully');
+      // const customers = await getCustomers();
+      // setFormCustomers(customers);
+      navigate('/customers'); // Navigate to the customer page
+    } catch (error) {
+      console.error('Error handling form submission:', error);
+      if (error.response) {
+        message.error('Failed to handle form submission. Server responded with status');
+      } else {
+        message.error('Failed to handle form submission. Please try again later.');
+      }
+    }
+  };
 
 
   
-  //       setFormData(updatedFormData);
-  //       console.log("Submitting form data:", values);
-
-  //       if (current === FormFieldsState.length - 1) {
-  //         // If it's the last step, store the customer data
-  //         await storeCustomerData(updatedFormData);
-  //         console.log("Customer data stored successfully");
-  //       } else {
-  //         // Move to the next step
-  //         setCurrent(current +
-
-
-  
-  const steps = FormFieldsState.map((section, sectionIndex) => ({
+  const steps = customerFormFields.map((section, sectionIndex) => ({
     title: section.blockname,
     content: (
       <div key={section.blockname} id={section.blockname.toLowerCase().replace(/\s+/g, '_')}>
@@ -530,112 +448,53 @@ const onFinish = Submit({ basePath, id }); // Invoke onFinish from Submit compon
     ),
   }));
 
-  // const next = async () => {
-  //   try {
-  //     // Validate all fields
-  //     const values = await form.validateFields();
+  const next = async () => {
+    try {
+      // Validate all fields
+      const values = await form.validateFields();
 
-  //     FormFieldsState[current].fields.forEach(field => {
-  //       if (field.prefixDropdown) {
-  //         values[field.name + '_prefix'] = formData[field.name + '_prefix'];
-  //        }
-  //       if (field.suffixDropdown) {
-  //         values[field.name + '_suffix'] = formData[field.name + '_suffix'];
-  //       }
-  //     });
+      customerFormFields[current].fields.forEach(field => {
+        if (field.prefixDropdown) {
+          values[field.name + '_prefix'] = formData[field.name + '_prefix'];
+        }
+        if (field.suffixDropdown) {
+          values[field.name + '_suffix'] = formData[field.name + '_suffix'];
+        }
+      });
 
-  //     // Check if any mandatory fields are empty
-  //     const mandatoryFields = FormFieldsState[current].fields.filter(field =>
-  //       field.rules && Array.isArray(field.rules) && field.rules.some(rule => rule.required)
-  //     );
+      // Check if any mandatory fields are empty
+      const mandatoryFields = customerFormFields[current].fields.filter(field =>
+        field.rules && Array.isArray(field.rules) && field.rules.some(rule => rule.required)
+      );
 
-  //     const emptyMandatoryFields = mandatoryFields.filter(field => {
-  //       const value = values[field.name];
-  //       const hasDefaultValue = field.hasOwnProperty('defaultValue');
-  //       const hasValue = field.hasOwnProperty('value');
-  //       return !value && !hasDefaultValue && !hasValue;
-  //     });
+      const emptyMandatoryFields = mandatoryFields.filter(field => {
+        const value = values[field.name];
+        const hasDefaultValue = field.hasOwnProperty('defaultValue');
+        const hasValue = field.hasOwnProperty('value');
+        return !value && !hasDefaultValue && !hasValue;
+      });
 
-  //     if (emptyMandatoryFields.length > 0) {
-  //       // Handle case where mandatory fields are empty
-  //       console.log("Mandatory fields are empty:", emptyMandatoryFields);
-  //     } else {
-  //       const updatedFormData = { ...formData, ...values };
-  //       setFormData(updatedFormData);
-  //       console.log("Submitting form data:", values);
-
-  //       if (current === FormFieldsState.length - 1) {
-  //         // If it's the last step, store the customer data
-  //         await storeCustomerData(updatedFormData);
-  //         console.log("Customer data stored successfully");
-  //       } else {
-  //         // Move to the next step
-  //         setCurrent(current + 1);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.log("Validation error:", err);
-  //   }
-  // };
-
-
-const next = async () => {
-  try {
-    // Validate all fields
-    const values = await form.validateFields();
-
-    FormFieldsState[current].fields.forEach(field => {
-      if (field.prefixDropdown) {
-        values[field.name + '_prefix'] = formData[field.name + '_prefix'];
-      }
-      if (field.suffixDropdown) {
-        values[field.name + '_suffix'] = formData[field.name + '_suffix'];
-      }
-    });
-
-    // Check if any mandatory fields are empty
-    const mandatoryFields = FormFieldsState[current].fields.filter(field =>
-      field.rules && Array.isArray(field.rules) && field.rules.some(rule => rule.required)
-    );
-
-    const emptyMandatoryFields = mandatoryFields.filter(field => {
-      const value = values[field.name];
-      const hasDefaultValue = field.hasOwnProperty('defaultValue');
-      const hasValue = field.hasOwnProperty('value');
-      return !value && !hasDefaultValue && !hasValue;
-    });
-
-    if (emptyMandatoryFields.length > 0) {
-      // Handle case where mandatory fields are empty
-      console.log("Mandatory fields are empty:", emptyMandatoryFields);
-    } else {
-      const updatedFormData = { ...formData, ...values };
-      setFormData(updatedFormData);
-
-      // Extract selected option IDs
-      const selectedOptionIds = getSelectedOptionIds(FormFieldsState, values);
-
-      // Prepare data to submit including selected option IDs
-      const dataToSubmit = {
-        ...updatedFormData,
-        ...selectedOptionIds,
-      };
-     console.log('dataToSubmit',dataToSubmit)
-      if (current === FormFieldsState.length - 1) {
-        // If it's the last step, store the customer data
-        await storeCustomerData(dataToSubmit);
-        console.log("Customer data stored successfully");
-        // Navigate after storing data
-        // navigate(`/customers`);
+      if (emptyMandatoryFields.length > 0) {
+        // Handle case where mandatory fields are empty
+        console.log("Mandatory fields are empty:", emptyMandatoryFields);
       } else {
-        // Move to the next step
-        setCurrent(current + 1);
+        const updatedFormData = { ...formData, ...values };
+        setFormData(updatedFormData);
+        console.log("Submitting form data:", values);
+
+        if (current === customerFormFields.length - 1) {
+          // If it's the last step, store the customer data
+          await storeCustomerData(updatedFormData);
+          console.log("Customer data stored successfully");
+        } else {
+          // Move to the next step
+          setCurrent(current + 1);
+        }
       }
+    } catch (err) {
+      console.log("Validation error:", err);
     }
-  } catch (err) {
-    console.log("Validation error:", err);
-  }
-};
+  };
 
 
   const prev = () => {
