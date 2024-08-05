@@ -31,7 +31,7 @@ class LeadsController extends Controller
         $perPage = $request->input('per_page', 10);
 
         // Get paginated leads with specific fields including 'id', 'name', 'primary_phone', 'primary_email', 'projects', 'location'
-        $leads = Leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+        $leads = Leads::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'country','city')
             ->paginate($perPage);
 
         // Prepare array to hold formatted leads
@@ -41,7 +41,7 @@ class LeadsController extends Controller
         foreach ($leads as $lead) {
             // Initialize arrays
             $projects = [];
-            $location = [];
+            //$location = [];
 
             // Handle projects field
             if (!empty($lead->projects)) {
@@ -58,12 +58,12 @@ class LeadsController extends Controller
             }
 
             // Decode location field if it's a string
-            if (!empty($lead->location)) {
-                $location = json_decode($lead->location, true);
-                if (!is_array($location)) {
-                    throw new \RuntimeException('Invalid JSON format for location');
-                }
-            }
+            // if (!empty($lead->location)) {
+            //     $location = json_decode($lead->location, true);
+            //     if (!is_array($location)) {
+            //         throw new \RuntimeException('Invalid JSON format for location');
+            //     }
+            //}
 
             // Build formatted customer array and embed 'id'
             $formattedleads[] = [
@@ -72,8 +72,8 @@ class LeadsController extends Controller
                 'primary_phone' => $lead->primary_phone,
                 'primary_email' => $lead->primary_email,
                 'projects' => $projects,
-                'country' => $location['country'] ?? null,
-                'city' => $location['city'] ?? null,
+                'country' => $lead->country,
+                'city' => $lead->city,
             ];
         }
 

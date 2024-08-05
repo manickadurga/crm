@@ -196,7 +196,7 @@ import {
     return (
       <>
         <div style={{display:'flex', alignItems:'center'}}>
-        <Link to="/tasks/teams">
+        <Link to="/proposals">
           <Tooltip title="Back" placement="right">
             <Button shape="circle" htmlType="button" size='small'>
               <ArrowLeftOutlined />

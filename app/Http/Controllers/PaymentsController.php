@@ -134,71 +134,72 @@ class PaymentsController extends Controller
     }
     
     public function store(Request $request)
-{
-    DB::beginTransaction();
-
-    try {
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'invoice_number' => 'nullable|integer|exists:jo_invoices,id',
-            'contacts' => ['required', 'integer', function ($attribute, $value, $fail) {
-                // Check if the contact ID exists in any of the specified tables
-                $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
-                $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
-                $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
-
-                if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
-                    $fail("The selected contact ID does not exist in any of the specified tables.");
-                }
-            }],
-            'projects' => 'required|exists:jo_projects,id',
-            'payment_date' => 'nullable|date',
-            'payment_method' => 'required|string',
-            'currency' => 'nullable|string',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:jo_tags,id',
-            'amount' => 'required|numeric',
-            'note' => 'nullable|string',
-        ]);
-
-        // Create Crmentity record via CrmentityController
-        $crmentityController = new CrmentityController();
-        $crmid = $crmentityController->createCrmentity('Payments', $validatedData['amount']);
-        
-        // Prepare payment data including crmid as id
-        $paymentData = [
-            'id' => $crmid, // Set the crmid as the id
-            'invoice_number' => $validatedData['invoice_number'],
-            'contacts' => $validatedData['contacts'],
-            'projects' => $validatedData['projects'],
-            'payment_date' => $validatedData['payment_date'],
-            'payment_method' => $validatedData['payment_method'],
-            'currency' => $validatedData['currency'],
-            'tags' => $validatedData['tags'] ? json_encode($validatedData['tags']) : null,
-            'amount' => $validatedData['amount'],
-            'note' => $validatedData['note'],
-        ];
-
-        // Create the payment with the crmid
-        $payment = Payments::create($paymentData);
-
-        DB::commit();
-
-        // Return success response
-        return response()->json([
-            'message' => 'Payment created successfully',
-            'payment' => $payment,
-        ], 201);
-
-    } catch (ValidationException $e) {
-        DB::rollBack();
-        return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Failed to create payment: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to create payment: ' . $e->getMessage()], 500);
+    {
+        DB::beginTransaction();
+    
+        try {
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'invoice_number' => 'nullable|integer|exists:jo_invoices,id',
+                'contacts' => ['required', 'integer', function ($attribute, $value, $fail) {
+                    // Check if the contact ID exists in any of the specified tables
+                    $existsInClients = DB::table('jo_clients')->where('id', $value)->exists();
+                    $existsInCustomers = DB::table('jo_customers')->where('id', $value)->exists();
+                    $existsInLeads = DB::table('jo_leads')->where('id', $value)->exists();
+    
+                    if (!$existsInClients && !$existsInCustomers && !$existsInLeads) {
+                        $fail("The selected contact ID does not exist in any of the specified tables.");
+                    }
+                }],
+                'projects' => 'required|exists:jo_projects,id',
+                'payment_date' => 'nullable|date',
+                'payment_method' => 'required|string',
+                'currency' => 'nullable|string',
+                'tags' => 'nullable|array',
+                'tags.*' => 'exists:jo_tags,id',
+                'amount' => 'required|numeric',
+                'note' => 'nullable|string',
+            ]);
+    
+            // Create Crmentity record via CrmentityController
+            $crmentityController = new CrmentityController();
+            $crmid = $crmentityController->createCrmentity('Payments', $validatedData['amount']);
+            
+            // Prepare payment data including crmid as id
+            $paymentData = [
+                'id' => $crmid, // Set the crmid as the id
+                'invoice_number' => $validatedData['invoice_number'],
+                'contacts' => $validatedData['contacts'],
+                'projects' => $validatedData['projects'],
+                'payment_date' => $validatedData['payment_date'],
+                'payment_method' => $validatedData['payment_method'],
+                'currency' => $validatedData['currency'],
+                'tags' => $validatedData['tags'] ?? [], // Directly use the array
+                'amount' => $validatedData['amount'],
+                'note' => $validatedData['note'],
+            ];
+    
+            // Create the payment with the crmid
+            $payment = Payments::create($paymentData);
+    
+            DB::commit();
+    
+            // Return success response
+            return response()->json([
+                'message' => 'Payment created successfully',
+                'payment' => $payment,
+            ], 201);
+    
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create payment: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create payment: ' . $e->getMessage()], 500);
+        }
     }
-}
+    
 
     public function show($id)
     {

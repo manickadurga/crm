@@ -19,12 +19,12 @@ class ClientsController extends Controller
 {
     try {
         $perPage = $request->input('per_page', 10);
-        $clients = Clients::select('id', 'name', 'primary_phone', 'primary_email', 'projects', 'location')
+        $clients = Clients::select('id', 'name', 'primary_phone', 'primary_email', 'projects','country','city')
             ->paginate($perPage);
         $formattedClients = [];
         foreach ($clients as $client) {
             $projects = [];
-            $location = [];
+            //$location = [];
             if (!empty($client->projects)) {
                 $projectIds = is_string($client->projects) ? json_decode($client->projects) : $client->projects;
                 $projectNames = Projects::whereIn('id', $projectIds)
@@ -32,20 +32,20 @@ class ClientsController extends Controller
                     ->toArray();
                 $projects = implode(',', $projectNames);
             }
-            if (!empty($client->location) && is_string($client->location)) {
-                $location = json_decode($client->location, true);
-                if (!is_array($location)) {
-                    throw new \RuntimeException('Invalid JSON format for location');
-                }
-            }
+            // if (!empty($client->location) && is_string($client->location)) {
+            //     $location = json_decode($client->location, true);
+            //     if (!is_array($location)) {
+            //         throw new \RuntimeException('Invalid JSON format for location');
+            //     }
+            // }
             $formattedClients[] = [
                 'id' => $client->id,
                 'name' => $client->name,
                 'primary_phone' => $client->primary_phone,
                 'primary_email' => $client->primary_email,
                 'projects' => $projects,
-                'country' => $location['country'] ?? null,
-                'city' => $location['city'] ?? null,
+                'country' => $client->country,
+                'city' => $client->city,
             ];
         }
         return response()->json([

@@ -124,7 +124,7 @@ const PaymentForm = () => {
     console.log('Data to Submit:', dataToSubmit);
 
     // Determine URL and method
-    const url = id ? `http://127.0.0.1:8000/api/payments/${id}` : 'http://127.0.0.1:8000/api/payments';
+    const url = id ? `http://127.0.0.1:8001/api/payments/${id}` : 'http://127.0.0.1:8001/api/payments';
     const method = id ? 'put' : 'post';
 
     try {

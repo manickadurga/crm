@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const getMenu = async (page) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/menuitems`);
+    const response = await axios.get(`http://127.0.0.1:8001/menuitems`);
     console.log("Fetched menu:", response.data);
     return response.data;
   } catch (error) {
@@ -29,7 +29,7 @@ export const getInventory = () => {
 // http://127.0.0.1:8000/form-fields
 
 export const getFormfields = (form) => {
-  return axios.get(`http://127.0.0.1:8000/formfields?name=${form}`)
+  return axios.get(`http://127.0.0.1:8001/form-fields?name=${form}`)
     .then((response) => {
       console.log("Fetched formfields:", response.data);
     
@@ -44,7 +44,7 @@ export const getFormfields = (form) => {
 
 export const getDataFunction = async (pathName , page) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/${pathName}?page=${page}`);
+    const response = await axios.get(`http://127.0.0.1:8001/api/${pathName}?page=${page}`);
     console.log("Fetched data:", response.data);
     return response.data;
   } catch (error) {
@@ -82,7 +82,7 @@ export const getClientById = async (clientId) => {
 export const getLeadById = async (clientId) => {
   try {
     console.log("jdjdhfdhfjddfdj",clientId)
-    const response = await axios.get(`http://127.0.0.1:8000/leads/${clientId}`);
+    const response = await axios.get(`http://127.0.0.1:8001/leads/${clientId}`);
     return response.data; // Assuming your server returns JSON data for the customer
   } catch (error) {
     console.error('Error fetching customer:', error);
@@ -92,7 +92,7 @@ export const getLeadById = async (clientId) => {
 export const getCustomerById = async (customerId) => {
   try {
     // console.log("jdjdhfdhfjddfdj",customerId)
-    const response = await axios.get(`http://127.0.0.1:8000/customers/${customerId}`);
+    const response = await axios.get(`http://127.0.0.1:8001/customers/${customerId}`);
     return response.data; // Assuming your server returns JSON data for the customer
   } catch (error) {
     console.error('Error fetching customer:', error);

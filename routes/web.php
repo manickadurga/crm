@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\EstimateController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\FormFieldController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\MenuController;
@@ -60,8 +62,8 @@ Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
 Route::get('/formfields',[FormFieldController::class,'getFormFields']);
 Route::get('/menuitems',[MenuController::class,'getMenuItems']);
 
-Route::get('/invoice',[InvoicesController::class,'index']);
-Route::post('/invoice',[InvoicesController::class,'store']);
+Route::get('/invoices',[InvoicesController::class,'index']);
+Route::post('/invoices',[InvoicesController::class,'store']);
 
 Route::get('/teamtasks',[TeamTaskController::class,'index']);
 Route::post('/teamtasks',[TeamTaskController::class,'store']);
@@ -70,6 +72,12 @@ Route::get('/clients',[ClientsController::class,'index']);
 
 
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\PipelinesController;
+use App\Http\Controllers\ProposalTemplatesController;
+
 // web.php (or your routes file)
 Route::get('/import/{module}/form', [ImportController::class, 'showForm'])->name('import.form');
 Route::post('/import/{module}', [ImportController::class, 'import'])->name('import.process');
@@ -86,14 +94,52 @@ Route::get('/import/summary/{module}', [ImportController::class, 'showSummary'])
 
 Route::get('/customers',[CustomersController::class,'index']);
 Route::post('/customers',[CustomersController::class,'store']);
-// Update the specified customer
 Route::get('/customers/{id}', [CustomersController::class, 'show']);
 Route::put('/customers/{id}', [CustomersController::class, 'update']);
 Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
-// Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 
+//Form Field Routes
 Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 
+//Customers Routes
 Route::get('customers',[CustomersController::class,'index']);
 Route::post('customers',[CustomersController::class,'store']);
 
+//Clients Routes
+Route::get('/clients',[ClientsController::class,'index']);
+Route::post('/clients',[ClientsController::class,'store']);
+
+//Leads Routes
+Route::get('/leads',[LeadsController::class,'index']);
+Route::post('/leads',[LeadsController::class,'store']);
+
+//Teamtask Routes
+Route::get('/teamtasks',[TeamTaskController::class,'index']);
+Route::post('/teamtasks',[TeamTaskController::class,'store']);
+
+//Payments Routes
+Route::get('/payments',[PaymentsController::class,'index']);
+Route::post('/payments',[PaymentsController::class,'store']);
+
+//Estimates Routes
+Route::get('/estimates',[EstimateController::class,'index']);
+Route::post('/estimates',[EstimateController::class,'store']);
+Route::get('/estimates/{id}',[EstimateController::class,'show']);
+
+//Incomes Routes
+Route::get('/incomes',[IncomeController::class,'index']);
+Route::post('/incomes',[IncomeController::class,'store']);
+
+//Expenses Routes
+Route::get('/expenses',[ExpensesController::class,'index']);
+Route::post('/expenses',[ExpensesController::class,'store']);
+
+//Proposal Template Routes
+Route::get('/proposal-templates',[ProposalTemplatesController::class,'index']);
+Route::post('/proposal-templates',[ProposalTemplatesController::class,'store']);
+
+//Pipelines Routes
+Route::get('/pipelines',[PipelinesController::class,'index']);
+Route::post('/pipelines',[PipelinesController::class,'store']);
+
+//

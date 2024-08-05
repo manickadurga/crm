@@ -57,7 +57,7 @@ public function store(Request $request): JsonResponse
     try {
         $validatedData = $request->validate([
             'tasknumber' => 'nullable|numeric',
-            'projects' => 'nullable|string',
+            'projects' => 'nullable|integer',
             'projects.*' => 'exists:jo_projects,id',
             'status' => 'nullable|string',
             'teams' => 'nullable|array', // Ensure teams are an array

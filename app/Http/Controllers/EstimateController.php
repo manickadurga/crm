@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Clients;
 use Illuminate\Validation\ValidationException;
 use App\Models\Employee;
 use App\Models\Estimate;
@@ -13,6 +15,7 @@ use App\Models\Tags;
 use App\Models\Customers;
 use App\Models\Tasks;
 use App\Models\Crmentity;
+use App\Models\Leads;
 use Exception;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -30,38 +33,45 @@ class EstimateController extends Controller
             // Set the number of items per page, default is 10
             $perPage = $request->input('per_page', 10);
     
-            // Get paginated estimate with specific fields including 'id'
-            $estimates = Estimate::select('id', 'estimatenumber', 'contacts', 'estimatedate', 'duedate', 'discount','total','tax1','tax2','status')
+            // Get paginated estimates with specific fields including 'id'
+            $estimates = Estimate::select('id', 'estimatenumber', 'contacts', 'estimatedate', 'duedate', 'discount', 'total', 'tax1', 'tax2', 'estimate_status')
                 ->paginate($perPage);
     
-            // Prepare array to hold formatted estimate
-            $formattedInvoices = [];
+            // Prepare array to hold formatted estimates
+            $formattedEstimates = [];
     
             // Iterate through each estimate to format data
             foreach ($estimates as $estimate) {
-            
+                $contactName = null;
+    
+                // Attempt to find the contact name in each table
+                if ($contact = Customers::find($estimate->contacts)) {
+                    $contactName = $contact->name;
+                } elseif ($contact = Clients::find($estimate->contacts)) {
+                    $contactName = $contact->name;
+                } elseif ($contact = Leads::find($estimate->contacts)) {
+                    $contactName = $contact->name;
+                }
     
                 // Build formatted estimate array and embed 'id'
-                $formattedInvoices[] = [
-                        'id' => $estimate->id,
-                        'estimatenumber'=>$estimate->estimatenumber,
-                        'estimatedate' => $estimate->estimatedate,
-                        'duedate' => $estimate->duedate,
-                        'contacts' => $estimate->contacts,
-                        'discount' => $estimate->discount,
-                        'total' => $estimate->total,
-                        'tax1' => $estimate->tax1,
-                        'tax2' => $estimate->tax2,
-                        'estimate_status' => $estimate->status,
-                        // 'paid' => $invoice->paid,
-                       
+                $formattedEstimates[] = [
+                    'id' => $estimate->id,
+                    'estimatenumber' => $estimate->estimatenumber,
+                    'estimatedate' => $estimate->estimatedate,
+                    'duedate' => $estimate->duedate,
+                    'contacts' => $contactName, // Embed the contact name
+                    'discount' => $estimate->discount,
+                    'total' => $estimate->total,
+                    'tax1' => $estimate->tax1,
+                    'tax2' => $estimate->tax2,
+                    'Status' => $estimate->estimate_status,
                 ];
             }
     
             // Return JSON response with formatted data and pagination information
             return response()->json([
                 'status' => 200,
-                'estimates' => $formattedInvoices,
+                'estimates' => $formattedEstimates,
                 'pagination' => [
                     'total' => $estimates->total(),
                     'per_page' => $estimates->perPage(),
@@ -71,19 +81,19 @@ class EstimateController extends Controller
                     'to' => $estimates->lastItem(),
                 ],
             ], 200);
-    
         } catch (Exception $e) {
             // Log the error
-            Log::error('Failed to retrieve invoices: ' . $e->getMessage());
+            Log::error('Failed to retrieve estimates: ' . $e->getMessage());
     
             // Return error response
             return response()->json([
                 'status' => 500,
-                'message' => 'Failed to retrieve customers',
+                'message' => 'Failed to retrieve estimates',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+    
     public function store(Request $request)
     {
         try {

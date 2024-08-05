@@ -22,79 +22,64 @@ class MenuController extends Controller
                 'children' => [
                     [
                         'path' => '/estimates',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FileOutlined',
                         'label' => 'Estimates',
                     ],
                     [
-                        'path' => '/estimates-received',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Estimates Received',
-                    ],
-                    [
                         'path' => '/invoices',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FileTextOutlined',
                         'label' => 'Invoices',
                     ],
                     [
-                        'path' => '/invoices-received',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Invoices Received',
-                    ],
-                    [
                         'path' => '/incomes',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'PlusCircleFilled',
                         'label' => 'Income',
                     ],
                     [
                         'path' => '/expenses',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'MinusCircleFilled',
                         'label' => 'Expenses',
                     ],
                     [
                         'path' => '/recurring-expenses',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'SwapOutlined',
                         'label' => 'Recurring Expenses',
                     ],
                     [
                         'path' => '/payments',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'CreditCardOutlined',
                         'label' => 'Payments',
                     ],
                 ],
             ],
             [
                 'path' => '/sales',
-                'icon' => 'ShoppingCartOutlined',
+                'icon' => 'LineChartOutlined',
                 'label' => 'Sales',
                 'children' => [
                     [
                         'path' => '/proposals',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'SendOutlined',
                         'label' => 'Proposals',
                     ],
                     [
                         'path' => '/sales',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'LineChartOutlined',
                         'label' => 'Sales',
                     ],
                     [
-                        'path' => '/estimates-received',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Estimates Received',
-                    ],
-                    [
                         'path' => '/invoices',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FileTextOutlined',
                         'label' => 'Invoices',
                     ],
                     [
                         'path' => '/payments',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'CreditCardOutlined',
                         'label' => 'Payments',
                     ],
                     [
                         'path' => '/pipelines',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FilterFilled',
                         'label' => 'Pipelines',
                     ],
                 ],
@@ -106,12 +91,12 @@ class MenuController extends Controller
                 'children' => [
                     [
                         'path' => '/dashboard',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TableOutlined',
                         'label' => 'Dashboard',
                     ],
                     [
                         'path' => '/teamtasks',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TeamOutlined',
                         'label' => 'Teams Tasks',
                     ],
                 ],
@@ -123,137 +108,137 @@ class MenuController extends Controller
                 'children' => [
                     [
                         'path' => '/employees',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TeamOutlined',
                         'label' => 'Employees',
                     ],
                     [
                         'path' => '/proposal-template',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FileTextOutlined',
                         'label' => 'Proposal Template',
                     ],
                 ],
             ],
             [
                 'path' => '/employees',
-                'icon' => 'FlagOutlined',
+                'icon' => 'TeamOutlined',
                 'label' => 'Employees',
                 'children' => [
                     [
                         'path' => '/manage',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'BarsOutlined',
                         'label' => 'Manage',
                     ],
                     [
                         'path' => '/time-activity',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'LineChartOutlined',
                         'label' => 'Time & Activity',
                     ],
                     [
                         'path' => '/timesheets',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'ClockCircleOutlined',
                         'label' => 'Timesheets',
                     ],
                     [
                         'path' => '/appointments',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'CalendarFilled',
                         'label' => 'Appointments',
                     ],
                     [
                         'path' => '/approvals',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'RetweetOutlined',
                         'label' => 'Approvals',
                     ],
                     [
                         'path'=>'/employee-level',
-                        'icon'=>'shoppingCarOutlined',
+                        'icon'=>'BarChartOutlined',
                         'label'=>'Employee Level'
                     ],
                     [
                         'path' => '/positions',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TagOutlined',
                         'label' => 'Positions',
                     ],
                     
                     [
                         'path' => '/time-off',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'CloseCircleOutlined',
                         'label' => 'Time Off',
                     ],
                     [
                         'path' => '/recurring-expenses',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'SwapOutlined',
                         'label' => 'Recurring Expenses',
                     ],
                     [
                         'path' => '/candidates',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'UserOutlined',
                         'label' => 'Candidates',
                     ],
                 ],
             ],
             [
                 'path' => '/organization',
-                'icon' => 'FlagOutlined',
+                'icon' => 'BuildOutlined',
                 'label' => 'Organization',
                 'children' => [
                     [
                         'path' => '/manage',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'BuildOutlined',
                         'label' => 'Manage',
                     ],
                     [
                         'path' => '/equipments',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TableOutlined',
                         'label' => 'Equipment',
                     ],
                     [
                         'path' => '/inventory',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'HolderOutlined',
                         'label' => 'Inventory',
                     ],
                     [
                         'path' => '/tags',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TagFilled',
                         'label' => 'Tags',
                     ],
                     [
                         'path' => '/vendors',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TruckFilled',
                         'label' => 'Vendors',
                     ],
                     [
                         'path' => '/projects',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'BookFilled',
                         'label' => 'Projects',
                     ],
                     [
                         'path' => '/departments',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'ShoppingFilled',
                         'label' => 'Departments',
                     ],
                     [
                         'path' => '/teams',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'TeamOutlined',
                         'label' => 'Teams',
                     ],
                     [
                         'path' => '/documents',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'FileTextOutlined',
                         'label' => 'Documents',
                     ],
                     [
                         'path' => '/employment-types',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'OrderedListOutlined',
                         'label' => 'Employment Types',
                     ],
                     [
                         'path' => '/expense-recurring',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'SwapOutlined',
                         'label' => 'Recurring Expenses',
                     ],
                     [
                         'path' => '/help-center',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'QuestionCircleOutlined',
                         'label' => 'Help Center',
                     ],
                 ],
@@ -264,23 +249,18 @@ class MenuController extends Controller
                 'label' => 'Contacts',
                 'children' => [
                     [
-                        'path' => '/visitors',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Visitors',
-                    ],
-                    [
                         'path' => '/leads',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'ContactsOutlined',
                         'label' => 'Community',
                     ],
                     [
                         'path' => '/customers',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'ContactsOutlined',
                         'label' => 'Customers',
                     ],
                     [
                         'path' => '/clients',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'ContactsOutlined',
                         'label' => 'Clients',
                     ],
                 ],
@@ -292,73 +272,20 @@ class MenuController extends Controller
                 'children' => [
                     [
                         'path' => '/manage',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'UnorderedListOutlined',
                         'label' => 'Manage',
                     ],
                     [
                         'path' => '/settings',
-                        'icon' => 'ShoppingCartOutlined',
+                        'icon' => 'SettingFilled',
                         'label' => 'Settings',
                     ],
                 ],
             ],
             [
                 'path' => '/reports',
-                'icon' => 'FlagOutlined',
+                'icon' => 'PieChartFilled',
                 'label' => 'Reports',
-                'children' => [
-                    [
-                        'path' => '/all',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'All Reports',
-                    ],
-                    [
-                        'path' => '/time-activity',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Time & Activity',
-                    ],
-                    [
-                        'path' => '/weekly',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Weekly',
-                    ],
-                    [
-                        'path' => '/apps-urls',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Apps & URLs',
-                    ],
-                    [
-                        'path' => '/manual-time-edits',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Manual Time Edits',
-                    ],
-                    [
-                        'path' => '/amounts-owed',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Amounts Owed',
-                    ],
-                    [
-                        'path' => '/weekly-limits',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Weekly Limits',
-                    ],
-                    [
-                        'path' => '/daily-limits',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Daily Limits',
-                    ],
-                    [
-                        'path' => '/project-budgets',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Project Budgets',
-                    ],
-                    [
-                        'path' => '/client-budgets',
-                        'icon' => 'ShoppingCartOutlined',
-                        'label' => 'Client Budgets',
-                    ],
-                        
-                ],
             ],
             
         ];

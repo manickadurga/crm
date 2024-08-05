@@ -208,7 +208,17 @@ const CustomerForm = () => {
   };
 
   const handleLocationChange = (location) => {
-    const updatedFormData = { ...formData, location };
+    //const updatedFormData = { ...formData, location };
+    const { address, city, country, lat, lng, postcode } = location;
+    const updatedFormData = { 
+        ...formData, 
+        address, 
+        city, 
+        country, 
+        lat, 
+        lng, 
+        postcode 
+    };
     setFormData(updatedFormData);
     form.setFieldsValue(updatedFormData);
   };

@@ -38,7 +38,7 @@ const InvoicesForm = () => {
 
   useEffect(() => {
     // Fetch form fields
-    axios.get('http://127.0.0.1:8000/form-fields?name=Invoices')
+    axios.get('http://127.0.0.1:8001/form-fields?name=Invoices')
       .then((res) => {
         setInvoiceFromField(res.data);
       })
@@ -55,7 +55,7 @@ const InvoicesForm = () => {
     // Fetch invoice data by ID
     const fetchInvoice = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/invoice/${id}`);
+        const response = await axios.get(`http://127.0.0.1:8001/invoices/${id}`);
         console.log('Invoice data fetched:', response.data);
         setInvoiceData(response.data);
       } catch (error) {
@@ -86,7 +86,7 @@ const InvoicesForm = () => {
 
   const onFinish = async (values) => {
     console.log('Received values from form:', values);
-    const url = id ? `http://127.0.0.1:8000/invoice/${id}` : 'http://127.0.0.1:8000/invoice';
+    const url = id ? `http://127.0.0.1:8001/invoices/${id}` : 'http://127.0.0.1:8001/invoices';
     const method = id ? 'put' : 'post';
 
     try {

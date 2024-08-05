@@ -28,7 +28,10 @@ import InvoiceView from "../../Pages/Invoices/view";
 // import Payment from "../../Pages/Invoices/payment";
 
 import Estimates from "../../Pages/Accounting/Estimates";
-import EstimatesForm from "../../Pages/Accounting/Estimates/from";
+//import EstimatesForm from "../../Pages/Accounting/Estimates/form";
+import EstimatesForm from "../../Pages/Accounting/Estimates/form";
+
+
 
 import Tasks from "../../Pages/Tasks";
 import TasksForm from "../../Pages/Tasks/form";
@@ -39,20 +42,20 @@ import TeamsTasksEditForm from "../../Pages/TeamsTasks/form";
 
 
 import Leads from "../../Pages/Contacts/Leads";
-import LeadsForm from "../../Pages/Contacts/Leads/from";
-import LeadsEditForm from "../../Pages/Contacts/Leads/from";
+import LeadsForm from "../../Pages/Contacts/Leads/form";
+import LeadsEditForm from "../../Pages/Contacts/Leads/form";
 import LeadView from "../../Pages/Contacts/Leads/view";
 // import TeamsTasks from "../../Pages/TeamsTasks";
 // import TeamsTasksForm from "../../Pages/TeamsTasks/form";
 
 
 import Income from "../../Pages/Accounting/Income";
-import IncomeForm from "../../Pages/Accounting/Income/from";
-import IncomeEditForm from "../../Pages/Accounting/Income/from";
+import IncomeForm from "../../Pages/Accounting/Income/form";
+import IncomeEditForm from "../../Pages/Accounting/Income/form";
 
 // import Payment from "../../Pages/Accounting/Payments";
-import PaymentForm from "../../Pages/Accounting/Payments/from";
-import PaymentEditForm from "../../Pages/Accounting/Payments/from";
+import PaymentForm from "../../Pages/Accounting/Payments/form";
+import PaymentEditForm from "../../Pages/Accounting/Payments/form";
 import { useLocation } from "react-router-dom";
 
 // import IncomeForm from "../../Pages/Accounting/Income/from";
@@ -69,7 +72,7 @@ const routes = [
 //  "/customers"
 
 { path: '/clients', exact: true, name: 'Clients', element:<Customers/> },
-{ path: '/clients/ClientsForm', exact: true, name: 'Clients Form', element: <ClientsForm/>},
+{ path: '/clients/createform', exact: true, name: 'Clients Form', element: <ClientsForm/>},
 { path: '/clients/edit/:id', exact: true, name: 'Clients Edit Form', element: <ClientsEditForm/>},  
 { path: '/clients/view/:id', exact: true, name: 'Clients View Form', element: <ClientView/>},
 
@@ -79,9 +82,11 @@ const routes = [
 { path: '/leads/view/:id', exact: true, name: 'Leads View Form', element: <ClientView/>},
 
 
-{ path: '/income', exact: true, name: 'Customers', element:<Income/> },
+{ path: '/incomes', exact: true, name: 'Customers', element:<Income/> },
 { path: '/income/createform', name: 'Income Form', element:<IncomeForm/> },
-{ path: '/income/edit/:id', exact: true, name: 'Income Edit Form', element: <IncomeEditForm/>},
+{ path: '/incomes/edit/:id', exact: true, name: 'Income Edit Form', element: <IncomeEditForm/>},
+
+
 
 { path: '/payments', exact: true, name: 'Payment', element:<Customers/> },
 {path:'/payments/createform', name:'Payment From', element:<PaymentForm/>},
@@ -98,7 +103,7 @@ const routes = [
   // { path: '/invoices/payment/:id', exact: true, name: 'Invoices Payment', element: <Payment/>},
 
   { path: '/estimates', name: 'Estimates', element:<Estimates/>},
-  // { path: '/estimates/createForm', name: 'Estimates Form', element:<EstimatesForm/>},
+  { path: '/estimates/createform', name: 'Estimates Form', element:<EstimatesForm/> },
 
   // { path: '/invoices/view', name: 'Invoices Form', element:<InvoicesForm/> },
 
@@ -106,7 +111,7 @@ const routes = [
   { path: '/tasks/createform', name: 'Tasks', element:<TasksForm/> },
   { path: '/tasks/view/', name: 'Tasks', element:<TasksForm/> },
 
-  { path: '/tasks/teams', name: 'Tasks', element:<TeamsTasks/> },
+  { path: '/teamtasks', name: 'Tasks', element:<TeamsTasks/> },
   { path: '/tasks/teams/createform', name: 'Tasks', element:<TeamsTasksForm/> },
   { path: '/tasks/teams/editfrom/:id', exact: true, name: 'TeamTask Edit Form', element: <TeamsTasksEditForm/>},
 

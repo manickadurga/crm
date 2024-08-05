@@ -219,7 +219,7 @@ import {
   
     const storeLeadsData = async (data) => {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/leads', data);
+        const response = await axios.post('http://127.0.0.1:8001/leads', data);
         return response.data;
       } catch (error) {
         console.error('Error storing lead data:', error);

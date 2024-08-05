@@ -282,11 +282,11 @@ Route::get('/products/{typeName}', [ProductsController::class, 'showByType']);
 
 
 //Recuring Expenses Routes
-Route::get('/recuring-expenses',[RecuringExpensesController::class,'index']);
-Route::post('/recuring-expenses',[RecuringExpensesController::class,'store']);
-Route::get('/recuring-expenses/{id}',[RecuringExpensesController::class,'show']);
-Route::put('/recuring-expenses/{id}',[RecuringExpensesController::class,'update']);
-Route::delete('/recuring-expenses/{id}',[RecuringExpensesController::class,'destroy']);
+Route::get('/recurring-expenses',[RecuringExpensesController::class,'index']);
+Route::post('/recurring-expenses',[RecuringExpensesController::class,'store']);
+Route::get('/recurring-expenses/{id}',[RecuringExpensesController::class,'show']);
+Route::put('/recurring-expenses/{id}',[RecuringExpensesController::class,'update']);
+Route::delete('/recurring-expenses/{id}',[RecuringExpensesController::class,'destroy']);
 
 //Manage Categories Routes
 Route::get('/manage-categories',[ManageCategoriesController::class,'index']);

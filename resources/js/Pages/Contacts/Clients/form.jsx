@@ -218,7 +218,7 @@ import {
   
     const storeClientData = async (data) => {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/clients', data);
+        const response = await axios.post('http://127.0.0.1:8001/clients', data);
         return response.data;
       } catch (error) {
         console.error('Error storing customer data:', error);

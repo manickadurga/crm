@@ -37,30 +37,38 @@ class InvoicesController extends Controller
             // Set the number of items per page, default is 10
             $perPage = $request->input('per_page', 10);
     
-            // Get paginated customers with specific fields including 'id'
-            $invoices = Invoices::select('id', 'invoicenumber', 'contacts', 'invoicedate', 'duedate', 'discount','total','tax1','tax2','invoice_status')
+            // Get paginated invoices with specific fields including 'id'
+            $invoices = Invoices::select('id', 'invoicenumber', 'contacts', 'invoicedate', 'duedate', 'discount', 'total', 'tax1', 'tax2', 'invoice_status')
                 ->paginate($perPage);
     
-            // Prepare array to hold formatted customers
+            // Prepare array to hold formatted invoices
             $formattedInvoices = [];
     
-            // Iterate through each customer to format data
+            // Iterate through each invoice to format data
             foreach ($invoices as $invoice) {
-            
+                $contactName = null;
     
-                // Build formatted customer array and embed 'id'
+                // Attempt to find the contact name in each table
+                if ($contact = Customers::find($invoice->contacts)) {
+                    $contactName = $contact->name;
+                } elseif ($contact = Clients::find($invoice->contacts)) {
+                    $contactName = $contact->name;
+                } elseif ($contact = Leads::find($invoice->contacts)) {
+                    $contactName = $contact->name;
+                }
+    
+                // Build formatted invoice array and embed 'id'
                 $formattedInvoices[] = [
-                        'id' => $invoice->id,
-                        'invoicenumber'=>$invoice->invoicenumber,
-                        'invoicedate' => $invoice->invoicedate,
-                        'duedate' => $invoice->duedate,
-                        'contacts' => $invoice->contacts,
-                        'discount' => $invoice->discount,
-                        'total' => $invoice->total,
-                        'tax1' => $invoice->tax1,
-                        'tax2' => $invoice->tax2,
-                        'invoice_status' => $invoice->invoice_status,
-                       
+                    'id' => $invoice->id,
+                    'invoicenumber' => $invoice->invoicenumber,
+                    'invoicedate' => $invoice->invoicedate,
+                    'duedate' => $invoice->duedate,
+                    'contacts' => $contactName, // Embed the contact name
+                    'discount' => $invoice->discount,
+                    'total' => $invoice->total,
+                    'tax1' => $invoice->tax1,
+                    'tax2' => $invoice->tax2,
+                    'invoice_status' => $invoice->invoice_status,
                 ];
             }
     
@@ -77,7 +85,6 @@ class InvoicesController extends Controller
                     'to' => $invoices->lastItem(),
                 ],
             ], 200);
-    
         } catch (Exception $e) {
             // Log the error
             Log::error('Failed to retrieve invoices: ' . $e->getMessage());
@@ -85,11 +92,12 @@ class InvoicesController extends Controller
             // Return error response
             return response()->json([
                 'status' => 500,
-                'message' => 'Failed to retrieve customers',
+                'message' => 'Failed to retrieve invoices',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+    
     public function store(Request $request)
 {
     DB::beginTransaction();
