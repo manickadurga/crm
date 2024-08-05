@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const getEstimates = (page) => {
-    return axios.get(`http://127.0.0.1:8001/estimates?page=${page}`)
+    return axios.get(`http://127.0.0.1:8000/estimates?page=${page}`)
       .then((response) => {
         console.log("Fetched formfields:", response.data);
       
@@ -15,7 +15,7 @@ export const getEstimates = (page) => {
   export const getEstimatesById = async (estimateId) => {
     try {
       console.log("jdjdhfdhfjddfdj",estimateId)
-      const response = await axios.get(`http://127.0.0.1:8001/estimates/${estimateId}`);
+      const response = await axios.get(`http://127.0.0.1:8000/estimates/${estimateId}`);
       return response.data; // Assuming your server returns JSON data for the customer
     } catch (error) {
       console.error('Error fetching customer:', error);
@@ -24,7 +24,7 @@ export const getEstimates = (page) => {
   };
 
 export const getFormfieldsEstimates = () => {
-  return axios.get("http://127.0.0.1:8001/form-fields?name=Estimates")
+  return axios.get("http://127.0.0.1:8000/form-fields?name=Estimates")
     .then((response) => {
       console.log("Fetched formfields:", response.data);
     

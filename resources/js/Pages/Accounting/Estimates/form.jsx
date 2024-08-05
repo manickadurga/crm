@@ -38,7 +38,7 @@ const EstimatesForm = () => {
 
   useEffect(() => {
     // Fetch form fields
-    axios.get('http://127.0.0.1:8001/form-fields?name=Estimates')
+    axios.get('http://127.0.0.1:8000/form-fields?name=Estimates')
       .then((res) => {
         setEstimateFormField(Array.isArray(res.data) ? res.data : []);
       })
@@ -55,7 +55,7 @@ const EstimatesForm = () => {
     // Fetch estimate data by ID
     const fetchEstimate = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8001/estimates/${id}`);
+        const response = await axios.get(`http://127.0.0.1:8000/estimates/${id}`);
         console.log('Estimate data fetched:', response.data);
         setEstimateData(response.data);
       } catch (error) {
@@ -88,7 +88,7 @@ const EstimatesForm = () => {
 
   const onFinish = async (values) => {
     console.log('Received values from form:', values);
-    const url = id ? `http://127.0.0.1:8001/estimates/${id}` : 'http://127.0.0.1:8001/estimates';
+    const url = id ? `http://127.0.0.1:8000/estimates/${id}` : 'http://127.0.0.1:8000/estimates';
     const method = id ? 'put' : 'post';
 
     try {

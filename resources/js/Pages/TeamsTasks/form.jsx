@@ -44,7 +44,7 @@ const TasksForm = () => {
     // Fetch team task data by ID
     const fetchTeamTask = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8001/teamtasks/${id}`);
+        const response = await axios.get(`http://127.0.0.1:8000/teamtasks/${id}`);
         console.log('Team task data fetched:', response.data);
         setTeamTaskData(response.data);
       } catch (error) {
@@ -85,7 +85,7 @@ const TasksForm = () => {
 
   const onFinish = async (values) => {
     console.log('Received values from form:', values);
-    const url = id ? `http://127.0.0.1:8001/teamtasks/${id}` : 'http://127.0.0.1:8001/teamtasks';
+    const url = id ? `http://127.0.0.1:8000/teamtasks/${id}` : 'http://127.0.0.1:8000/teamtasks';
     const method = id ? 'put' : 'post';
 
     try {
