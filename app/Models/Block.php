@@ -46,7 +46,10 @@ class Block extends Model
         return $this->hasMany(Field::class, 'block', 'blockid');
     }
 
-    
+    public function formfields()
+    {
+        return $this->hasMany(FormField::class, 'block', 'blockid');
+    }
     
     public function module()
     {

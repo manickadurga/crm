@@ -23,4 +23,9 @@ class Tasks extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function contact()
+{
+    return $this->belongsTo(Customers::class, 'contact_id');
+}
 }

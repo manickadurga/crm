@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Role;
 
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -33,27 +33,49 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'username' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required',
-            'role' => 'required'
+        // Log the incoming request
+        Log::info('Received request to create user:', $request->all());
+    
+        // Validate the request data
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string',
         ]);
-
-        $user = new User;
-        $user->username = $request->username;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->role = $request->role;
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->imageurl = $request->imageurl;
-        $user->applied_date = $request->applied_date;
-        $user->rejection_date = $request->rejection_date;
-        $user->save();
-
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    
+        Log::info('Validation successful.');
+    
+        try {
+            // Create and save the user
+            $user = User::create([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'role' => $validatedData['role'],
+                'first_name' => $request->input('first_name', null),
+                'last_name' => $request->input('last_name', null),
+                'imageurl' => $request->input('imageurl', null),
+                'applied_date' => $request->input('applied_date', null),
+                'rejection_date' => $request->input('rejection_date', null),
+            ]);
+    
+            Log::info('User created successfully.', ['user_id' => $user->id]);
+    
+            return response()->json(['success' => 'User created successfully.'], 201);
+        } catch (\Exception $e) {
+            // Log the error with details
+            Log::error('Error creating user:', [
+                'error_message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+    
+            return response()->json(['error' => 'Failed to create user.'], 500);
+        }
     }
+    
+
+
 
     public function show(User $user)
     {
@@ -71,12 +93,12 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'username' => 'required|unique:users,username,' . $user->id,
+            'name' => 'required|unique:users,name,' . $user->id,
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required'
         ]);
 
-        $user->username = $request->username;
+        $user->name = $request->name;
         $user->email = $request->email;
         if ($request->password) {
             $user->password = Hash::make($request->password);

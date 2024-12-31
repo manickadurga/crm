@@ -4,6 +4,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ContactCreated;
+use App\Events\ContactUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -91,7 +93,7 @@ class LeadsController extends Controller
             ],
         ], 200);
 
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Log the error
         Log::error('Failed to retrieve leads: ' . $e->getMessage());
 
@@ -149,10 +151,10 @@ class LeadsController extends Controller
             $validatedData['image'] = $imageName; // Save $imageName to database
         }
 
-        // Ensure 'location' is stored as JSON
-        if (isset($validatedData['location'])) {
-            $validatedData['location'] = json_encode($validatedData['location']);
-        }
+        // // Ensure 'location' is stored as JSON
+        // if (isset($validatedData['location'])) {
+        //     $validatedData['location'] = json_encode($validatedData['location']);
+        // }
 
         $crmentityController = new CrmentityController();
         $crmid = $crmentityController->createCrmentity('Leads', $validatedData['name']);
@@ -167,6 +169,7 @@ class LeadsController extends Controller
         // Create the lead with the crmid
         $validatedData['id'] = $crmid;
         $lead = Leads::create($validatedData);
+        event(new ContactCreated($lead));
 
         // Commit the transaction
         DB::commit();
@@ -177,9 +180,9 @@ class LeadsController extends Controller
         ], 201);
     } catch (ValidationException $e) {
         DB::rollBack();
-        Log::error('Validation error:', $e->validator->errors());
+        //Log::error('Validation error:', $e->validator->errors());
         return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         DB::rollBack();
         Log::error('Failed to create lead: ' . $e->getMessage());
         return response()->json([
@@ -253,7 +256,7 @@ class LeadsController extends Controller
         // Update the lead with validated data
         $lead->fill($validatedData);
         $lead->save();
-
+        event(new ContactUpdated($lead));
         // Update the related Crmentity record
         $crmentity = Crmentity::where('crmid', $lead->id)->where('setype', 'Leads')->first();
         
@@ -372,7 +375,7 @@ class LeadsController extends Controller
             ],
         ], 200);
 
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Failed to search leads: ' . $e->getMessage());
         return response()->json([
             'status' => 500,

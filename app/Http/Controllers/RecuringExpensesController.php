@@ -85,7 +85,7 @@ class RecuringExpensesController extends Controller
         $crmid = $crmentityController->createCrmentity('Recuring Expenses', $validatedData['value']);
 
         if (!$crmid) {
-            throw new \Exception('Failed to create Crmentity');
+            throw new Exception('Failed to create Crmentity');
         }
 
         // Add crmid to validated data
@@ -104,7 +104,7 @@ class RecuringExpensesController extends Controller
     } catch (ValidationException $e) {
         DB::rollBack(); // Roll back the transaction on validation error
         return response()->json(['errors' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         DB::rollBack(); // Roll back the transaction on general error
         Log::error('Failed to create recurring expense: ' . $e->getMessage());
         Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -172,7 +172,7 @@ class RecuringExpensesController extends Controller
 
     } catch (ValidationException $e) {
         return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Failed to update expense or Crmentity: ' . $e->getMessage());
         return response()->json(['error' => 'Failed to update expense or Crmentity'], 500);
     }

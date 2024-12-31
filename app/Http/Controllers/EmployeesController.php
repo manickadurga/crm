@@ -126,7 +126,7 @@ class EmployeesController extends Controller
                 $crmentity->update([
                     'label' => $validatedData['first_name'],
                     'modifiedtime' => now(),
-                    'modifiedby' => auth()->id(), // Assuming you have authentication setup
+                   // 'modifiedby' => auth()->id(), // Assuming you have authentication setup
                 ]);
             } else {
                 // Create a new Crmentity record if it does not exist
@@ -136,8 +136,8 @@ class EmployeesController extends Controller
                     'label' => $validatedData['first_name'],
                     'createdtime' => now(),
                     'modifiedtime' => now(),
-                    'createdby' => auth()->id(), // Assuming you have authentication setup
-                    'modifiedby' => auth()->id(),
+                   // 'createdby' => auth()->id(), // Assuming you have authentication setup
+                    //'modifiedby' => auth()->id(),
                 ]);
             }
     

@@ -10,6 +10,7 @@ use App\Models\Crmentity;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Events\PipelineStageUpdated;
 
 class PipelinesController extends Controller
 {
@@ -86,7 +87,7 @@ class PipelinesController extends Controller
                 'pipeline' => $pipeline
             ], 201);
     
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to create pipeline: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create pipeline: ' . $e->getMessage()], 500);
@@ -141,8 +142,10 @@ class PipelinesController extends Controller
         if (!$updated) {
             throw new Exception('Failed to update Crmentity');
         }
+
+        
     
-            return response()->json([
+        return response()->json([
                 'message' => 'Pipeline updated successfully',
                 'pipeline' => $pipeline,
             ]);

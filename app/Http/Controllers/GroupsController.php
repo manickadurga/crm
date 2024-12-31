@@ -131,7 +131,7 @@ class GroupsController extends Controller
 
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to create group: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create group: ' . $e->getMessage()], 500);
         }
@@ -142,7 +142,7 @@ class GroupsController extends Controller
         try {
             $group = Groups::findOrFail($id);
             return response()->json($group);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error fetching jo_group: ' . $e->getMessage());
             return response()->json(['error' => 'Unable to fetch group'], 500);
         }
@@ -160,7 +160,7 @@ class GroupsController extends Controller
             $group = Groups::findOrFail($id);
             $group->update($validatedData);
             return response()->json($group);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error updating jo_group: ' . $e->getMessage());
             return response()->json(['error' => 'Unable to update group'], 500);
         }
@@ -171,7 +171,7 @@ class GroupsController extends Controller
             $group = Groups::findOrFail($id);
             $group->delete();
             return response()->json(['message' => 'Group deleted successfully'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error deleting group: ' . $e->getMessage());
             return response()->json(['error' => 'Unable to delete group'], 500);
         }

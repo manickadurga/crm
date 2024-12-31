@@ -105,7 +105,7 @@ public function store(Request $request)
         $product = Product::create($data);
 
         if (!$product) {
-            throw new \Exception('Product creation failed');
+            throw new Exception('Product creation failed');
         }
 
         DB::commit();
@@ -115,7 +115,7 @@ public function store(Request $request)
             'product' => $product
         ], 201);
 
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         DB::rollBack();
         Log::error('Product creation failed: ' . $e->getMessage());
         return response()->json([

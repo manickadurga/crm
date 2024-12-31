@@ -74,7 +74,7 @@ class FormFieldController extends Controller
                             ];
 
                     // Example: Fetch options for specific field types
-                    if (in_array($field->uitype, [33, 16])) {
+                    if (in_array($field->uitype, [33, 16, 56])) {
                         $options = $this->getFieldOptions($field->fieldname);
                         if ($options) {
                             $fieldData['options'] = $options;
@@ -145,8 +145,24 @@ private function getFieldOptions($fieldName)
             array_unshift($options, ['value' => '', 'label' => 'Select a project...', 'id' => null]);
             return $options;
         },
+
+        'project_id' => function () {
+            $options = DB::table('jo_projects')->pluck('project_name', 'id')->map(function ($project, $id) {
+                return ['value' => $project, 'label' => $project, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a project...', 'id' => null]);
+            return $options;
+        },
         
         'teams' => function () {
+            $options = DB::table('jo_teams')->pluck('team_name', 'id')->map(function ($teams, $id) {
+                return ['value' => $teams, 'label' => $teams, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a team...', 'id' => null]);
+            return $options;
+        },
+
+        'team_id' => function () {
             $options = DB::table('jo_teams')->pluck('team_name', 'id')->map(function ($teams, $id) {
                 return ['value' => $teams, 'label' => $teams, 'id' => $id];
             })->toArray();
@@ -172,6 +188,14 @@ private function getFieldOptions($fieldName)
             return $options;
         },
         
+        'client_id' => function () {
+            $options = DB::table('jo_clients')->pluck('name', 'id')->map(function ($client, $id) {
+                return ['value' => $client, 'label' => $client, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a client...', 'id' => null]);
+            return $options;
+        },
+
         'Employee that generate income' => function () {
             $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
                 return ['value' => $employee, 'label' => $employee, 'id' => $id];
@@ -211,6 +235,48 @@ private function getFieldOptions($fieldName)
             array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
             return $options;
         },
+        'addorremoveemployee' => function () {
+            $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
+                return ['value' => $employee, 'label' => $employee, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
+            return $options;
+        },
+        'choose_employees' => function () {
+            $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
+                return ['value' => $employee, 'label' => $employee, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
+            return $options;
+        },
+        'employee_id'  => function () {
+            $options = DB::table('jo_manage_employees')->pluck('first_name', 'id')->map(function ($employee, $id) {
+                return ['value' => $employee, 'label' => $employee, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an employee...', 'id' => null]);
+            return $options;
+        },
+        'approval_policy' => function () {
+            $options = DB::table('jo_approval_policy')->pluck('name', 'id')->map(function ($approvalpolicy, $id) {
+                return ['value' => $approvalpolicy, 'label' => $approvalpolicy, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an approvalpolicy...', 'id' => null]);
+            return $options;
+        },
+        'chooseteams' => function () {
+            $options = DB::table('jo_teams')->pluck('team_name', 'id')->map(function ($team, $id) {
+                return ['value' => $team, 'label' => $team, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an team...', 'id' => null]);
+            return $options;
+        },
+        'choose_teams' => function () {
+            $options = DB::table('jo_teams')->pluck('team_name', 'id')->map(function ($team, $id) {
+                return ['value' => $team, 'label' => $team, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select an team...', 'id' => null]);
+            return $options;
+        },
         
         'categories' => function () {
             $options = DB::table('jo_manage_categories')->pluck('expense_name', 'id')->map(function ($category, $id) {
@@ -235,7 +301,15 @@ private function getFieldOptions($fieldName)
             array_unshift($options, ['value' => '', 'label' => 'Select a vendor...', 'id' => null]);
             return $options;
         },
-        
+
+        'task_id' => function () {
+            $options = DB::table('jo_tasks')->pluck('title', 'id')->map(function ($task, $id) {
+                return ['value' => $task, 'label' => $task, 'id' => $id];
+            })->toArray();
+            array_unshift($options, ['value' => '', 'label' => 'Select a task...', 'id' => null]);
+            return $options;
+        },
+
         // Add more mappings as needed
     ];
     // Default options if fieldName doesn't match specific cases
@@ -499,6 +573,74 @@ private function getFieldOptions($fieldName)
         ['value' => 'products', 'label' => 'Products'],
         ['value' => 'expenses', 'label' => 'Expenses'],
     ],
+    'billing'=> [
+            ['value' => '', 'label' => 'Select billing...'],
+            ['value' => 'tax_deductible', 'label' => 'Tax deductible'],
+            ['value' => 'not_tax_deductible', 'label' => 'Not Tax deductible'],
+            ['value' => 'billable_to_contact', 'label' => 'Billable To Contact'],
+        ],
+    'choose' => [
+        ['value' => '', 'label' => 'Select any...'],
+        ['value' => 'addorremoveemployee', 'label' => 'Employees'],
+        ['value' => 'chooseteams', 'label' => 'Teams'],
+        
+    ],
+
+    'start_time' => [
+            ['value' => '', 'label' => 'Select time...'],
+            ['value' => '12:00AM', 'label' => '12:00AM'],
+            ['value' => '1:00AM', 'label' => '1:00AM'],
+            ['value' => '2:00AM', 'label' => '2:00AM'],
+            ['value' => '3:00AM', 'label' => '3:00AM'],
+            ['value' => '4:00AM', 'label' => '4:00AM'],
+            ['value' => '5:00AM', 'label' => '5:00AM'],
+            ['value' => '6:00AM', 'label' => '6:00AM'],
+            ['value' => '7:00AM', 'label' => '7:00AM'],
+            ['value' => '8:00AM', 'label' => '8:00AM'],
+            ['value' => '9:00AM', 'label' => '9:00AM'],
+            ['value' => '10:00AM', 'label' => '10:00AM'],
+            ['value' => '11:00AM', 'label' => '11:00AM'],
+            ['value' => '12:00PM', 'label' => '12:00PM'],
+            ['value' => '1:00PM', 'label' => '1:00PM'],
+            ['value' => '2:00PM', 'label' => '2:00PM'],
+            ['value' => '3:00PM', 'label' => '3:00PM'],
+            ['value' => '4:00PM', 'label' => '4:00PM'],
+            ['value' => '5:00PM', 'label' => '5:00PM'],
+            ['value' => '6:00PM', 'label' => '6:00PM'],
+            ['value' => '7:00PM', 'label' => '7:00PM'],
+            ['value' => '8:00PM', 'label' => '8:00PM'],
+            ['value' => '9:00PM', 'label' => '9:00PM'],
+            ['value' => '10:00PM', 'label' => '10:00PM'],
+            ['value' => '11:00PM', 'label' => '11:00PM'],
+            ],
+
+        'end_time' => [
+            ['value' => '', 'label' => 'Select time...'],
+            ['value' => '12:00AM', 'label' => '12:00AM'],
+            ['value' => '1:00AM', 'label' => '1:00AM'],
+            ['value' => '2:00AM', 'label' => '2:00AM'],
+            ['value' => '3:00AM', 'label' => '3:00AM'],
+            ['value' => '4:00AM', 'label' => '4:00AM'],
+            ['value' => '5:00AM', 'label' => '5:00AM'],
+            ['value' => '6:00AM', 'label' => '6:00AM'],
+            ['value' => '7:00AM', 'label' => '7:00AM'],
+            ['value' => '8:00AM', 'label' => '8:00AM'],
+            ['value' => '9:00AM', 'label' => '9:00AM'],
+            ['value' => '10:00AM', 'label' => '10:00AM'],
+            ['value' => '11:00AM', 'label' => '11:00AM'],
+            ['value' => '12:00PM', 'label' => '12:00PM'],
+            ['value' => '1:00PM', 'label' => '1:00PM'],
+            ['value' => '2:00PM', 'label' => '2:00PM'],
+            ['value' => '3:00PM', 'label' => '3:00PM'],
+            ['value' => '4:00PM', 'label' => '4:00PM'],
+            ['value' => '5:00PM', 'label' => '5:00PM'],
+            ['value' => '6:00PM', 'label' => '6:00PM'],
+            ['value' => '7:00PM', 'label' => '7:00PM'],
+            ['value' => '8:00PM', 'label' => '8:00PM'],
+            ['value' => '9:00PM', 'label' => '9:00PM'],
+            ['value' => '10:00PM', 'label' => '10:00PM'],
+            ['value' => '11:00PM', 'label' => '11:00PM'],
+            ],
 
     // Add more options arrays as needed
 ];

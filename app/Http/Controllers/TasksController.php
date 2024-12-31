@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 // use App\Models\Invoices;
 
+use App\Events\TaskCompleted;
+use App\Events\TaskCreated;
+use App\Events\TaskDueDateReminder;
 use App\Models\Tasks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,9 +44,11 @@ class TasksController extends Controller
             'projects' => 'nullable|array|max:5000',
             'projects.*' => 'exists:jo_projects,id',
             'status' => 'nullable|string',
-            'choose' => 'in:employees,teams',
+            'choose' => 'required|in:employees,teams',
             'addorremoveemployee' => 'nullable|array|max:5000',
             'addorremoveemployee.*' => 'exists:jo_manage_employees,id',
+            'chooseteams'=>'nullable|array|max:5000',
+            'chooseteams.*'=>'exists:jo_teams,id',
             'title' => 'required|string',
             'priority' => 'nullable|string',
             'size' => 'nullable|string',
@@ -56,6 +61,19 @@ class TasksController extends Controller
             'estimate.minutes' => 'nullable|integer',
             'description' => 'nullable|string',
         ]);
+        // if ($validatedData['choose'] === 'employees') {
+        //     // Ensure 'addorremoveemployee' is set and 'chooseteams' is null
+        //     $validatedData['chooseteams'] = null;
+        //     if (empty($validatedData['addorremoveemployee'])) {
+        //         throw new \Exception('Employees must be provided when "choose" is set to employees.');
+        //     }
+        // } elseif ($validatedData['choose'] === 'teams') {
+        //     // Ensure 'chooseteams' is set and 'addorremoveemployee' is null
+        //     $validatedData['addorremoveemployee'] = null;
+        //     if (empty($validatedData['chooseteams'])) {
+        //         throw new \Exception('Teams must be provided when "choose" is set to teams.');
+        //     }
+        // }
 
         // Handle estimate: convert estimate array to JSON
         $validatedData['estimate'] = json_encode([
@@ -77,6 +95,11 @@ class TasksController extends Controller
 
         // Create the Task record with crmid
         $task = Tasks::create($validatedData);
+
+        // Trigger TaskCreated event
+        event(new TaskCreated($task));
+        // Trigger TaskDueDateReminder event for due date check
+        event(new TaskDueDateReminder($task));
 
         DB::commit(); // Commit the transaction
 
@@ -127,7 +150,9 @@ public function update(Request $request, $id)
             'status' => 'nullable|string',
             'choose' => 'in:employees,teams',
             'addorremoveemployee' => 'nullable|array|max:5000',
-            'addorremoveemployee.*' => 'exists:jo_employees,id',
+            'addorremoveemployee.*' => 'exists:jo_manage_employees,id',
+            'chooseteams' => 'nullable|array|max:5000',
+            'chooseteams.*' => 'exists:jo_teams,id',
             'title' => 'required|string',
             'priority' => 'nullable|string',
             'size' => 'nullable|string',
@@ -141,6 +166,12 @@ public function update(Request $request, $id)
             'description' => 'nullable|string',
         ]);
 
+         // Set default empty array for nullable fields
+         $validated['projects'] = $validated['projects'] ?? [];
+         $validated['addorremoveemployee'] = $validated['addorremoveemployee'] ?? [];
+         $validated['chooseteams'] = $validated['chooseteams'] ?? [];
+         $validated['tags'] = $validated['tags'] ?? [];
+
         // Handle estimate
         $validated['estimate'] = [
             'days' => $validated['estimate']['days'] ?? 0,
@@ -148,13 +179,34 @@ public function update(Request $request, $id)
             'minutes' => $validated['estimate']['minutes'] ?? 0,
         ];
 
+        // Conditional logic based on the 'choose' field
+        // if ($validated['choose'] === 'employees') {
+        //     // Ensure 'addorremoveemployee' is set and 'chooseteams' is null
+        //     $validated['chooseteams'] = null;
+        //     if (empty($validated['addorremoveemployee'])) {
+        //         throw new \Exception('Employees must be provided when "choose" is set to employees.');
+        //     }
+        // } elseif ($validated['choose'] === 'teams') {
+        //     // Ensure 'chooseteams' is set and 'addorremoveemployee' is null
+        //     $validated['addorremoveemployee'] = null;
+        //     if (empty($validated['chooseteams'])) {
+        //         throw new \Exception('Teams must be provided when "choose" is set to teams.');
+        //     }
+        // }
+
+        // Check if the task status is 'completed' and it was not already 'completed'
+        if (isset($validated['status']) && $validated['status'] === 'completed' && $task->status !== 'completed') {
+            event(new TaskCompleted($task));
+        }
+
         // Update the task
         $task->update($validated);
+
+
 
         // Prepare Crmentity update data
         $crmentityData = [
             'label' => $validated['title'],
-            //'description' => $validated['description'] ?? '',
             // You can include other fields if needed
         ];
 
@@ -165,11 +217,10 @@ public function update(Request $request, $id)
             // Update existing Crmentity record
             $crmentity->update($crmentityData);
         } else {
-            // Optionally create a new Crmentity record if it does not exist
+            // Create a new Crmentity record if it does not exist
             $crmentity = new Crmentity();
-            $crmentity->crmid = $id; // Or use an appropriate unique identifier
+            $crmentity->crmid = $id; // Use an appropriate unique identifier
             $crmentity->label = $validated['title'];
-            //$crmentity->description = $validated['description'] ?? '';
             $crmentity->save();
         }
 
@@ -187,7 +238,7 @@ public function update(Request $request, $id)
         return response()->json([
             'status' => 422,
             'message' => 'Validation failed',
-            
+            //'errors' => $e->errors(),
         ], 422);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -199,6 +250,7 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
 
 public function destroy($id)
 {

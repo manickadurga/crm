@@ -31,5 +31,9 @@ class Invoices extends Model
         {
             return $this->hasMany(InventoryProductRel::class, 'invoice_id');
         }
+        public function contact()
+    {
+        return $this->belongsTo(Customers::class, 'contacts');
+    }
 
 }

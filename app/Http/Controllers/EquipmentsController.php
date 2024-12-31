@@ -74,7 +74,7 @@ class EquipmentsController extends Controller
                 'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'name' => 'required|string|max:255',
                 'type' => 'nullable|string',
-                'manufactured_year' => 'nullable|integer',
+                'manufactured_year' => 'nullable|integer|min:1000',
                 'sn' => 'nullable|string',
                 'max_share_period' => 'nullable|integer',
                 'initial_cost' => 'nullable|integer',
@@ -111,7 +111,7 @@ class EquipmentsController extends Controller
             DB::rollBack();
             Log::error('Validation failed while creating equipment and Crmentity: ' . $e->getMessage());
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to create equipment and Crmentity: ' . $e->getMessage());
             Log::error($e->getTraceAsString());
@@ -130,7 +130,7 @@ class EquipmentsController extends Controller
                 'status' => 200,
                 'equipment' => $equipment,
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to fetch equipment: ' . $e->getMessage());
 
             return response()->json([
@@ -193,8 +193,8 @@ class EquipmentsController extends Controller
                     'createdtime' => now(),
                     'modifiedtime' => now(),
                     'status' => $validatedData['status'] ?? 'Active', // Default status
-                    'createdby' => auth()->id(), // Assuming you have authentication setup
-                    'modifiedby' => auth()->id(),
+                    //'createdby' => auth()->id(), // Assuming you have authentication setup
+                   // 'modifiedby' => auth()->id(),
                 ]);
             }
     
@@ -212,7 +212,7 @@ class EquipmentsController extends Controller
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to update equipment and Crmentity: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update equipment and Crmentity'], 500);

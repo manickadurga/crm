@@ -46,7 +46,29 @@ return [
             'local_domain'=>env('MAIL_EHLO_DOMAIN'),
             
         ],
-    ],
+        //  'mailgun' => [
+        //     'transport' => 'mailgun',
+    // 'client' => [
+    //     'timeout' => 5,
+    // ],
+// ],
+        // 'mailgun' => [ 'transport' => 'mailgun', 'client' => [ 'timeout' => null, 
+        // 'smtp' => [
+        // 'transport' => 'smtp',
+        // 'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+        // 'port' => env('MAIL_PORT', 587),
+        // 'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+        // 'username' => env('MAIL_USERNAME', 'postmaster@sandboxb6455bfe016f4de18a53a440f9dbe4a2.mailgun.org'),
+        // 'password' => env('MAIL_PASSWORD', '23f2da0e0795ac8f1fcdce904da31a2e-c02fd0ba-56cf99a6'),
+        // 'timeout' => null,
+        // 'local_domain' => env('MAIL_EHLO_DOMAIN', null),
+        
+
+],
+
+
+
+
 
 
     

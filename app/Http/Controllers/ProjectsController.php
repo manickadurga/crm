@@ -43,7 +43,7 @@ class ProjectsController extends Controller
                 ],
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error
             Log::error('Failed to retrieve projects: ' . $e->getMessage());
 
@@ -130,7 +130,7 @@ class ProjectsController extends Controller
         DB::rollBack();
         Log::error('Validation failed while creating project: ' . $e->getMessage());
         return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         DB::rollBack();
         Log::error('Failed to create project: ' . $e->getMessage());
         Log::error($e->getTraceAsString()); // Log the stack trace for detailed debugging
@@ -148,7 +148,7 @@ class ProjectsController extends Controller
             return response()->json($projects);
         //  } catch (ModelNotFoundException $e) {
             // return response()->json(['message' => 'tasks not found'], 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Server Error'], 500);
         }
     }
@@ -184,7 +184,7 @@ class ProjectsController extends Controller
             $projects = Projects::findOrFail($id); // Retrieve the task instance
             $projects->update($validated); // Update the instance with the validated data
             return response()->json($projects, 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -200,7 +200,7 @@ class ProjectsController extends Controller
                 $projects = Projects::findOrFail($id); // Ensure you use the correct model
                 $projects->delete();
                 return response()->json(['message' => 'Projects deleted successfully'], 200);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return response()->json(['message' => 'Failed to delete Projects', 'error' => $e->getMessage()], 500);
             }
         }

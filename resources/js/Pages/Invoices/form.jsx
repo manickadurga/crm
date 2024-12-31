@@ -38,7 +38,7 @@ const InvoicesForm = () => {
 
   useEffect(() => {
     // Fetch form fields
-    axios.get('http://127.0.0.1:8000/form-fields?name=Invoices')
+    axios.get('http://127.0.0.1:8001/form-fields?name=Invoices')
       .then((res) => {
         setInvoiceFromField(res.data);
       })

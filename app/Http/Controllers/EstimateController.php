@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EstimateCreated;
 use App\Models\Clients;
 use Illuminate\Validation\ValidationException;
 use App\Models\Employee;
@@ -133,12 +134,15 @@ class EstimateController extends Controller
                 $validatedData['tags'] = json_encode($validatedData['tags']);
             }
             $crmentityController = new CrmentityController();
-        $crmid = $crmentityController->createCrmentity('Estimates', $validatedData['estimatenumber']);
+            $crmid = $crmentityController->createCrmentity('Estimates', $validatedData['estimatenumber']);
 
-        // Create the customer with the crmid
-        $validatedData['id'] = $crmid; 
+            // Create the customer with the crmid
+            $validatedData['id'] = $crmid; 
             $estimate = Estimate::create($validatedData);
             $estimate->tags = json_decode($estimate->tags);
+
+             // Fire the EstimateCreated event after saving the estimate
+            event(new EstimateCreated($estimate));
     
             // Return success response
             return response()->json([
@@ -147,7 +151,7 @@ class EstimateController extends Controller
                 'estimate' => $estimate,
             ], 200);
     
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Rollback transaction if any exception occurs
             DB::rollBack();
     
@@ -166,7 +170,7 @@ class EstimateController extends Controller
             return response()->json($estimate);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Estimate not found'], 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['message' => 'Server Error'], 500);
         }
     }
@@ -240,8 +244,8 @@ class EstimateController extends Controller
                     'createdtime' => now(),
                     'modifiedtime' => now(),
                     'status' => $validatedData['estimate_status'] ?? 'Pending', // Default status
-                    'createdby' => auth()->id(), // Assuming you have authentication setup
-                    'modifiedby' => auth()->id(),
+                    //'createdby' => auth()->id(), // Assuming you have authentication setup
+                    //'modifiedby' => auth()->id(),
                 ]);
             }
     
@@ -271,7 +275,7 @@ class EstimateController extends Controller
                 'errors' => $ex->errors()
             ], 422);
     
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             DB::rollBack();
             Log::error('Failed to update estimate and Crmentity: ' . $ex->getMessage());
             return response()->json([
@@ -297,7 +301,7 @@ class EstimateController extends Controller
             return response()->json(['message' => 'Estimate deleted successfully'], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Estimate not found'], 404);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => 'Failed to delete estimate', 'message' => $e->getMessage()], 500);
         }
     }
@@ -359,7 +363,7 @@ class EstimateController extends Controller
                 'to' => $estimates->lastItem(),
             ],
         ], 200);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Log the error
         Log::error('Failed to search estimates: ' . $e->getMessage());
 
@@ -469,9 +473,9 @@ class EstimateController extends Controller
     
             else {
                
-                throw new \Exception('Invalid value provided.');
+                throw new Exception('Invalid value provided.');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
            
             return response()->json([
                 'status' => 500,
@@ -488,7 +492,7 @@ class EstimateController extends Controller
         ]);
 
         if ($validator->fails()) {
-            throw new \Exception('Invalid ID');
+            throw new Exception('Invalid ID');
         }
 
         // Fetch the details based on the type
@@ -504,7 +508,7 @@ class EstimateController extends Controller
                     ]
                 ]);
             } else {
-                throw new \Exception('Task not found');
+                throw new Exception('Task not found');
             }
         } elseif ($type === 'products') {
             $item = Product::find($value);
@@ -520,7 +524,7 @@ class EstimateController extends Controller
                     ]
                 ]);
             } else {
-                throw new \Exception('Product not found');
+                throw new Exception('Product not found');
             }
         }elseif($type === 'employees'){
             $item = Employee::find($value);
@@ -536,7 +540,7 @@ class EstimateController extends Controller
                     ]
                     ]);
             }else{
-                throw new \Exception('Employee not found');
+                throw new Exception('Employee not found');
             }
         }elseif($type === 'projects'){
             $item = Project::find($value);
@@ -550,7 +554,7 @@ class EstimateController extends Controller
                     ]
                 ]);
             }else{
-                throw new \Exception('Projects not found');
+                throw new Exception('Projects not found');
             }
         }elseif($type === 'expenses'){
             $item = Expense::find($value);
@@ -568,9 +572,9 @@ class EstimateController extends Controller
             }
         }
          else {
-            throw new \Exception('Invalid type specified');
+            throw new Exception('Invalid type specified');
         }
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Handle exceptions here, you can log the error or return an error response
         return response()->json([
             'status' => 404,
@@ -619,7 +623,7 @@ public function addTasks(Request $request, $id)
             'status' => 200,
             'message' => 'Task added successfully'
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -734,7 +738,7 @@ public function addProducts(Request $request, $id)
             'tax_amount' => $estimate->tax_amount,
             'total' => $estimate->total,
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -783,7 +787,7 @@ public function addEmpProducts(Request $request, $id)
             'status' => 200,
             'message' => 'Employee added successfully'
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -840,7 +844,7 @@ public function addProjects(Request $request, $id)
             'status' => 200,
             'message' => 'Projects added successfully'
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -953,7 +957,7 @@ public function addExpenses(Request $request, $id)
             'tax_amount' => $estimate->tax_amount,
             'total' => $estimate->total,
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -1020,7 +1024,7 @@ public function getTasks($id)
                 'joProjects' => $joTaskResponse
             ]
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Error fetching projects', ['exception' => $e]);
         return response()->json([
             'status' => 500,
@@ -1051,7 +1055,7 @@ public function getProductDetails($id)
             'tax_amount' => $estimate->tax_amount,
             'total' => $estimate->total,
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -1104,7 +1108,7 @@ public function getEmpProducts($id)
             'status' => 200,
             'data' => $responseData
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Error fetching employee products', ['exception' => $e]);
         return response()->json([
             'status' => 500,
@@ -1171,7 +1175,7 @@ public function getProjects($id)
                 'joProjects' => $joProjectResponse
             ]
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Error fetching projects', ['exception' => $e]);
         return response()->json([
             'status' => 500,
@@ -1206,7 +1210,7 @@ public function getExpenses($id)
             'status' => 200,
             'expenses' => $inventoryProductResponse
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
             'status' => 500,
             'error' => $e->getMessage()
@@ -1373,7 +1377,7 @@ public function downloadEstimate($id)
         // Generate and download the PDF
         $pdf = Pdf::loadHTML($htmlContent);
         return $pdf->download('estimate_' . $estimate->id . '.pdf');
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Log the error message
         Log::error('Failed to generate estimate PDF', ['error' => $e->getMessage()]);
 

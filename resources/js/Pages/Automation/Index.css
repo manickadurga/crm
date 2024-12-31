@@ -1,0 +1,49 @@
+.react-flow .react-flow__handle {
+    width: 40px;
+    height: 14px;
+    border-radius: 3px;
+    background-color: green;
+  }
+  
+  .react-flow .react-flow__handle-top {
+    top: -10px;
+  }
+  
+  .react-flow .react-flow__handle-bottom {
+    bottom: -10px;
+  }
+  
+  .react-flow .react-flow__node {
+    height: 40px;
+    width: 120px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.8); /* Soft white border */
+    border-style: solid;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15); /* Soft shadow */
+    font-weight: 700;
+    background-color: #f8f9fa; /* Optional: Light background for contrast */
+    outline: none; /* Removes focus outline */
+}
+
+.react-flow .react-flow__node:focus,
+.react-flow .react-flow__node:active {
+    outline: none; /* Ensures no outline or border appears on focus or active state */
+    border-color: rgba(255, 255, 255, 0.8); /* Resets border color to the initial value */
+}
+
+
+  
+  .react-flow .react-flow__edge path,
+  .react-flow__connectionline path {
+    stroke-width: 2;
+  }
+  
+  .wrapper {
+    width: 100%; /* Set the width to 100% of its parent */
+    height: 500px; /* Set a fixed height for the graph */
+    border: 1px solid #ddd; /* Optional: Add a border for visibility */
+  }
+  

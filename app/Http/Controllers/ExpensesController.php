@@ -20,10 +20,12 @@ class ExpensesController extends Controller
     {
         try {
             $perPage = $request->input('per_page', 10);
+    
+            // Retrieve paginated expenses
             $expenses = Expense::select(
                 'id',
                 'amount',
-                'tax_deductible',
+                //'tax_deductible',
                 'purpose',
                 'vendors',
                 'categories',
@@ -33,30 +35,48 @@ class ExpensesController extends Controller
                 'notes',
                 'select_status'
             )->paginate($perPage);
+    
+            // Log the type and contents of $expenses and $expenses->items()
+            // Log::info('Expenses object type: ' . get_class($expenses));
+            // Log::info('Expenses contents: ' . print_r($expenses, true));
+            // Log::info('Expenses items type: ' . gettype($expenses->items()));
+            // Log::info('Expenses items contents: ' . print_r($expenses->items(), true));
+    
+            // Initialize formatted expenses array
             $formattedExpenses = [];
-            foreach ($expenses as $expense) {
-                $decodedProjects = is_string($expense->projects) ? json_decode($expense->projects) : $expense->projects;
-                $projectNames = [];
-                foreach ($decodedProjects as $projectId) {
-                    $project = Project::find($projectId);
-                    if ($project) {
-                        $projectNames[] = $project->project_name;
+    
+            // Check if items are not null and are iterable
+            $items = $expenses->items();
+            if (is_array($items) || is_object($items)) {
+                foreach ($items as $expense) {
+                    $decodedProjects = is_string($expense->projects) ? json_decode($expense->projects) : $expense->projects;
+                    $projectNames = [];
+                    if (is_array($decodedProjects) || is_object($decodedProjects)) {
+                        foreach ($decodedProjects as $projectId) {
+                            $project = Project::find($projectId);
+                            if ($project) {
+                                $projectNames[] = $project->project_name;
+                            }
+                        }
                     }
+                    $formattedExpenses[] = [
+                        'id' => $expense->id,
+                        'amount' => $expense->amount,
+                      //  'tax_deductible' => $expense->tax_deductible,
+                        'purpose' => $expense->purpose,
+                        'vendors' => $expense->vendors ? Vendors::find($expense->vendors)->vendor_name : null,
+                        'categories' => $expense->categories ? ManageCategories::find($expense->categories)->expense_name : null,
+                        'employees' => $expense->employees_that_generate,
+                        'projects' => $projectNames,
+                        'date' => $expense->date,
+                        'notes' => $expense->notes,
+                        'select_status' => $expense->select_status,
+                    ];
                 }
-                $formattedExpenses[] = [
-                    'id' => $expense->id,
-                    'amount' => $expense->amount,
-                    'tax_deductible' => $expense->tax_deductible,
-                    'purpose' => $expense->purpose,
-                    'vendors' => $expense->vendors ? Vendors::find($expense->vendors)->vendor_name : null,
-                    'categories' => $expense->categories ? ManageCategories::find($expense->categories)->expense_name : null,
-                    'employees' => $expense->employees_that_generate,
-                    'projects' => $projectNames,
-                    'date' => $expense->date,
-                    'notes' => $expense->notes,
-                    'select_status' => $expense->select_status,
-                ];
+            } else {
+                Log::error('Expenses items is not an array or object');
             }
+    
             return response()->json([
                 'status' => 200,
                 'expenses' => $formattedExpenses,
@@ -69,11 +89,11 @@ class ExpensesController extends Controller
                     'to' => $expenses->lastItem(),
                 ],
             ], 200);
-
+    
         } catch (Exception $e) {
             // Log the error
             Log::error('Failed to retrieve expenses: ' . $e->getMessage());
-
+    
             // Return error response
             return response()->json([
                 'status' => 500,
@@ -82,6 +102,7 @@ class ExpensesController extends Controller
             ], 500);
         }
     }
+    
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -128,7 +149,7 @@ class ExpensesController extends Controller
     
             // Check if Crmentity ID is returned correctly
             if (!$crmid) {
-                throw new \Exception('Failed to create Crmentity entry.');
+                throw new Exception('Failed to create Crmentity entry.');
             }
     
             // Create the expense with the Crmentity ID
@@ -143,7 +164,7 @@ class ExpensesController extends Controller
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to create expense: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create expense: ' . $e->getMessage()], 500);
@@ -251,7 +272,7 @@ class ExpensesController extends Controller
     } catch (ValidationException $e) {
         DB::rollBack();
         return response()->json(['error' => $e->validator->errors()], 422);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         DB::rollBack();
         Log::error('Failed to update expense and Crmentity: ' . $e->getMessage());
         return response()->json(['error' => 'Failed to update expense and Crmentity: ' . $e->getMessage()], 500);

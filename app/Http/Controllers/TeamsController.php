@@ -115,7 +115,7 @@ class TeamsController extends Controller
                 'add_or_remove_managers' => 'required|array',
                 'add_or_remove_managers.*'=>'exists:jo_manage_employees,id',
                 'add_or_remove_members' => 'nullable|array',
-                'add_or_remove_members.*'=>'exists:jo_managae_employees,id',
+                'add_or_remove_members.*'=>'exists:jo_manage_employees,id',
                 'tags' => 'nullable|array',
                 'tags.*' => 'exists:jo_tags,id',
             ]);

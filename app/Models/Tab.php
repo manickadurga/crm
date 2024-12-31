@@ -15,4 +15,8 @@ class Tab extends Model
     {
         return $this->hasMany(Field::class, 'tabid', 'tabid');
     }
+    public function blocks()
+    {
+        return $this->hasMany(Block::class, 'tabid', 'tabid');
+    }
 }

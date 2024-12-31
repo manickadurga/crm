@@ -43,7 +43,7 @@ const Submit = ({ basePath, id }) => {
     console.log('Data to Submit:', dataToSubmit);
 
     // Determine URL and method
-    const url = id ? `http://127.0.0.1:8001/api/${basePath}/${id}` : `http://127.0.0.1:8001/api/${basePath}`;
+    const url = id ? `http://127.0.0.1:8000/api/${basePath}/${id}` : `http://127.0.0.1:8000/api/${basePath}`;
     const method = id ? 'put' : 'post';
 
     try {

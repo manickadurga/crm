@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ContactCreated;
+use App\Events\ContactTag;
+use App\Events\ContactUpdated;
+use App\Events\TagUpdated;
+use App\Mail\SendEmailAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -9,7 +14,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use App\Models\Customers;
+use App\Models\EmailAction;
 use App\Models\Projects;
+use App\Models\SmsAction;
+use App\Models\Tags;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CustomersController extends Controller
 {
@@ -84,7 +94,7 @@ class CustomersController extends Controller
             ],
         ], 200);
 
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Log the error
         Log::error('Failed to retrieve customers: ' . $e->getMessage());
 
@@ -138,7 +148,8 @@ public function store(Request $request)
         // Create the customer with the crmid
         $validatedData['id'] = $crmid; // Add crmid to customer data
         $customer = Customers::create($validatedData);
-
+        $customer->update($validatedData);
+        event(new ContactCreated($customer));
         return response()->json([
             'message' => 'Customer created successfully',
             'customer' => $customer,
@@ -159,7 +170,7 @@ public function show(string $id)
         $customer = Customers::findOrFail($id);
 
         // Decode JSON fields if they are stored as JSON strings
-        $customer->location = is_string($customer->location) ? json_decode($customer->location, true) : [];
+        //$customer->location = is_string($customer->location) ? json_decode($customer->location, true) : [];
         $customer->tags = is_string($customer->tags) ? json_decode($customer->tags, true) : [];
         $customer->projects = is_string($customer->projects) ? json_decode($customer->projects, true) : [];
 
@@ -180,13 +191,14 @@ public function update(Request $request, $id)
         // Validate the incoming request data
         $validatedData = Validator::make($request->all(), [
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'primary_email' => 'nullable|string|email|max:255',
             'primary_phone' => 'nullable|string|max:20',
             'website' => 'nullable|string|max:255',
             'fax' => 'nullable|string|max:20',
             'fiscal_information' => 'nullable|string',
-            'projects' => 'nullable|json',
+            'projects' => 'nullable|array',
+            'projects.*' => 'exists:jo_projects,id',
             'contact_type' => 'nullable|string|max:255',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:jo_tags,id',
@@ -208,25 +220,48 @@ public function update(Request $request, $id)
             $validatedData['image'] = $imageName;
         }
 
-        // Find and update the customer record
+        // Find the customer by ID
         $customer = Customers::findOrFail($id);
+        // Capture the current tags before updating
+        $tagsBeforeUpdate = $customer->tags ?? [];
+
+        // Update customer data
         $customer->update($validatedData);
+        // Check if tags have changed
+        if (isset($request->tags)) {
+        $updatedTags = $request->tags;
+        
+        // Determine which tags were added and which were removed
+        $addedTags = array_diff($updatedTags, $tagsBeforeUpdate);
+        $removedTags = array_diff($tagsBeforeUpdate, $updatedTags);
+        
+        // Fire the event for tags added
+        foreach ($addedTags as $tagId) {
+            $tag = Tags::find($tagId);
+            event(new TagUpdated($customer, $tag, 'tag_added'));
+        }
 
-        // Log customer information and crmid
-        Log::info("Updating Crmentity for customer ID {$id} with crmid: {$customer->crmid}");
+        // Fire the event for tags removed
+        foreach ($removedTags as $tagId) {
+            $tag = Tags::find($tagId);
+            event(new TagUpdated($customer, $tag, 'tag_removed'));
+        }
+    }
+        event(new ContactUpdated($customer));
+        // Dispatch the event
+        event(new ContactTag($customer, $tagsBeforeUpdate));
+       
 
-        // Create an instance of CrmentityController
-        $crmentityController = new CrmentityController();
-        $crmid = $customer->id;
+        // Optional: Update Crmentity record if name is provided
+        if (isset($validatedData['name'])) {
+            $crmentityController = new CrmentityController();
+            $updatedCrmentity = $crmentityController->updateCrmentity($customer->id, [
+                'label' => $validatedData['name'],
+            ]);
 
-        // Update the corresponding Crmentity record
-        $updated = $crmentityController->updateCrmentity($crmid, [
-            'label' => $validatedData['name'],
-            //'description' => $validatedData['fiscal_information'] ?? ''
-        ]);
-
-        if (!$updated) {
-            throw new Exception('Failed to update Crmentity');
+            if (!$updatedCrmentity) {
+                throw new Exception('Failed to update Crmentity');
+            }
         }
 
         return response()->json([
@@ -246,21 +281,8 @@ public function update(Request $request, $id)
 }
 
 
-    public function destroy(string $id)
-    {
-        try {
-            $customer = Customers::findOrFail($id);
-            $customer->delete();
-            return response()->json(['message' => 'Customer deleted successfully'], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        } catch (Exception $e) {
-            Log::error('Failed to delete customer: ' . $e->getMessage());
-            return response()->json(['message' => 'An unexpected error occurred while processing your request. Please try again later.'], 500);
-        }
-    }
 
-    public function search(Request $request)
+public function search(Request $request)
 {
     try {
         // Validate the search input
@@ -359,6 +381,55 @@ public function showImported()
     $customers = Customers::all();  // Assuming you want to display all customers including the imported ones
     return view('customers.show_imported', compact('customers'));
 }
+public function addTag(Request $request, $contactId, $tagId)
+{
+    // Find the contact
+    $contact = Customers::findOrFail($contactId);
 
+    // Get the existing tags or initialize as an empty array if null
+    $tags = is_array($contact->tags) ? $contact->tags : json_decode($contact->tags, true) ?? [];
+
+    // Check if the tag already exists to avoid duplicates
+    if (!in_array($tagId, $tags)) {
+        // Add the tagId to the tags array
+        $tags[] = $tagId;
+
+        // Save the updated tags array back to the database
+        $contact->tags = json_encode($tags); // Save as JSON string
+        $contact->save();
+
+        // Dispatch the 'TagUpdated' event (for tag addition)
+        event(new TagUpdated($contact, $tagId, 'tag_added'));
+
+        return response()->json(['message' => 'Tag added successfully!', 'tags' => $tags]);
+    }
+
+    return response()->json(['message' => 'Tag already exists!', 'tags' => $tags], 400);
+}
+public function removeTag(Request $request, $contactId, $tagId)
+{
+    // Find the contact
+    $contact = Customers::findOrFail($contactId);
+
+    // Get the existing tags as an array
+    $tags = is_array($contact->tags) ? $contact->tags : json_decode($contact->tags, true) ?? [];
+
+    // Check if the tag exists in the array
+    if (($key = array_search($tagId, $tags)) !== false) {
+        // Remove the tag from the array
+        unset($tags[$key]);
+
+        // Re-index the array to ensure proper structure and save it back as a JSON string
+        $contact->tags = json_encode(array_values($tags));
+        $contact->save();
+
+        // Dispatch the 'TagUpdated' event (for tag removal)
+        event(new TagUpdated($contact, $tagId, 'tag_removed'));
+
+        return response()->json(['message' => 'Tag removed successfully!', 'tags' => $tags]);
+    }
+
+    return response()->json(['message' => 'Tag not found!', 'tags' => $tags], 404);
+}
 }
 

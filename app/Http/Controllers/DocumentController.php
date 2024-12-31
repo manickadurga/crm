@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DocumentCreated;
 use Illuminate\Http\Request;
 use App\Models\Document;
 use Illuminate\Support\Facades\DB;
@@ -94,7 +95,9 @@ class DocumentController extends Controller
     
             // Create the Document with the crmid as id
             $document = Document::create($validatedData);
-
+            //Dispatch event
+            event(new DocumentCreated($document));
+            Log::info('DocumentCreated event fired for document: ' . $document->id); 
             DB::commit();
     
             return response()->json([
@@ -137,7 +140,7 @@ class DocumentController extends Controller
             if ($crmentity) {
                 $crmentity->update([
                     'label' => $validatedData['document_name'] ?? $crmentity->label,
-                    'modifiedby' => auth()->id(), // Assuming you have authentication setup
+                    //'modifiedby' => auth()->id(), // Assuming you have authentication setup
                     'modifiedtime' => now(),
                 ]);
             }

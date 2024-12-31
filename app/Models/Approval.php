@@ -10,17 +10,12 @@ class Approval extends Model
     use HasFactory;
 
     protected $table = 'jo_approvals';
-
-    protected $fillable = [
-        'name',
-        'min_count',
-        'approval_policy',
-        'created_by',
-        'created_at',
-        'employees',
-        'teams',
-        'status',
+    protected $guarded=[];
+    protected $casts=[
+        'tags'=>'array',
+        'choose_employees'=>'array',
+        'choose_teams'=>'array',
     ];
 
-    // Add any relationships, accessors, or other custom methods here
+
 }

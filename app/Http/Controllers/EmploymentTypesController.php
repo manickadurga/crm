@@ -156,8 +156,8 @@ class EmploymentTypesController extends Controller
                 'label' => $validatedData['employment_type_name'],
                 'createdtime' => now(),
                 'modifiedtime' => now(),
-                'createdby' => auth()->id(), // Assuming you have authentication setup
-                'modifiedby' => auth()->id(),
+               // 'createdby' => auth()->id(), // Assuming you have authentication setup
+               // 'modifiedby' => auth()->id(),
                 'status' => 'Active', // Or any status you prefer
             ]);
         }

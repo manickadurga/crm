@@ -26,7 +26,7 @@ use App\Models\Organization;
 use App\Models\Clients;
 use App\Models\Vendors;
 use App\Models\Tags;
-use App\Models\Employment_Types;
+//use App\Models\Employment_Types;
 use App\Models\EmploymentTypes;
 use App\Models\Leads;
 use App\Models\Product;

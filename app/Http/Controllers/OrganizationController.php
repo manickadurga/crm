@@ -37,7 +37,7 @@ class OrganizationController extends Controller
                     'to' => $organizations->lastItem(),
                 ],
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error
             Log::error('Failed to retrieve organizations: ' . $e->getMessage());
 
@@ -58,7 +58,7 @@ class OrganizationController extends Controller
                 return response()->json(['message' => 'Organization not found'], 404);
             }
             return response()->json($organization);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -92,7 +92,7 @@ class OrganizationController extends Controller
             $validatedData['id'] = $crmid;
             $organization = Organization::create($validatedData);
             return response()->json($organization, 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -151,7 +151,7 @@ class OrganizationController extends Controller
             'message' => 'Organization updated successfully',
             'organization' => $organization,
         ]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         Log::error('Failed to update organization: ' . $e->getMessage());
         return response()->json(['error' => 'Failed to update organization: ' . $e->getMessage()], 500);
     }
@@ -168,7 +168,7 @@ class OrganizationController extends Controller
 
             $organization->delete();
             return response()->json(['message' => 'Organization deleted successfully']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -187,7 +187,7 @@ class OrganizationController extends Controller
             ];
 
             return response()->json($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -202,7 +202,7 @@ class OrganizationController extends Controller
                 'status' => 200,
                 'clientsData' => $clientsData
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -236,7 +236,7 @@ class OrganizationController extends Controller
                 'status' => 200,
                 'message' => 'Client data stored in organization successfully'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

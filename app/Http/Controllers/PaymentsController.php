@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PaymentsReceived;
 use App\Models\Clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -120,7 +121,7 @@ class PaymentsController extends Controller
                 ],
             ], 200);
     
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error
             Log::error('Failed to retrieve payments: ' . $e->getMessage());
     
@@ -181,6 +182,8 @@ class PaymentsController extends Controller
     
             // Create the payment with the crmid
             $payment = Payments::create($paymentData);
+            //Dispatch event
+            event(new PaymentsReceived($payment));
     
             DB::commit();
     
@@ -193,7 +196,7 @@ class PaymentsController extends Controller
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to create payment: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create payment: ' . $e->getMessage()], 500);
@@ -270,7 +273,7 @@ class PaymentsController extends Controller
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json(['error' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to update payment or Crmentity: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update payment or Crmentity: ' . $e->getMessage()], 500);

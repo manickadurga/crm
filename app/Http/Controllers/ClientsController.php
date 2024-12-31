@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ContactCreated;
+use App\Events\ContactUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Clients;
@@ -110,7 +112,7 @@ public function store(Request $request)
         // Create the customer with the crmid
         $validatedData['id'] = $crmid; // Add crmid to customer data
         $client = Clients::create($validatedData);
-       
+        event(new ContactCreated($client));
         return response()->json([
             'message' => 'Client created successfully',
             'client' => $client,
@@ -172,6 +174,7 @@ public function store(Request $request)
         // Update the client record
         $client = Clients::findOrFail($id);
         $client->update($validatedData);
+        event(new ContactUpdated($client));
 
         // Update the associated Crmentity record
         $crmentity = Crmentity::where('crmid', $client->id)->firstOrFail();

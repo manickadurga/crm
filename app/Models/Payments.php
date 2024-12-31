@@ -25,6 +25,11 @@ class Payments extends Model
     {
         return $this->belongsTo(Invoices::class, 'invoice_number', 'id');
     }
+    public function contact()
+{
+    return $this->belongsTo(Customers::class, 'contacts');
+}
+
 
 
 

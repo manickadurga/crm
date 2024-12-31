@@ -7,13 +7,22 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^2.2",
+        "consoletvs/charts": "^6.7",
+        "guzzlehttp/guzzle": "*",
+        "jdavidbakr/mail-tracker": "*",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "league/csv": "^9.16",
         "maatwebsite/excel": "^3.1",
+        "mailgun/mailgun-php": "*",
         "nwidart/laravel-modules": "^11.0",
-        "symfony/filesystem": "^7.0"
+        "symfony/filesystem": "^7.0",
+        "symfony/http-client": "*",
+        "symfony/mailer": "*",
+        "symfony/mailgun-mailer": "*",
+        "symfony/mime": "*",
+        "twilio/sdk": "^8.3"
     },
     
     "require-dev": {
@@ -43,7 +52,8 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan schedule:run"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
@@ -54,6 +64,7 @@
             "@php artisan migrate --graceful --ansi"
         ]
     },
+
     "extra": {
         "laravel": {
             "dont-discover": []

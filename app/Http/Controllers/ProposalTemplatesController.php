@@ -64,7 +64,7 @@ class ProposalTemplatesController extends Controller
         try {
             // Validate the request data
             $validatedData = Validator::make($request->all(), [
-                'select_employee' => 'required|exists:jo_employees,id',
+                'select_employee' => 'required|exists:jo_manage_employees,id',
                 'name' => 'required|string|max:255',
                 'content' => 'nullable|string',
             ])->validate();
@@ -126,7 +126,7 @@ class ProposalTemplatesController extends Controller
     try {
         // Validate the request data
         $validatedData = Validator::make($request->all(), [
-            'select_employee' => 'nullable|exists:jo_employees,id',
+            'select_employee' => 'nullable|exists:jo_manage_employees,id',
             'name' => 'nullable|string|max:255',
             'content' => 'nullable|string',
         ])->validate();
@@ -246,7 +246,7 @@ class ProposalTemplatesController extends Controller
             ],
         ], 200);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
+    } catch (ValidationException $e) {
         // Handle validation errors
         return response()->json(['error' => $e->validator->errors()], 422);
     } catch (\Exception $e) {

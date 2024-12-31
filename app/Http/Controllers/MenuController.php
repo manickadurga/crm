@@ -251,7 +251,7 @@ class MenuController extends Controller
                     [
                         'path' => '/leads',
                         'icon' => 'ContactsOutlined',
-                        'label' => 'Community',
+                        'label' => 'Leads',
                     ],
                     [
                         'path' => '/customers',

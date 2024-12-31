@@ -18,7 +18,7 @@ const items = [
   { icon: <UserOutlined />, label: 'Contacts',
     children: [
       { path:'/customers', icon:<ShoppingCartOutlined />, label: 'Customers' },
-      { path:'/community', icon:<ShoppingCartOutlined />, label: 'Community'}
+      { path:'/leads', icon:<ShoppingCartOutlined />, label: 'Leads'}
     ] 
   },
   { icon: <FlagOutlined />, label: 'Goals',

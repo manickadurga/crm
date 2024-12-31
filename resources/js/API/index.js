@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 export const getMenu = async (page) => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/menuitems`);
@@ -29,7 +28,7 @@ export const getInventory = () => {
 // http://127.0.0.1:8000/form-fields
 
 export const getFormfields = (form) => {
-  return axios.get(`http://127.0.0.1:8000/form-fields?name=${form}`)
+  return axios.get(`http://127.0.0.1:8001/form-fields?name=${form}`)
     .then((response) => {
       console.log("Fetched formfields:", response.data);
     

@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-
+use App\Events\InvoiceDueSoon;
+use App\Events\InvoiceStatusChanged;
 
 class InvoicesController extends Controller
 {
@@ -139,6 +140,17 @@ class InvoicesController extends Controller
             'organization_name' => 'required|numeric|exists:jo_organizations,id',
         ]);
 
+        // Retrieve contact based on the ID and determine which table it belongs to
+        $contactId = $validatedData['contacts'];
+        $contact = Clients::find($contactId) ?? Customers::find($contactId) ?? Leads::find($contactId);
+
+        if (!$contact) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Contact not found in any of the specified tables',
+            ], 404);
+        }
+
         // Create Crmentity record via CrmentityController
         $crmentityController = new CrmentityController();
         $crmid = $crmentityController->createCrmentity('Invoices', $validatedData['invoicenumber']);
@@ -155,6 +167,9 @@ class InvoicesController extends Controller
         $invoice = Invoices::create($invoiceData);
 
         DB::commit();
+
+        // Dispatch the InvoiceDueSoon event after the invoice is created
+        event(new InvoiceDueSoon($invoice, $contact));
 
         // Return success response
         return response()->json([
@@ -192,7 +207,8 @@ public function update(Request $request, $id)
 
         // Find the invoice by ID or fail
         $invoice = Invoices::findOrFail($id);
-
+        // Store the previous status before updating
+        $previousStatus = $invoice->status;
         // Validate the request data
         $validatedData = $request->validate([
             'invoicenumber' => 'nullable|numeric',
@@ -231,6 +247,20 @@ public function update(Request $request, $id)
 
         // Update invoice data
         $invoice->update($validatedData);
+
+         // Check if the invoice status has changed
+         $statusChanged = isset($validatedData['invoice_status']) &&
+         $validatedData['invoice_status'] !== $previousStatus;
+
+        // Fire the event if the status has changed
+        if ($statusChanged) {
+        Log::info('Invoice status changed', [
+                  'invoice_id' => $invoice->id,
+                  'previous_status' => $previousStatus,
+                  'new_status' => $invoice->status,
+               ]);
+        event(new InvoiceStatusChanged($invoice, $previousStatus)); // Fire the event
+        }
 
         // Find the related Crmentity record
         $crmentity = Crmentity::where('crmid', $invoice->id)->where('setype', 'Invoices')->first();
@@ -287,7 +317,7 @@ public function update(Request $request, $id)
             $invoice->delete();
             return response()->json(['message' => 'Invoice deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete invoice', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to delete invoice', 'error' => $e->getMessage()], 500);
         }
     }
     public function search(Request $request)

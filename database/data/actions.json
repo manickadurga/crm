@@ -1,0 +1,100 @@
+[
+    {
+        "action_name": "Opportunity create Notification email",
+        "type": "send_email",
+        "action_data": {
+            "from_name": "Support",
+            "from_email": "manickadurga@gmail.com",
+            "subject": "Welcome to our Service!",
+            "message": "Hello Welcome to our service opportunity created!",
+            "attachments": [
+                {
+                    "type": "file",
+                    "url": "https://img.freepik.com/free-photo/wide-angle-shot-single-tree-growing-clouded-sky-during-sunset-surrounded-by-grass_181624-22807.jpg"
+                }
+            ]
+        }
+    },
+    {
+        "action_name": "Opportunity create Notification sms",
+        "type": "send_sms",
+        "action_data": {
+            "message": "Hello Welcome to our service opportunity created!"
+        }
+    },
+    {
+        "action_name": "Opportunity create Notification whatsapp",
+        "type": "send_whatsapp",
+        "action_data": {
+            "message": "Thanks for creating opportunity!"
+        }
+    },
+    {
+        "action_name": "Tag Added",
+        "type": "add_contact_tag",
+        "action_data": {
+            "tags": ["174"]
+        }
+    },
+    {
+        "action_name": "Tag Removed",
+        "type": "remove_contact_tag",
+        "action_data": {
+            "tags": ["174"]
+        }
+    },
+    {
+        "action_name": "Create Contact",
+        "type": "create_contact",
+        "action_data": {
+            "name": "abcd",
+            "primary_email": "abcd@gmail.com",
+            "primary_phone": "987654976",
+            "tags": ["174"],
+            "country": "Ind"
+        }
+    },
+    {
+        "action_name": "Find Contact",
+        "type": "find_contact",
+        "action_data": {
+            "country": "India"
+        }
+    },
+    {
+        "action_name": "Text Formatter",
+        "type": "text_formatter",
+        "action_data": {
+            "field": "select_stage",
+            "type": "upper_case"
+        }
+    },
+    {
+        "action_name": "drip",
+        "type": "drip",
+        "action_data": {
+            "batch_size": 3,
+            "drip_interval": "1 minutes"
+        }
+    },
+    {
+        "action_name": "Math Operation",
+        "type": "math_operation",
+        "action_data": {
+            "field": "payment_date",
+            "operator": "add",
+            "Days": 2,
+            "months": 1,
+            "update_field": "payment_date"
+        }
+    },
+    {
+        "action_name": "Date Formatter",
+        "type": "date_formatter",
+        "action_data": {
+            "type": "format_dates",
+            "field": "invoicedate",
+            "to_format": "DD-MM-YYYY"
+        }
+    }
+]

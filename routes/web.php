@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\EquipmentsController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\FormFieldController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ModuleStudioController;
 use App\Http\Controllers\TeamTaskController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Log;
 
 
 Route::view('/', 'app')
@@ -104,42 +106,107 @@ Route::get('/form-fields', [FormFieldController::class, 'getFormFields']);
 //Customers Routes
 Route::get('customers',[CustomersController::class,'index']);
 Route::post('customers',[CustomersController::class,'store']);
+Route::put('/customers/{id}',[CustomersController::class,'update']);
+Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
 
 //Clients Routes
 Route::get('/clients',[ClientsController::class,'index']);
 Route::post('/clients',[ClientsController::class,'store']);
+Route::put('/customers/{id}',[CustomersController::class,'update']);
+Route::delete('/customers/{id}',[CustomersController::class,'destroy']);
 
 //Leads Routes
 Route::get('/leads',[LeadsController::class,'index']);
 Route::post('/leads',[LeadsController::class,'store']);
+Route::put('/leads/{id}',[LeadsController::class,'update']);
+Route::delete('/leads/{id}',[LeadsController::class,'destroy']);
 
 //Teamtask Routes
 Route::get('/teamtasks',[TeamTaskController::class,'index']);
 Route::post('/teamtasks',[TeamTaskController::class,'store']);
+Route::put('/teamtasks/{id}',[TeamTaskController::class,'update']);
+Route::delete('/teamtasks/{id}',[TeamTaskController::class,'destroy']);
 
 //Payments Routes
 Route::get('/payments',[PaymentsController::class,'index']);
 Route::post('/payments',[PaymentsController::class,'store']);
+Route::put('/payments/{id}',[PaymentsController::class,'update']);
+Route::delete('/payments/{id}',[PaymentsController::class,'destroy']);
 
 //Estimates Routes
 Route::get('/estimates',[EstimateController::class,'index']);
 Route::post('/estimates',[EstimateController::class,'store']);
 Route::get('/estimates/{id}',[EstimateController::class,'show']);
+Route::put('/estimates/{id}',[EstimateController::class,'update']);
+Route::delete('/estimates/{id}',[EstimateController::class,'destroy']);
 
 //Incomes Routes
 Route::get('/incomes',[IncomeController::class,'index']);
 Route::post('/incomes',[IncomeController::class,'store']);
+Route::put('/incomes/{id}',[IncomeController::class,'update']);
+Route::delete('/incomes/{id}',[IncomeController::class,'destroy']);
 
 //Expenses Routes
 Route::get('/expenses',[ExpensesController::class,'index']);
 Route::post('/expenses',[ExpensesController::class,'store']);
+Route::put('/expenses/{id}',[ExpensesController::class,'update']);
+Route::delete('/expenses/{id}',[ExpensesController::class,'destroy']);
 
 //Proposal Template Routes
 Route::get('/proposal-templates',[ProposalTemplatesController::class,'index']);
 Route::post('/proposal-templates',[ProposalTemplatesController::class,'store']);
+Route::put('/proposal-templates/{id}',[ProposalTemplatesController::class,'update']);
+Route::delete('/proposal-templates/{id}',[ProposalTemplatesController::class,'destroy']);
 
 //Pipelines Routes
 Route::get('/pipelines',[PipelinesController::class,'index']);
 Route::post('/pipelines',[PipelinesController::class,'store']);
+Route::put('/pipelines/{id}',[PipelinesController::class,'update']);
+Route::delete('/pipelines/{id}',[PipelinesController::class,'destroy']);
 
-//
+//Equipments Routes
+Route::get('/equipments',[EquipmentsController::class,'index']);
+Route::post('/equipments',[EquipmentsController::class,'store']);
+Route::put('/equipments/{id}',[EquipmentsController::class,'update']);
+Route::delete('/euipments/{id}',[EquipmentsController::class,'destroy']);
+
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\EmailTrackingController;
+use App\Http\Controllers\TrackingController;
+
+Route::post('/send-email', [EmailController::class, 'sendEmail']);
+
+
+// use App\Http\Controllers\MailgunWebhookController;
+
+// Route::post('/api/mailgun/webhook', [MailgunWebhookController::class, 'handle']);
+
+
+
+// Route::post('/mailgun/webhook', [MailgunController::class, 'webhook'])->name('mailgun.webhook');
+// 
+// Route::post('/mailgun/webhook', [MailgunController::class, 'webhook']) ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]) ->name('mailgun.webhook');
+
+
+// use App\Http\Controllers\MailgunController;
+
+// Route::post('/mailgun/webhook', [MailgunController::class, 'webhook'])
+//     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
+//     ->name('mailgun.webhook');
+
+
+
+// Track the email open event
+//7dec
+
+// Route::get('/track/open/{mailId}', [EmailController::class, 'trackOpen'])->name('track.open');
+
+// // Click tracking
+// Route::get('/track/click/{mailId}', [EmailController::class, 'trackClick'])->name('track.click');
+
+// routes/web.php
+
+Route::get('/track_open', [TrackingController::class, 'trackOpen']);
+Route::get('/track_click', [TrackingController::class, 'trackClick']);
+
+

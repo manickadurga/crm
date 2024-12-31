@@ -1,4 +1,9 @@
 <?php
+
+use App\Http\Controllers\ActionController;
+use App\Http\Controllers\AddHolidaysController;
+use App\Http\Controllers\ApprovalPolicyController;
+use App\Http\Controllers\ApprovalsController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FormFieldController;
@@ -50,8 +55,49 @@ use App\Http\Controllers\TeamsController;
 use App\Http\Controllers\SharingAccessController;
 //use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\TeamTaskController;
-
-
+use App\Http\Controllers\AttachmentsFolderController;
+use App\Http\Controllers\AttachmentsFolderSeqController;
+use App\Http\Controllers\AutomationTriggerController;
+use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\CandidatesController;
+use App\Http\Controllers\ChartController;
+use App\Http\Controllers\ChartReportController;
+use App\Http\Controllers\CustomerChartsController;
+use App\Http\Controllers\FieldController;
+use App\Http\Controllers\HomeReportChartController;
+use App\Http\Controllers\MailScannerFoldersController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportDateFilterController;
+use App\Http\Controllers\ReportFilterController;
+use App\Http\Controllers\ReportFolderController;
+use App\Http\Controllers\ReportGroupByColumnController;
+use App\Http\Controllers\ReportModulesController;
+use App\Http\Controllers\ReportShareGroupsController;
+use App\Http\Controllers\ReportShareUsersController;
+use App\Http\Controllers\ReportSharingController;
+use App\Http\Controllers\ReportSortColController;
+use App\Http\Controllers\ReportSummaryController;
+use App\Http\Controllers\ReportTypeController;
+use App\Http\Controllers\ScheduledReportsController;
+use App\Http\Controllers\ScheduleReportsController;
+use App\Http\Controllers\DetailReportController;
+use App\Http\Controllers\EmailHistoryController;
+use App\Http\Controllers\EmployeeLevelController;
+use App\Http\Controllers\JoSelectcolumnController;
+use App\Http\Controllers\OpportunityController;
+use App\Http\Controllers\RelatedModulesController;
+use App\Http\Controllers\RelCriteriaController;
+use App\Http\Controllers\RelCriteriaGroupingController;
+use App\Http\Controllers\ReportShareRolesController;
+use App\Http\Controllers\SmsController;
+use App\Http\Controllers\TabsController;
+use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\TemplateHistoryController;
+use App\Http\Controllers\TriggerController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkflowController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\WorkflowFieldController;
 
 /*
  *--------------------------------------------------------------------------
@@ -117,6 +163,7 @@ Route::put('invoice/{id}', [InvoicesController::class, 'update']);
 Route::get('invoice/{id}', [InvoicesController::class, 'show']);
 Route::delete('invoice/{id}', [InvoicesController::class, 'destroy']);
 
+
 // Download PDF for specific invoice
 Route::get('invoice/{id}/download', [InvoicesController::class, 'downloadInvoice'])->name('invoice.download');
 
@@ -181,6 +228,16 @@ Route::get('/customers/{id}', [CustomersController::class, 'show']);
 Route::put('/customers/{id}', [CustomersController::class, 'update']);
 Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
 Route::post('customers/search', [CustomersController::class, 'search']);
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\EmailEventController;
+use App\Http\Controllers\EmailTrackingController;
+use App\Http\Controllers\JoFieldController;
+use App\Http\Controllers\TrackingController;
+
+Route::post('/customers/{contactId}/tags/{tagId}', [CustomersController::class, 'addTag']);
+
+Route::delete('customers/{contactId}/tags/{tagId}', [CustomersController::class, 'removeTag']);
+
 
 //Payments Routes
 Route::get('/payments',[PaymentsController::class,'index']);
@@ -521,3 +578,597 @@ Route::get('/teamtasks/search', [TeamTaskController::class, 'search']);
 Route::put('/teamtasks/{id}', [TeamTaskController::class, 'update']);
 Route::get('/teamtasks/{id}', [TeamTaskController::class, 'show']);
 Route::delete('/teamtasks/{id}', [TeamTaskController::class, 'destroy']);
+
+//FOLDERTABLE ROUTE:
+//ATTACHMENTSFOLDER:
+
+Route::get('/foldertable',[AttachmentsFolderController::class,'index']);
+Route::post('/foldertable',[AttachmentsFolderController::class,'store']);
+Route::get('/foldertable{id}',[AttachmentsFolderController::class,'show']);
+Route::put('/folder{id}',[AttachmentsFolderController:: class ,'update']);
+Route::delete('/foldertable{id}',[AttachmentsFolderController:: class, 'destroy']);
+
+
+//ATTACHMENTSFOLDERSEQ:
+
+Route::get('/attachmentsfolderseq',[AttachmentsFolderSeqController::class,'index']);
+Route::post('/attachmentsfolderseq',[AttachmentsFolderSeqController::class,'store']);
+Route::get('/attachmentsfolderseq{id}',[AttachmentsFolderSeqController::class,'show']);
+Route::put('/attachmentsfolderseq{id}',[AttachmentsFolderSeqController:: class ,'update']);
+Route::delete('/attachmentsfolderseq{id}',[AttachmentsFolderSeqController:: class, 'destroy']);
+
+//MAILSCANNERFOLDERS:
+
+Route::get('/mailscannerfolders',[MailScannerFoldersController::class,'index']);
+Route::post('/mailscannerfolders',[MailScannerFoldersController::class,'store']);
+Route::get('/mailscannerfolders/{id}',[MailScannerFoldersController::class,'show']);
+Route::put('/mailscannerfolders/{id}',[MailScannerFoldersController:: class ,'update']);
+Route::delete('/mailscannerfolders/{id}',[MailScannerFoldersController:: class, 'destroy']);
+
+
+//REPORT FOLDER:
+Route::get('/reportfolder',[ReportFolderController::class,'index']);
+Route::post('/reportfolder',[ReportFolderController::class,'store']);
+Route::get('/reportfolder{id}',[ReportFolderController::class,'show']);
+Route::put('/reportfolder{id}',[ReportFolderController::class,'update']);
+Route::delete('/reportfolder{id}',[ReportFolderController::class,'destroy']);
+
+// {
+//     "folderid": 1,
+//     "foldername": "Organization and Contact Reports",
+//     "description": "This is a sample folder description.",
+//     "state": "Active"
+// }
+// {
+//     "folderid": 12,
+//     "foldername":"Email Report",
+//     "description": "Email Reports .",
+//     "state": "SAVED"
+// }
+
+
+
+// *********************************************************************************************************************
+
+//REPORT TABLE:
+//REPORT:
+
+
+Route::get('/joreports', [ReportController::class, 'index']); // Index page for reports
+Route::post('/joreports', [ReportController::class, 'store']);
+Route::get('/joreports/{id}',[ReportController::class, 'show']); // Show a specific report
+Route::put('/joreports/{id}',[ReportController::class, 'update']); // Update a specific report
+Route::delete('/joreports/{id}',[ReportController::class, 'destroy']);
+Route::post('/save-report', [ReportController::class, 'select'])->name('save.report');
+
+
+
+// {
+//     "reportid": 1,
+//     "folderid": 12345,
+//     "reportname": "Monthly Sales Report",
+//     "description": "A detailed monthly sales report.",
+//     "reporttype": "Sales",
+//     "queryid": 67890,
+//     "state": "active",
+//     "customizable": 1,
+//     "category": 2,
+//     "owner": 3,
+//     "sharingtype": "public"
+// }
+
+
+//REPORTSHAREGROUPS:
+
+Route::get('/reportsharegroups',[ReportShareGroupsController::class,'index']);
+Route::post('/reportsharegroups',[ReportShareGroupsController::class,'store']);
+Route::get('/reportsharegroups/{id}',[ReportShareGroupsController::class,'show']);
+Route::put('/reportsharegroups/{id}',[ReportShareGroupsController::class,'update']);
+Route::delete('/reportsharegroups/{id}',[ReportShareGroupsController::class,'destroy']);
+
+
+//REPORTSHAREUSERS:
+
+Route::get('/reportshareusers',[ReportShareUsersController::class,'index']);
+Route::post('/reportshareusers',[ReportShareUsersController::class,'store']);
+Route::get('/reportshareusers{id}',[ReportShareUsersController::class,'show']);
+Route::put('/reportshareusers{id}',[ReportShareUsersController::class,'update']);
+Route::delete('/reportshareusers{id}',[ReportShareUsersController::class,'destroy']);
+
+
+//REPORTDATEFILTER:
+
+Route::get('/reportdatefilter', [ReportDateFilterController::class, 'index']);
+Route::post('/reportdatefilter', [ReportDateFilterController::class, 'store']);
+Route::get('/reportdatefilter/{id}', [ReportDateFilterController::class, 'show']);
+Route::put('/reportdatefilter/{id}', [ReportDateFilterController::class, 'update']);
+Route::delete('/reportdatefilter/{id}', [ReportDateFilterController::class, 'destroy']);
+
+//REPORTFILTER
+
+Route::get('/reportfilter', [ReportFilterController::class, 'index']);
+Route::post('/reportfilter', [ReportFilterController::class, 'store']);
+Route::get('/reportfilter/{id}', [ReportFilterController::class, 'show']);
+Route::put('/reportfilter/{id}', [ReportFilterController::class, 'update']);
+Route::delete('/reportfilter/{id}', [ReportFilterController::class, 'destroy']);
+
+
+//REPORTGROUPBYCOLUMN
+
+Route::get('/reportgroupbycolumn',[ReportGroupByColumnController::class,'index']);
+Route::post('/reportgroupbycolumn',[ReportGroupByColumnController::class,'store']);
+Route::get('/reportgroupbycolumn/{id}',[ReportGroupByColumnController::class,'show']);
+Route::put('/reportgroupbycolumn/{id}',[ReportGroupByColumnController::class,'update']);
+Route::delete('/reportgroupbycolumn/{id}',[ReportGroupByColumnController::class,'destroy']);
+
+//REPORTMODULES:
+
+Route::get('/reportmodules',[ReportModulesController::class,'index']);
+Route::post('/reportmodules',[ReportModulesController::class,'store']);
+Route::get('/reportmodules/{id}',[ReportModulesController::class,'show']);
+Route::put('/reportmodules/{id}',[ReportModulesController::class,'update']);
+Route::delete('/reportmodules/{id}',[ReportModulesController::class,'destroy']);
+
+// {
+//     "reportmodulesid": 1,
+//     "primarymodule": "Sales Reports",
+//     "secondarymodules": "Marketing Reports"
+// }
+
+
+//REPORTSHARING:
+
+Route::get('/reportsharing',[ReportSharingController::class,'index']);
+Route::post('/reportsharing',[ReportSharingController::class,'store']);
+Route::get('/reportsharing/{id}',[ReportSharingController::class,'show']);
+Route::put('/reportsharing/{id}',[ReportSharingController::class,'update']);
+Route::delete('/reportsharing/{id}',[ReportSharingController::class,'destroy']);
+
+//REPORTSORTCOL:
+
+Route::get('/reportsortcol',[ReportSortColController::class,'index']);
+Route::post('/reportsortcol',[ReportSortColController::class,'store']);
+Route::get('/reportsortcol/{id}',[ReportSortColController::class,'show']);
+Route::put('/reportsortcol/{id}',[ReportSortColController::class,'update']);
+Route::delete('/reportsortcol/{id}',[ReportSortColController::class,'destroy']);
+
+
+//REPORTSUMMARY:
+
+Route::get('/reportsummary',[ReportSummaryController::class,'index']);
+Route::post('/reportsummary',[ReportSummaryController::class,'store']);
+Route::get('/reportsummary/{id}',[ReportSummaryController::class,'show']);
+Route::put('/reportsummary/{id}',[ReportSummaryController::class,'update']);
+Route::delete('/reportsummary/{id}',[ReportSummaryController::class,'destroy']);
+
+//REPORTTYPE:
+
+Route::get('/reporttype',[ReportTypeController::class,'index']);
+Route::post('/reporttype',[ReportTypeController::class,'store']);
+Route::get('/reporttype/{id}',[ReportTypeController::class,'show']);
+Route::put('/reporttype/{id}',[ReportTypeController::class,'update']);
+Route::delete('/reporttype/{id}',[ReportTypeController::class,'destroy']);
+
+//SCHEDULEDREPORTS:
+
+Route::get('/scheduledreports',[ScheduledReportsController::class,'index']);
+Route::post('/scheduledreports',[ScheduledReportsController::class,'store']);
+Route::get('/scheduledreports/{id}',[ScheduledReportsController::class,'show']);
+Route::put('/scheduledreports/{id}',[ScheduledReportsController::class,'update']);
+Route::delete('/scheduledreports{id}',[ScheduledReportsController::class,'destroy']);
+
+
+//SCHEDULEREPORTS:
+
+Route::get('/schedulereports',[ScheduleReportsController::class,'index']);
+Route::post('/schedulereports',[ScheduleReportsController::class,'store']);
+Route::get('/schedulereports/{id}',[ScheduleReportsController::class,'show']);
+Route::put('/schedulereports/{id}',[ScheduleReportsController::class,'update']);
+Route::delete('/schedulereports{id}',[ScheduleReportsController::class,'destroy']);
+
+
+// {
+//     "reportid": 1,
+//     "scheduleid": 1,
+//     "recipients": [
+//         {
+//             "Users": "john_doe", // Ensure this exists in the 'users' table
+//             "Roles": "Organization",    // Ensure this exists in the 'jo_roles' table
+//             "Groups": "Marketing Group" // Ensure this exists in the 'jo_groups' table
+//         }
+//     ],
+//     "schdate": "2024-07-15",
+//     "schtime": "08:00 AM",
+//     "schdayoftheweek": "Monday",
+//     "schdayofthemonth": "15th",
+//     "schannualdates": "January 1st",
+//     "specificemails": "john@example.com, jane@example.com",
+//     "next_trigger_time": "2024-07-15 08:00 AM",
+//     "fileformat": "PDF"
+// }
+
+
+//HOMEREPORTCHART:
+
+Route::get('/homereportchart',[HomeReportChartController::class,'index']);
+Route::post('/homereportchart',[HomeReportChartController::class,'store']);
+Route::get('/homereportchart/{id}',[HomeReportChartController::class,'show']);
+Route::put('/homereportchart/{id}',[HomeReportChartController::class,'update']);
+Route::delete('/homereportchart/{id}',[HomeReportChartController::class,'destroy']);
+
+//GROUPSCONTROLLER
+Route::get('/groups',[GroupsController::class,'index']);
+Route::post('/groups',[GroupsController::class,'store']);
+Route::get('/groups/search', [GroupsController::class, 'search']);
+Route::get('/groups/{id}',[GroupsController::class,'show']);
+Route::put('/groups/{id}',[GroupsController::class,'update']);
+Route::delete('/groups/{id}',[GroupsController::class,'destroy']);
+
+
+// {
+//     "group_name": "Team Selling",
+//     "description": "This is a sample group",
+//     "group_members": [
+//         {
+//             "Users": 2,
+//             "Roles": 1
+//         }
+//     ]
+// }
+
+
+//ROLES CONTROLLER
+Route::get('/roles', [RolesController::class, 'index']);
+Route::post('/roles', [RolesController::class, 'store']);
+Route::get('/roles/{id}', [RolesController::class, 'show']);
+Route::put('/roles/{id}', [RolesController::class, 'update']);
+Route::delete('/roles/{id}', [RolesController::class, 'destroy']);
+
+// {
+//     "roleid": "new_role_id",
+//     "rolename": "New Role",
+//     "parentrole": null,
+//     "allowassignedrecordsto": 1
+// }
+
+
+//USER CONTROLLER
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+Route::put('/users/{id}', [UserController::class, 'update']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+// {
+//     "name": "John Doe",
+//     "email": "john.doe@example.com",
+//     "password": "secret123",
+//     "role": "ADMIN",
+//     "imageurl": "https://example.com/avatar.jpg",
+//     "first_name": "John",
+//     "last_name": "Doe",
+//     "applied_date": "2024-07-17",
+//     "rejection_date": null
+// }
+
+
+
+//CUSTOMERCONTROLLER:
+//EXCEL SHEET CONTROLLER:
+
+Route::get('/customers',[CustomersController::class,'index']);
+Route::post('/customers',[CustomersController::class,'store']);
+Route::get('/customers/{id}', [CustomersController::class, 'show']);
+Route::put('/customers/{id}', [CustomersController::class, 'update']);
+Route::delete('/customers/{id}', [CustomersController::class, 'destroy']);
+Route::post('/customers/search', [CustomersController::class, 'searched']);
+
+//FORMFIELD:
+Route::get('/show-tabid', [FormFieldController::class, 'showTabid']);
+
+// http://127.0.0.1:8000/api/show-tabid?module=Customers
+
+
+//TABSID
+Route::get('/show', [TabsController::class, 'showTabid']);
+
+
+//REPORT GENERATE FIELD ID:
+Route::post('/reports', [ReportController::class, 'createReport']);
+Route::get('/reports/{id}/generate', [ReportController::class, 'generateReport']);
+
+
+//FIELD CONTROLLER:
+Route::get('/fields/{id}', [FieldController::class, 'getFieldById']);
+Route::get('/fields/{id}/customers/filter/{filterId}', [FieldController::class, 'getCustomersByField']);
+Route::get('/fields/customers', [FieldController::class, 'getCustomersByField']);
+Route::get('/field/{fieldId}', [FieldController::class, 'show']);
+
+
+//CHART TYPE AND REQUEST CONTROLLER:
+
+Route::post('/customers/chart-data', [CustomerChartsController::class, 'search']);
+
+// {
+//     "requests": [
+//         {
+//             "field_name": "primary_email",
+//             "field_value": "s",
+//             "condition": "starts_with",
+//             "chart_type": "pie"
+//         },
+//         {
+//             "field_name": "primary_phone",
+//             "field_value": "8",
+//             "condition": "starts_with",
+//             "chart_type": "pie"
+//         },
+//         {
+//             "field_name": "name",
+//             "field_value": "s",
+//             "condition": "starts_with",
+//             "chart_type": "pie"
+//         }
+//     ],
+//     "group_by_field": "name"
+// }
+
+
+//FINAL REPORT
+Route::get('/report-index', [DetailReportController::class, 'index']);
+Route::post('/report-create', [DetailReportController::class, 'stores']);
+Route::get('/report-retrieve/{id}', [DetailReportController::class, 'shows']);
+Route::put('/report-edit/{id}', [DetailReportController::class, 'updates']);
+Route::delete('/report/delete/{id}', [DetailReportController::class, 'destroys']);
+Route::get('/export-report/{reportId}', [DetailReportController::class, 'exportToExcel']);
+
+Route::get('/report/chart/index', [ChartController::class, 'index']);
+Route::post('/report/chart/create', [ChartController::class, 'store']);
+Route::get('/report/chart/retrieve/{id}', [ChartController::class, 'show']);
+Route::put('/report/chart/edit/{id}', [ChartController::class, 'update']);
+Route::delete('/report/chart/delete/{id}', [ChartController::class, 'destroy']);
+
+
+
+Route::get('/test-route', [ReportController::class, 'testRoute']);
+
+
+//TEAM TASK
+
+Route::get('/teamtasks', [TeamtaskController::class, 'index']);
+Route::post('/teamtasks', [TeamtaskController::class, 'store']);
+Route::get('/teamtasks/search', [TeamtaskController::class, 'search']);
+Route::put('/teamtasks/{id}', [TeamtaskController::class, 'update']);
+Route::get('/teamtasks/{id}', [TeamtaskController::class, 'show']);
+Route::delete('/teamtasks/{id}', [TeamtaskController::class, 'destroy']);
+
+//     {
+    //     "tasknumber": 6,
+    //     "projects": "Project 4",
+    //     "status": "Completed",
+    //     "teams": "Team B",
+    //     "title": "Fix Bug Y",
+    //     "priority": "Medium",
+    //     "size": "Small",
+    //     "tags": "Bug,Backend",
+    //     "duedate": "2024-07-20",
+    //     "estimate": 5,
+    //     "description": "Detailed description of the bug fix"
+    // }
+
+//REL CRITERIA :
+
+
+
+Route::get('/relcriteria', [RelCriteriaController::class, 'index']);
+Route::post('/relcriteria', [RelCriteriaController::class, 'store']);
+Route::get('/relcriteria/{id}', [RelCriteriaController::class, 'show']);
+Route::put('/relcriteria/{id}', [RelCriteriaController::class, 'update']);
+Route::delete('/relcriteria/{id}', [RelCriteriaController::class, 'destroy']);
+
+// {
+//     "queryid": 1,
+//     "columnindex": 1,
+//     "columnname": "example_column",
+//     "comparator": "equals",
+//     "value": "example_value",
+//     "groupid": 1,
+//     "column_condition": "and"
+// }
+
+
+//REL CRITERIA GROUPING:
+
+
+
+Route::get('/relcriteria_grouping', [RelCriteriaGroupingController::class, 'index']);
+Route::post('/relcriteria_grouping', [RelCriteriaGroupingController::class, 'store']);
+Route::get('/relcriteria_grouping/{id}', [RelCriteriaGroupingController::class, 'show']);
+Route::put('/relcriteria_grouping/{id}', [RelCriteriaGroupingController::class, 'update']);
+Route::delete('/relcriteria_grouping/{id}', [RelCriteriaGroupingController::class, 'destroy']);
+
+
+// {
+//     "groupid": 1,
+//     "queryid": 1,
+//     "group_condition": "AND",
+//     "condition_expression": "expression"
+// }
+
+//SELECT COLUMN
+
+Route::get('/jo_selectcolumns', [JoSelectcolumnController::class, 'index']);
+Route::post('/jo_selectcolumns', [JoSelectcolumnController::class, 'store']);
+Route::get('/jo_selectcolumns/{id}', [JoSelectcolumnController::class, 'show']);
+Route::put('/jo_selectcolumns/{id}', [JoSelectcolumnController::class, 'update']);
+Route::delete('/jo_selectcolumns/{id}', [JoSelectcolumnController::class, 'destroy']);
+
+// {
+//     "queryid": 1,
+//     "columnindex": 1,
+//     "columnname": "example_column"
+// }
+
+//Export Routes
+Route::get('/export/{id}', [DetailReportController::class, 'export']);
+
+//Related Modules Routes
+Route::get('/related-modules',[RelatedModulesController::class,'index']);
+Route::post('/related-modules',[RelatedModulesController::class,'store']);
+Route::put('/related-modules/{id}',[RelatedModulesController::class,'update']);
+Route::get('/related-modules/{id}',[RelatedModulesController::class,'show']);
+Route::delete('/related-modules/{id}',[RelatedModulesController::class,'destroy']);
+
+//Approval Policy Routes
+Route::get('/approval-policy',[ApprovalPolicyController::class,'index']);
+Route::post('/approval-policy',[ApprovalPolicyController::class,'store']);
+Route::put('/approval-policy/{id}',[ApprovalPolicyController::class,'update']);
+Route::get('/approval-policy/{id}',[ApprovalPolicyController::class,'show']);
+Route::delete('/approval-policy/{id}',[ApprovalPolicyController::class,'destroy']);
+
+//Report Share Roles Routes
+Route::get('/report-shareroles',[ReportShareRolesController::class,'index']);
+Route::post('/report-shareroles',[ReportShareRolesController::class,'store']);
+Route::put('/report-shareroles/{id}',[ReportShareRolesController::class,'update']);
+Route::get('/report-shareroles/{id}',[ReportShareRolesController::class,'show']);
+Route::delete('/report-shareroles/{id}',[ReportShareRolesController::class,'destroy']);
+
+//Chart Report Routes
+Route::get('/chart-report',[ChartReportController::class,'index']);
+Route::post('/chart-report',[ChartReportController::class,'store']);
+Route::get('/chart-report/{id}',[ChartReportController::class,'show']);
+Route::put('/chart-report/{id}',[ChartReportController::class,'update']);
+Route::delete('/chart-report/{id}',[ChartReportController::class,'destroy']);
+
+//Approvals Routes
+Route::get('/approvals',[ApprovalsController::class,'index']);
+Route::post('/approvals',[ApprovalsController::class,'store']);
+Route::put('/approvals/{id}',[ApprovalsController::class,'update']);
+Route::get('/approvals/{id}',[ApprovalsController::class,'show']);
+
+//Employee Level Routes
+Route::get('/employee-levels',[EmployeeLevelController::class,'index']);
+Route::post('/employee-levels',[EmployeeLevelController::class,'store']);
+Route::get('/employee-levels/{id}',[EmployeeLevelController::class,'show']);
+Route::put('/employee-levels/{id}',[EmployeeLevelController::class,'update']);
+Route::delete('/employee-levels/{id}',[EmployeeLevelController::class,'destroy']);
+
+//Candidates Routes
+Route::get('/candidates',[CandidatesController::class,'index']);
+Route::post('/candidates',[CandidatesController::class,'store']);
+Route::get('/candidates/{id}',[CandidatesController::class,'show']);
+Route::put('/candidates/{id}',[CandidatesController::class,'update']);
+Route::delete('/candidates/{id}',[CandidatesController::class,'destroy']);
+
+//SMS Routes
+Route::get('/send-sms/{customerId}', [SmsController::class, 'sendSmsToCustomer']);
+
+//Opportunity Routes
+Route::get('/opportunity',[OpportunityController::class,'index']);
+Route::post('/opportunity',[OpportunityController::class,'store']);
+Route::get('/opportunity/{id}',[OpportunityController::class,'show']);
+Route::put('/opportunity/{id}',[OpportunityController::class,'update']);
+Route::delete('/opportunity/{id}',[OpportunityController::class,'destroy']);
+
+//Trigger Routes
+Route::get('/triggers', [TriggerController::class, 'index']); // Fetch all triggers
+Route::post('/triggers', [TriggerController::class, 'store']); // Create a new trigger
+Route::get('/triggers/{id}', [TriggerController::class, 'show']); // Show a specific trigger
+Route::put('/triggers/{id}', [TriggerController::class, 'update']); // Update a specific trigger
+Route::delete('/triggers/{id}', [TriggerController::class, 'destroy']); // Delete a specific trigger
+
+//Actions Routes
+Route::get('/actions', [ActionController::class, 'index']);
+Route::post('/actions', [ActionController::class, 'store']);
+Route::get('/actions/{id}', [ActionController::class, 'show'])->name('actions.show');
+Route::put('/actions/{id}', [ActionController::class, 'update'])->name('actions.update');
+Route::delete('/actions/{id}', [ActionController::class, 'destroy'])->name('actions.destroy');
+
+//Add Workflow Routes
+Route::get('/workflows', [WorkflowController::class, 'index']);
+Route::post('/workflows', [WorkflowController::class, 'store']);
+Route::get('/workflows/{id}', [WorkflowController::class, 'show']);
+Route::put('/workflows/{id}', [WorkflowController::class, 'update']);
+Route::delete('/workflows/{id}', [WorkflowController::class, 'destroy']);
+
+//Template Routes
+Route::get('/template',[TemplateController::class,'index']);
+Route::post('/template',[TemplateController::class,'store']);
+Route::get('/template/{id}',[TemplateController::class,'show']);
+Route::put('/template/{id}',[TemplateController::class,'update']);
+Route::delete('/template/{id}',[TemplateController::class,'destroy']);
+
+//campaign Routes
+Route::get('/campaigns',[CampaignController::class,'index']);
+Route::post('/campaigns',[CampaignController::class,'store']);
+Route::get('/campaigns/{id}',[CampaignController::class,'show']);
+Route::put('/campaigns/{id}',[CampaignController::class,'update']);
+Route::delete('/campaigns/{id}',[CampaignController::class,'destroy']);
+
+// Route to send a campaign (send_now, schedule, batch_schedule)
+Route::post('/campaigns/send', [CampaignController::class, 'send']);
+
+//view history
+Route::get('/template-histories', [TemplateHistoryController::class, 'index']);
+Route::get('/email-history', [EmailHistoryController::class, 'showHistory']);
+
+Route::post('/email-event-webhook', [EmailEventController::class, 'handleWebhook']);
+
+// routes/web.php
+
+Route::get('/track_open', [TrackingController::class, 'trackOpen']);
+Route::get('/track_click', [TrackingController::class, 'trackClick']);
+
+//Workflow formfield
+Route::get('/formfields', [JoFieldController::class, 'getFormFields']);
+
+
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\InviteCandidatesController;
+use App\Http\Controllers\PositionsController;
+use App\Http\Controllers\RequestTimeOffController;
+
+Route::get('/workflowactions/{action_name}', [AdminController::class, 'show'])->name('admin.show');
+Route::get('/workflowactions', [AdminController::class, 'index']);
+
+use App\Http\Controllers\WorkflowTriggersController;
+
+Route::get('workflowtriggers/{id}', [WorkflowTriggersController::class, 'show']);
+Route::get('workflowtriggers', [WorkflowTriggersController::class, 'index']);
+
+//calendar Routes
+Route::get('/calendar',[CalendarController::class,'index']);
+Route::post('/calendar',[CalendarController::class,'store']);
+Route::get('/calendar/{id}',[CalendarController::class,'show']);
+Route::put('/calendar/{id}',[CalendarController::class,'update']);
+Route::delete('/calendar/{id}',[CalendarController::class,'destroy']);
+
+
+//Add holiday Routes
+Route::get('/add-holiday',[AddHolidaysController::class,'index']);
+Route::post('/add-holiday',[AddHolidaysController::class,'store']);
+Route::get('/add-holiday/{id}',[AddHolidaysController::class,'show']);
+Route::put('/add-holiday/{id}',[AddHolidaysController::class,'update']);
+Route::delete('/add-holiday/{id}',[AddHolidaysController::class,'destroy']);
+
+//Candidates Invite Routes
+Route::get('/candidatesinvite',[InviteCandidatesController::class,'index']);
+Route::post('/candidatesinvite',[InviteCandidatesController::class,'store']);
+Route::get('/candidatesinvite/{id}',[InviteCandidatesController::class,'show']);
+Route::put('/candidatesinvite/{id}',[InviteCandidatesController::class,'update']);
+Route::delete('/candidatesinvite/{id}',[InviteCandidatesController::class,'destroy']);
+
+//Positions Routes
+Route::get('/positions',[PositionsController::class,'index']);
+Route::post('/positions',[PositionsController::class,'store']);
+Route::get('/positions/{id}',[PositionsController::class,'show']);
+Route::put('/positions/{id}',[PositionsController::class,'update']);
+Route::delete('/positions/{id}',[PositionsController::class,'destroy']);
+
+//Request Timeoff Routes
+Route::get('/request-timeoff',[RequestTimeOffController::class,'index']);
+Route::post('/request-timeoff',[RequestTimeoffController::class,'store']);
+Route::get('/request-timeoff/{id}',[RequestTimeoffController::class,'show']);
+Route::put('/request-timeoff/{id}',[RequestTimeoffController::class,'update']);
+Route::delete('/request-timeoff/{id}',[RequestTimeoffController::class,'destroy']);

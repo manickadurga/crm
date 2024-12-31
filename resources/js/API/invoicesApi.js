@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const getInvoices = (page) => {
-    return axios.get(`http://127.0.0.1:8000/invoices?page=${page}`)
+    return axios.get(`http://127.0.0.1:8001/invoices?page=${page}`)
       .then((response) => {
         console.log("Fetched formfields:", response.data);
       
